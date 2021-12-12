@@ -1,2 +1,3 @@
-# sx128x-lib
-Library for Semtech's SX128x
+# SX128x Library
+
+Library for Semtech's SX128x chips, mostly for using its LORA.
