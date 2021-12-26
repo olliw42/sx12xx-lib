@@ -364,7 +364,7 @@ typedef enum {
 typedef enum {
     SX1280_POWER_m18_DBM                  = 0, // after table 11-48, p. 88
     SX1280_POWER_m10_DBM                  = 8, // 0.1 mW
-    SX1280_POWER_1_DBM                    = 18, // 1 mW
+    SX1280_POWER_0_DBM                    = 18, // 1 mW
     SX1280_POWER_3_DBM                    = 21, // 1.995 mW
     SX1280_POWER_6_DBM                    = 24, // 3.981 mW
     SX1280_POWER_10_DBM                   = 28, // 10 mW
