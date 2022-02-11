@@ -136,7 +136,7 @@ void SxDriverBase::SetPacketType(uint8_t PacketType)
 }
 
 
-void SxDriverBase:: SetRfFrequency(uint32_t RfFrequency) // 24 bits only
+void SxDriverBase::SetRfFrequency(uint32_t RfFrequency) // 24 bits only
 {
 uint8_t buf[3];
 
