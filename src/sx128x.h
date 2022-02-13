@@ -37,7 +37,7 @@ concerning Tx lock ups: https://forum.arduino.cc/t/lora-spi-corruption/614013/16
 #endif
 
 
-#define SX120X_SPI_BUF_SIZE               256 // this must hold the max payload plus additional bytes
+#define SX128X_SPI_BUF_SIZE               256 // this must hold the max payload plus additional bytes
 
 
 //-------------------------------------------------------

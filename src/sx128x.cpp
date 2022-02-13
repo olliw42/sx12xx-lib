@@ -17,7 +17,7 @@
 
 void SxDriverBase::WriteCommand(uint8_t opcode, uint8_t* data, uint8_t len)
 {
-uint8_t in_buf[SX120X_SPI_BUF_SIZE];
+uint8_t in_buf[SX128X_SPI_BUF_SIZE];
 
     WaitOnBusy();
     SpiSelect();
@@ -30,7 +30,7 @@ uint8_t in_buf[SX120X_SPI_BUF_SIZE];
 
 void SxDriverBase::ReadCommand(uint8_t opcode, uint8_t* data, uint8_t len)
 {
-uint8_t out_buf[SX120X_SPI_BUF_SIZE];
+uint8_t out_buf[SX128X_SPI_BUF_SIZE];
 
     for (uint8_t i = 0; i < len; i++) out_buf[i] = 0; // NOP
 
@@ -46,7 +46,7 @@ uint8_t out_buf[SX120X_SPI_BUF_SIZE];
 
 void SxDriverBase::WriteRegister(uint16_t adr, uint8_t* data, uint8_t len)
 {
-uint8_t in_buf[SX120X_SPI_BUF_SIZE];
+uint8_t in_buf[SX128X_SPI_BUF_SIZE];
 
     WaitOnBusy();
     SpiSelect();
@@ -61,7 +61,7 @@ uint8_t in_buf[SX120X_SPI_BUF_SIZE];
 
 void SxDriverBase::ReadRegister(uint16_t adr, uint8_t* data, uint8_t len)
 {
-uint8_t out_buf[SX120X_SPI_BUF_SIZE];
+uint8_t out_buf[SX128X_SPI_BUF_SIZE];
 
     for (uint8_t i = 0; i < len; i++) out_buf[i] = 0; // NOP
 
@@ -79,7 +79,7 @@ uint8_t out_buf[SX120X_SPI_BUF_SIZE];
 
 void SxDriverBase::WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
-uint8_t in_buf[SX120X_SPI_BUF_SIZE];
+uint8_t in_buf[SX128X_SPI_BUF_SIZE];
 
     WaitOnBusy();
     SpiSelect();
@@ -93,7 +93,7 @@ uint8_t in_buf[SX120X_SPI_BUF_SIZE];
 
 void SxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
-uint8_t out_buf[SX120X_SPI_BUF_SIZE];
+uint8_t out_buf[SX128X_SPI_BUF_SIZE];
 
     for (uint8_t i = 0; i < len; i++) out_buf[i] = 0; // NOP
 
