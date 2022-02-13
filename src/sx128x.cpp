@@ -15,7 +15,7 @@
 
 // low level
 
-void SxDriverBase::WriteCommand(uint8_t opcode, uint8_t* data, uint8_t len)
+void Sx128xDriverBase::WriteCommand(uint8_t opcode, uint8_t* data, uint8_t len)
 {
 uint8_t in_buf[SX128X_SPI_BUF_SIZE];
 
@@ -28,7 +28,7 @@ uint8_t in_buf[SX128X_SPI_BUF_SIZE];
 }
 
 
-void SxDriverBase::ReadCommand(uint8_t opcode, uint8_t* data, uint8_t len)
+void Sx128xDriverBase::ReadCommand(uint8_t opcode, uint8_t* data, uint8_t len)
 {
 uint8_t out_buf[SX128X_SPI_BUF_SIZE];
 
@@ -44,7 +44,7 @@ uint8_t out_buf[SX128X_SPI_BUF_SIZE];
 }
 
 
-void SxDriverBase::WriteRegister(uint16_t adr, uint8_t* data, uint8_t len)
+void Sx128xDriverBase::WriteRegister(uint16_t adr, uint8_t* data, uint8_t len)
 {
 uint8_t in_buf[SX128X_SPI_BUF_SIZE];
 
@@ -59,7 +59,7 @@ uint8_t in_buf[SX128X_SPI_BUF_SIZE];
 }
 
 
-void SxDriverBase::ReadRegister(uint16_t adr, uint8_t* data, uint8_t len)
+void Sx128xDriverBase::ReadRegister(uint16_t adr, uint8_t* data, uint8_t len)
 {
 uint8_t out_buf[SX128X_SPI_BUF_SIZE];
 
@@ -77,7 +77,7 @@ uint8_t out_buf[SX128X_SPI_BUF_SIZE];
 }
 
 
-void SxDriverBase::WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len)
+void Sx128xDriverBase::WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
 uint8_t in_buf[SX128X_SPI_BUF_SIZE];
 
@@ -91,7 +91,7 @@ uint8_t in_buf[SX128X_SPI_BUF_SIZE];
 }
 
 
-void SxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
+void Sx128xDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
 uint8_t out_buf[SX128X_SPI_BUF_SIZE];
 
@@ -110,14 +110,14 @@ uint8_t out_buf[SX128X_SPI_BUF_SIZE];
 
 // common
 
-uint8_t SxDriverBase::GetStatus(void)
+uint8_t Sx128xDriverBase::GetStatus(void)
 {
     WriteCommand(SX1280_CMD_GET_STATUS); // yes, this is correct !
     return _status;
 }
 
 
-void SxDriverBase::SetStandby(uint8_t StandbyConfig)
+void Sx128xDriverBase::SetStandby(uint8_t StandbyConfig)
 {
     WriteCommand(SX1280_CMD_SET_STANDBY, StandbyConfig);
     switch (StandbyConfig) {
@@ -130,13 +130,13 @@ void SxDriverBase::SetStandby(uint8_t StandbyConfig)
 }
 
 
-void SxDriverBase::SetPacketType(uint8_t PacketType)
+void Sx128xDriverBase::SetPacketType(uint8_t PacketType)
 {
     WriteCommand(SX1280_CMD_SET_PACKET_TYPE, PacketType);
 }
 
 
-void SxDriverBase::SetRfFrequency(uint32_t RfFrequency) // 24 bits only
+void Sx128xDriverBase::SetRfFrequency(uint32_t RfFrequency) // 24 bits only
 {
 uint8_t buf[3];
 
@@ -148,7 +148,7 @@ uint8_t buf[3];
 }
 
 
-void SxDriverBase::SetBufferBaseAddress(uint8_t txBaseAdress, uint8_t rxBaseAdress)
+void Sx128xDriverBase::SetBufferBaseAddress(uint8_t txBaseAdress, uint8_t rxBaseAdress)
 {
 uint8_t buf[2];
 
@@ -159,7 +159,7 @@ uint8_t buf[2];
 }
 
 
-void SxDriverBase::SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate)
+void Sx128xDriverBase::SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate)
 {
 uint8_t buf[3];
 
@@ -188,7 +188,7 @@ uint8_t buf[3];
 }
 
 
-void SxDriverBase::SetPacketParams(uint8_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ)
+void Sx128xDriverBase::SetPacketParams(uint8_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ)
 {
 uint8_t buf[7];
 // param 6 & 7 are not used, send 0
@@ -205,7 +205,7 @@ uint8_t buf[7];
 }
 
 
-void SxDriverBase::SetDioIrqParams(uint16_t IrqMask, uint16_t Dio1Mask, uint16_t Dio2Mask, uint16_t Dio3Mask)
+void Sx128xDriverBase::SetDioIrqParams(uint16_t IrqMask, uint16_t Dio1Mask, uint16_t Dio2Mask, uint16_t Dio3Mask)
 {
 uint8_t buf[8];
 
@@ -225,7 +225,7 @@ uint8_t buf[8];
 }
 
 
-uint16_t SxDriverBase::GetIrqStatus(void)
+uint16_t Sx128xDriverBase::GetIrqStatus(void)
 {
 uint8_t status[2];
 
@@ -234,7 +234,7 @@ uint8_t status[2];
 }
 
 
-void SxDriverBase::ClearIrqStatus(uint16_t IrqMask)
+void Sx128xDriverBase::ClearIrqStatus(uint16_t IrqMask)
 {
 uint8_t buf[2];
 
@@ -247,7 +247,7 @@ uint8_t buf[2];
 
 // Tx
 
-void SxDriverBase::SetTxParams(uint8_t Power, uint8_t RampTime)
+void Sx128xDriverBase::SetTxParams(uint8_t Power, uint8_t RampTime)
 {
 uint8_t buf[2];
 
@@ -260,7 +260,7 @@ uint8_t buf[2];
 }
 
 
-void SxDriverBase::SetTx(uint8_t PeriodBase, uint16_t PeriodBaseCount)
+void Sx128xDriverBase::SetTx(uint8_t PeriodBase, uint16_t PeriodBaseCount)
 {
 uint8_t buf[3];
 
@@ -275,7 +275,7 @@ uint8_t buf[3];
 
 // Rx
 
-void SxDriverBase::SetRx(uint8_t PeriodBase, uint16_t PeriodBaseCount)
+void Sx128xDriverBase::SetRx(uint8_t PeriodBase, uint16_t PeriodBaseCount)
 {
 uint8_t buf[3];
 
@@ -288,7 +288,7 @@ uint8_t buf[3];
 }
 
 
-void SxDriverBase::GetPacketStatus(int8_t* RssiSync, int8_t* Snr)
+void Sx128xDriverBase::GetPacketStatus(int8_t* RssiSync, int8_t* Snr)
 {
 uint8_t status[5];
 // param 3 & 4 & 5 are not used, must read them nevertheless
@@ -306,7 +306,7 @@ uint8_t status[5];
 }
 
 
-void SxDriverBase::GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer)
+void Sx128xDriverBase::GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer)
 {
 uint8_t status[2];
 
@@ -319,26 +319,26 @@ uint8_t status[2];
 
 // auxiliary
 
-void SxDriverBase::SetRegulatorMode(uint8_t RegModeParam)
+void Sx128xDriverBase::SetRegulatorMode(uint8_t RegModeParam)
 {
     WriteCommand(SX1280_CMD_SET_REGULATOR_MODE, RegModeParam);
 }
 
 
-void SxDriverBase::SetAutoFs(uint8_t flag)
+void Sx128xDriverBase::SetAutoFs(uint8_t flag)
 {
     WriteCommand(SX1280_CMD_SET_AUTOFS, flag);
 }
 
 
-void SxDriverBase::SetFs(void)
+void Sx128xDriverBase::SetFs(void)
 {
     WriteCommand(SX1280_CMD_SET_FS);
     SetDelay(70); // semtech driver says 70 us
 }
 
 
-void SxDriverBase::SetLnaGainMode(uint8_t LnaGainMode)
+void Sx128xDriverBase::SetLnaGainMode(uint8_t LnaGainMode)
 {
 uint8_t reg_rxgain;
 
@@ -354,7 +354,7 @@ uint8_t reg_rxgain;
 }
 
 
-uint16_t SxDriverBase::GetFirmwareRev(void)
+uint16_t Sx128xDriverBase::GetFirmwareRev(void)
 {
     return ((uint16_t)ReadRegister(SX1280_REG_FIRMWARE_VERSION_MSB) << 8) |
             ReadRegister(SX1280_REG_FIRMWARE_VERSION_MSB + 1);
@@ -369,7 +369,7 @@ uint16_t SxDriverBase::GetFirmwareRev(void)
 //   these set the low nibble to 0x04, but I found it can change
 //   e.g. after reset it is 0x14,0x24 and after config 0x16,0x24
 //   so I think their approach is not totally correct, but the datasheet is
-void SxDriverBase::SetSyncWord(uint8_t SyncWord)
+void Sx128xDriverBase::SetSyncWord(uint8_t SyncWord)
 {
 uint8_t s1, s2;
 uint8_t buf[2];
@@ -384,7 +384,7 @@ uint8_t buf[2];
 }
 
 
-uint32_t SxDriverBase::GetFrequencyErrorIndicator(void)
+uint32_t Sx128xDriverBase::GetFrequencyErrorIndicator(void)
 {
 uint8_t buf[3];
 uint32_t fei;

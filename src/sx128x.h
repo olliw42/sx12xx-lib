@@ -44,10 +44,10 @@ concerning Tx lock ups: https://forum.arduino.cc/t/lora-spi-corruption/614013/16
 // Base Class
 //-------------------------------------------------------
 
-class SxDriverBase
+class Sx128xDriverBase
 {
   public:
-    SxDriverBase() {} // constructor
+    Sx128xDriverBase() {} // constructor
 
     // this you will have to fill in the derived class
 
