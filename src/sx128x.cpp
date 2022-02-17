@@ -245,6 +245,16 @@ uint8_t buf[2];
 }
 
 
+uint16_t Sx128xDriverBase::GetAndClearIrqStatus(uint16_t IrqMask)
+{
+    uint16_t irq_status = GetIrqStatus();
+
+    ClearIrqStatus(IrqMask);
+
+    return irq_status;
+}
+
+
 // Tx
 
 void Sx128xDriverBase::SetTxParams(uint8_t Power, uint8_t RampTime)

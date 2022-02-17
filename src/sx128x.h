@@ -92,6 +92,7 @@ class Sx128xDriverBase
     void SetDioIrqParams(uint16_t IrqMask, uint16_t Dio1Mask, uint16_t Dio2Mask, uint16_t Dio3Mask);
     uint16_t GetIrqStatus(void);
     void ClearIrqStatus(uint16_t IrqMask);
+    uint16_t GetAndClearIrqStatus(uint16_t IrqMask);
 
     // Tx methods
 
