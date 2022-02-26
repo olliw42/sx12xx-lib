@@ -306,9 +306,9 @@ void Sx127xDriverBase::SetRxTimeout(uint16_t tmo_symbols)
 }
 
 
-void Sx127xDriverBase::GetPacketStatus(int8_t* RssiSync, int8_t* Snr)
+void Sx127xDriverBase::GetPacketStatus(int16_t* RssiSync, int8_t* Snr)
 {
-  *RssiSync = -157 + ReadRegister(SX1276_REG_PktRssiValue);
+  *RssiSync = (int16_t)-157 + ReadRegister(SX1276_REG_PktRssiValue);
 
   *Snr = (int8_t)ReadRegister(SX1276_REG_PktSnrValue) / 4;
 }

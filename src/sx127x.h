@@ -89,7 +89,7 @@ class Sx127xDriverBase
     void SetRxSingle(void);
     void SetRxContinuous(void);
     void SetRxTimeout(uint16_t tmo_symbols);
-    void GetPacketStatus(int8_t* RssiSync, int8_t* Snr);
+    void GetPacketStatus(int16_t* RssiSync, int8_t* Snr);
     void GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer);
 
     // auxiliary methods
