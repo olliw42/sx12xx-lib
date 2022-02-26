@@ -242,7 +242,8 @@ typedef enum {
 // Pout = Pmax - (15 - OutputPower) if PaSelect = 0 (RFO pin)
 // Pout = 17 - (15 - OutputPower) if PaSelect = 1 (PA_BOOST pin)
 typedef enum {
-    SX1276_OUTPUT_POWER_xx_dBm        = 0,
+    SX1276_OUTPUT_POWER_MIN           = 0,
+    SX1276_OUTPUT_POWER_MAX           = 15,
 } SX1276_OUTPUT_POWER_ENUM;
 
 
