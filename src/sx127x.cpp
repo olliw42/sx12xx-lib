@@ -254,6 +254,8 @@ uint16_t Sx127xDriverBase::GetAndClearIrqStatus(uint16_t IrqMask)
 
     ClearIrqStatus(IrqMask);
 
+    SetStandby(); // important! this avoids corruption of received data after receive isr
+
     return irq_status;
 }
 
