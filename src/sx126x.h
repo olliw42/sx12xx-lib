@@ -395,8 +395,9 @@ typedef enum {
     SX126X_POWER_17_DBM                   = 17, // 50 mW
     SX126X_POWER_20_DBM                   = 20, // 100 mW
     SX126X_POWER_22_DBM                   = 22, // 158 mW
-    SX126X_POWER_MIN                      = SX126X_POWER_m9_DBM,
-    SX126X_POWER_MAX                      = SX126X_POWER_22_DBM,
+    SX126X_POWER_30_DBM                   = 30, // 1000 mW
+    POWER_SX126X_MIN_DBM                  = SX126X_POWER_m9_DBM,
+    POWER_SX126X_MAX_DBM                  = SX126X_POWER_30_DBM,
 } SX126X_POWER_ENUM;
 
 
