@@ -134,7 +134,7 @@ void Sx126xDriverBase::SetPacketType(uint8_t PacketType)
 }
 
 
-void Sx126xDriverBase:: SetRfFrequency(uint32_t RfFrequency) // 24 bit sx1280, 32 bit sx1262
+void Sx126xDriverBase::SetRfFrequency(uint32_t RfFrequency) // 24 bit sx1280, 32 bit sx1262
 {
 uint8_t buf[4];
 

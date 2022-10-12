@@ -460,7 +460,7 @@ typedef enum {
 typedef enum {
     SX126X_PA_CONFIG_HP_MAX              = 0x07, // table 13-21 p. 77
     SX126X_PA_CONFIG_PA_LUT              = 0x01,
-    SX126X_PA_CONFIG_DEVICE              = 0x00, // 1262 selected
+    SX126X_PA_CONFIG_DEVICE              = 0x00, // SX1262 selected
     SX126X_PA_CONFIG_PA_DUTY_CYCLE       = 0x04
 } SX126X_PA_CONFIG_ENUM;
 
