@@ -382,15 +382,6 @@ void Sx126xDriverBase::SetFs(void)
 }
 
 
-void Sx126xDriverBase::SetLnaGainMode(uint8_t LnaGainMode)
-{
-uint8_t reg_rxgain;
-
-    reg_rxgain = (LnaGainMode) ? SX126X_BOOST_GAIN_REG_VALUE : SX126X_SAVING_GAIN_REG_VALUE;
-    WriteRegister(SX126X_REG_RX_GAIN, reg_rxgain);
-}
-
-
 uint16_t Sx126xDriverBase::GetFirmwareRev(void)
 {
     return GetStatus();
@@ -469,14 +460,39 @@ uint8_t reg  = 0;
 }
 
 
+void Sx126xDriverBase::SetRxGain(uint8_t RxGain)
+{
+    WriteRegister(SX126X_REG_RX_GAIN, RxGain);
+}
+
+
+void Sx126xDriverBase::SetOverCurrentProtection(uint8_t OverCurrentProtection)
+{
+    WriteRegister(SX126X_REG_OCP_CONFIGURATION, OverCurrentProtection);
+}
+
+
+void  Sx126xDriverBase::SetPaConfig(uint8_t deviceSel, uint8_t paDutyCycle, uint8_t hpMax, uint8_t paLut)
+{
+uint8_t buf[4];
+
+    buf[0] = paDutyCycle;
+    buf[1] = hpMax;
+    buf[2] = deviceSel;
+    buf[3] = paLut;
+
+    WriteCommand(SX126X_CMD_SET_PA_CONFIG, buf, 4);
+}
+
+
 void Sx126xDriverBase::SetPaConfig_22dbm(void)
 {
 uint8_t buf[4];
 
-    buf[0] = SX126X_PA_CONFIG_PA_DUTY_CYCLE;
-    buf[1] = SX126X_PA_CONFIG_HP_MAX;
-    buf[2] = SX126X_PA_CONFIG_DEVICE;
-    buf[3] = SX126X_PA_CONFIG_PA_LUT;
+    buf[0] = SX126X_PA_CONFIG_22_DBM_PA_DUTY_CYCLE;
+    buf[1] = SX126X_PA_CONFIG_22_DBM_HP_MAX;
+    buf[2] = SX126X_PA_CONFIG_DEVICE_SEL_SX1262;
+    buf[3] = SX126X_PA_CONFIG_22_DBM_PA_LUT;
 
     WriteCommand(SX126X_CMD_SET_PA_CONFIG, buf, 4);
 }

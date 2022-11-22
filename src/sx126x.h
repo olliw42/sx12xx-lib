@@ -81,7 +81,6 @@ class Sx126xDriverBase
     void SetRfFrequency(uint32_t RfFrequency); // 24 bits only
     void SetDio3AsTcxoControl(uint8_t OutputVoltage, uint32_t delay_us);
     void SetDio2AsRfSwitchControl(uint8_t Mode);
-    void SetPaConfig_22dbm(void);
     void SetBufferBaseAddress(uint8_t txBaseAdress, uint8_t rxBaseAdress);
     void SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate);
     void SetPacketParams(uint8_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ);
@@ -109,7 +108,10 @@ class Sx126xDriverBase
     void SetRegulatorMode(uint8_t RegModeParam);
     void SetAutoFs(uint8_t flag);
     void SetFs(void);
-    void SetLnaGainMode(uint8_t LnaGainMode);
+    void SetPaConfig(uint8_t deviceSel, uint8_t paDutyCycle, uint8_t hpMax, uint8_t paLut);
+    void SetPaConfig_22dbm(void);
+    void SetRxGain(uint8_t RxGain);
+    void SetOverCurrentProtection(uint8_t OverCurrentProtection);
 
     // what else we like to have
 
@@ -248,7 +250,7 @@ typedef enum {
     SX126X_STATUS_CMD_PROCESSING_ERROR    = 0b00001000,
     SX126X_STATUS_CMD_EXEC_FAILURE        = 0b00001010,
     SX126X_STATUS_CMD_TX_DONE             = 0b00001100,
-    SX126X_STATUS_CMD_MASK                = 0b00001110  ,
+    SX126X_STATUS_CMD_MASK                = 0b00001110,
 } SX126X_STATUS_CMD_ENUM;
 
 
@@ -259,7 +261,7 @@ typedef enum {
 // cmd 0x80 SetStandby(uint8_t StandbyConfig)
 typedef enum {
     SX126X_STDBY_CONFIG_STDBY_RC          = 0x00, // table 13-4, p. 68
-    SX126X_STDBY_CONFIG_STDBY_XOSC        = 0x01
+    SX126X_STDBY_CONFIG_STDBY_XOSC        = 0x01,
 } SX126X_STDBY_CONFIG_ENUM;
 
 
@@ -300,7 +302,7 @@ typedef enum {
 
 typedef enum {
     SX126X_LORA_LDRO_OFF                  = 0x00, // table 13-50, 0 88
-    SX126X_LORA_LDRO_ON                   = 0x01
+    SX126X_LORA_LDRO_ON                   = 0x01,
 } SX126X_LORA_LDRO_ENUM;
 
 // cmd 0x8C SetPacketParams(uint8_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t CRC, uint8_t InvertIQ)
@@ -341,7 +343,7 @@ typedef enum {
 // cmd 0x9D SetDIO2AsRfSwitchCtrl(uint8_t Dio2Mode)
 typedef enum {
     SX126X_DIO2_AS_IRQ                    = 0x00, // table 13-33 p. 81
-    SX126X_DIO2_AS_RF_SWITCH              = 0x01
+    SX126X_DIO2_AS_RF_SWITCH              = 0x01,
 } SX126X_DIO2_MODE_ENUM;
 
 // cmd 0x97 SetDIO3AsTCXOCtrl(uint8_t tcxoVoltage, uint32_t delay)
@@ -456,12 +458,12 @@ typedef enum {
 //-------------------------------------------------------
 
 // set power to max 22 dbm
-// cmd 0x95 setPaConfig (uint8_t paDutyCycle, uint8_t hpMax, uint8_t deviceSel, uint8_t paLut)
+// cmd 0x95 SetPaConfig(uint8_t deviceSel, uint8_t paDutyCycle, uint8_t hpMax, uint8_t paLut)
 typedef enum {
-    SX126X_PA_CONFIG_HP_MAX              = 0x07, // table 13-21 p. 77
-    SX126X_PA_CONFIG_PA_LUT              = 0x01,
-    SX126X_PA_CONFIG_DEVICE              = 0x00, // SX1262 selected
-    SX126X_PA_CONFIG_PA_DUTY_CYCLE       = 0x04
+    SX126X_PA_CONFIG_DEVICE_SEL_SX1262    = 0x00, // select SX1262
+    SX126X_PA_CONFIG_22_DBM_PA_DUTY_CYCLE = 0x04, // table 13-21 p. 77
+    SX126X_PA_CONFIG_22_DBM_HP_MAX        = 0x07,
+    SX126X_PA_CONFIG_22_DBM_PA_LUT        = 0x01,
 } SX126X_PA_CONFIG_ENUM;
 
 
@@ -472,7 +474,7 @@ typedef enum {
 // cmd 0x96 SetRegulatorMode(uint8_t RegModeParam)
 typedef enum {
     SX126X_REGULATOR_MODE_LDO             = 0x00, // table 13-16, p. 74
-    SX126X_REGULATOR_MODE_DCDC            = 0x01
+    SX126X_REGULATOR_MODE_DCDC            = 0x01,
 } SX126X_REGULATOR_MODE_ENUM;
 
 
@@ -481,17 +483,22 @@ typedef enum {
 typedef enum {
     SX126X_RX_TX_FALLBACK_MODE_FS         = 0x40, // table 13-23, p. 77
     SX126X_RX_TX_FALLBACK_MODE_STDBY_XOSC = 0x30,
-    SX126X_RX_TX_FALLBACK_MODE_STDBY_RC   = 0x20
+    SX126X_RX_TX_FALLBACK_MODE_STDBY_RC   = 0x20,
 } SX126X_FALLBACK_MODE_ENUM;
 
 
-// reg 0x8AC SetLnaGainMode(uint8_t LnaGainMode)
+// reg 0x8AC SetRxGainMode(uint8_t RxGainMode)
 typedef enum {
-    SX126X_LNA_GAIN_MODE_LOW_POWER        = 0x00, // table 9-3, p. 58
-    SX126X_LNA_GAIN_MODE_HIGH_SENSITIVITY = 0x01,
-    SX126X_BOOST_GAIN_REG_VALUE           = 0x96,
-    SX126X_SAVING_GAIN_REG_VALUE          = 0x94,
+    SX126X_RX_GAIN_POWER_SAVING           = 0x94, // table 9-3, p. 58
+    SX126X_RX_GAIN_BOOSTED_GAIN           = 0x96,
 } SX126X_LNAGAIN_MODE_ENUM;
+
+
+// reg 0x8E7 SetOverCurrentProtection(uint8_t OverCurrentProtection)
+typedef enum {
+    SX126X_OCP_CONFIGURATION_60_MA        = 0x18, // table 12-1, p. 67
+    SX126X_OCP_CONFIGURATION_140_MA       = 0x38,
+} SX126X_OCP_CONFIG_ENUM;
 
 
 #endif // SX126X_LIB_H
