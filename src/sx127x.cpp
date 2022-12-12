@@ -7,7 +7,7 @@
 //*******************************************************
 
 #include "sx127x.h"
-
+#include <cmath>
 
 // low level
 
@@ -93,7 +93,9 @@ void Sx127xDriverBase::SetOperationMode(uint8_t PacketType, uint8_t LowFrequency
 
 void Sx127xDriverBase::SetRfFrequency(uint32_t RfFrequency) // 23 bits only
 {
-uint8_t buf[3];
+    uint8_t buf[3];
+    CurrFreq = RfFrequency;
+    RfFrequency -= FreqErrorEst;
 
     buf[0] = (uint8_t)((RfFrequency & 0xFF0000) >> 16);
     buf[1] = (uint8_t)((RfFrequency & 0x00FF00) >> 8);
@@ -308,13 +310,24 @@ void Sx127xDriverBase::SetRxTimeout(uint16_t tmo_symbols)
 }
 
 
+// Simple, low change rate, implementation of Autmatic Frequency Correction
+// Call on Rx side after succesfull receive
+void Sx127xDriverBase::HandleAFC(void)
+{
+  if (CurrFreq && (abs(FreqErrorEst) < ST127x_AFCLimit)) {
+    int sign2 = (ReadRegister(SX1276_REG_FeiMsb) & 0b1000) >> 2; // negative -> 2, positive -> 0
+    FreqErrorEst -= sign2 - 1; // if error negative -> subtract 1, positive ->  add 1
+    WriteRegister(SX1276_REG_PpmCorrection, FreqErrorEst * 1e6 / 100 * 95 / CurrFreq); // Adjust data rate.  Could avoid write when unchanged
+  }
+}
+
+
 void Sx127xDriverBase::GetPacketStatus(int16_t* RssiSync, int8_t* Snr)
 {
   *RssiSync = (int16_t)-157 + ReadRegister(SX1276_REG_PktRssiValue);
 
   *Snr = (int8_t)ReadRegister(SX1276_REG_PktSnrValue) / 4;
 }
-
 
 void Sx127xDriverBase::GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer)
 {
