@@ -314,10 +314,10 @@ void Sx127xDriverBase::SetRxTimeout(uint16_t tmo_symbols)
 // Call on Rx side after succesfull receive
 void Sx127xDriverBase::HandleAFC(void)
 {
-  if (CurrFreq && (abs(FreqErrorEst) < ST127x_AFCLimit)) {
-    int sign2 = (ReadRegister(SX1276_REG_FeiMsb) & 0b1000) >> 2; // negative -> 2, positive -> 0
+  if (CurrFreq && (labs(FreqErrorEst) < ST127x_AFCLimit)) {
+    int8_t sign2 = (ReadRegister(SX1276_REG_FeiMsb) & 0b1000) >> 2; // negative -> 2, positive -> 0
     FreqErrorEst -= sign2 - 1; // if error negative -> subtract 1, positive ->  add 1
-    WriteRegister(SX1276_REG_PpmCorrection, FreqErrorEst * 1e6 / 100 * 95 / CurrFreq); // Adjust data rate.  Could avoid write when unchanged
+    WriteRegister(SX1276_REG_PpmCorrection, FreqErrorEst * 950000 / CurrFreq); // Adjust data rate.  This depends on ST127x_AFCLimit to not overflow.
   }
 }
 
