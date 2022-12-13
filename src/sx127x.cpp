@@ -7,9 +7,15 @@
 //*******************************************************
 
 #include "sx127x.h"
-#include <cmath>
 
-// low level
+// constructor
+
+Sx127xDriverBase::Sx127xDriverBase()
+{
+}
+
+
+// low level methods
 
 void Sx127xDriverBase::WriteRegister(uint16_t adr, uint8_t* data, uint8_t len)
 {
@@ -58,7 +64,7 @@ void Sx127xDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 }
 
 
-// common
+// common methods
 
 uint8_t Sx127xDriverBase::GetStatus(void)
 {
@@ -93,9 +99,7 @@ void Sx127xDriverBase::SetOperationMode(uint8_t PacketType, uint8_t LowFrequency
 
 void Sx127xDriverBase::SetRfFrequency(uint32_t RfFrequency) // 23 bits only
 {
-    uint8_t buf[3];
-    CurrFreq = RfFrequency;
-    RfFrequency -= FreqErrorEst;
+uint8_t buf[3];
 
     buf[0] = (uint8_t)((RfFrequency & 0xFF0000) >> 16);
     buf[1] = (uint8_t)((RfFrequency & 0x00FF00) >> 8);
@@ -114,50 +118,50 @@ void Sx127xDriverBase::SetLnaParams(uint8_t LnaGain, uint8_t LnaBoostHf)
 
 void Sx127xDriverBase::OptimizeSensitivity(uint8_t Bandwidth)
 {
-  // see errata SX1276_77_8_ErrataNote_1.1_STD.pdf, 2.1, page 4
+    // see errata SX1276_77_8_ErrataNote_1.1_STD.pdf, 2.1, page 4
 
-  if (Bandwidth == SX1276_LORA_BW_500) {
-      WriteRegister(SX1276_REG_HighBWOptimize1, 0x02); // reg 0x36
-      WriteRegister(SX1276_REG_HighBWOptimize2, 0x64); // reg 0x3A
-  } else {
-      WriteRegister(SX1276_REG_HighBWOptimize1, 0x03); // 0x36
-  }
+    if (Bandwidth == SX1276_LORA_BW_500) {
+        WriteRegister(SX1276_REG_HighBWOptimize1, 0x02); // reg 0x36
+        WriteRegister(SX1276_REG_HighBWOptimize2, 0x64); // reg 0x3A
+    } else {
+        WriteRegister(SX1276_REG_HighBWOptimize1, 0x03); // 0x36
+    }
 }
 
 
 void Sx127xDriverBase::OptimizeReceiverResponse(uint8_t Bandwidth)
 {
-  // see errata SX1276_77_8_ErrataNote_1.1_STD.pdf, 2.3, page 5
+    // see errata SX1276_77_8_ErrataNote_1.1_STD.pdf, 2.3, page 5
 
-  //TODO: offset Frf ???
+    //TODO: offset Frf ???
 
-  if (Bandwidth == SX1276_LORA_BW_500) {
-      ReadWriteRegister(SX1276_REG_DetectOptimize, 0x80, SX1276_LORA_AUTOMATIC_IF_ON);
-  } else {
-      ReadWriteRegister(SX1276_REG_DetectOptimize, 0x80, SX1276_LORA_AUTOMATIC_IF_OFF);
-  }
+    if (Bandwidth == SX1276_LORA_BW_500) {
+        ReadWriteRegister(SX1276_REG_DetectOptimize, 0x80, SX1276_LORA_AUTOMATIC_IF_ON);
+    } else {
+        ReadWriteRegister(SX1276_REG_DetectOptimize, 0x80, SX1276_LORA_AUTOMATIC_IF_OFF);
+    }
 
-  switch (Bandwidth) {
-  case SX1276_LORA_BW_7p8:
-      WriteRegister(SX1276_REG_0x2F, 0x48);
-      break;
-  case SX1276_LORA_BW_10p4:
-  case SX1276_LORA_BW_15p6:
-  case SX1276_LORA_BW_20p8:
-  case SX1276_LORA_BW_31p25:
-  case SX1276_LORA_BW_41p7:
-    WriteRegister(SX1276_REG_0x2F, 0x44);
-    break;
-  case SX1276_LORA_BW_62p5:
-  case SX1276_LORA_BW_125:
-  case SX1276_LORA_BW_250:
-      WriteRegister(SX1276_REG_0x2F, 0x40);
-      break;
-  }
+    switch (Bandwidth) {
+    case SX1276_LORA_BW_7p8:
+        WriteRegister(SX1276_REG_0x2F, 0x48);
+        break;
+    case SX1276_LORA_BW_10p4:
+    case SX1276_LORA_BW_15p6:
+    case SX1276_LORA_BW_20p8:
+    case SX1276_LORA_BW_31p25:
+    case SX1276_LORA_BW_41p7:
+        WriteRegister(SX1276_REG_0x2F, 0x44);
+        break;
+    case SX1276_LORA_BW_62p5:
+    case SX1276_LORA_BW_125:
+    case SX1276_LORA_BW_250:
+        WriteRegister(SX1276_REG_0x2F, 0x40);
+        break;
+    }
 
-  if (Bandwidth != SX1276_LORA_BW_500) {
-      WriteRegister(SX1276_REG_0x30, 0x00);
-  }
+    if (Bandwidth != SX1276_LORA_BW_500) {
+        WriteRegister(SX1276_REG_0x30, 0x00);
+    }
 }
 
 
@@ -262,7 +266,7 @@ uint16_t Sx127xDriverBase::GetAndClearIrqStatus(uint16_t IrqMask)
 }
 
 
-// Tx
+// Tx methods
 
 void Sx127xDriverBase::SetPowerParams(uint8_t PaSelect, uint8_t MaxPower, uint8_t Power, uint8_t RampTime)
 {
@@ -282,7 +286,7 @@ void Sx127xDriverBase::SetTx(void)
 }
 
 
-// Rx
+// Rx methods
 
 void Sx127xDriverBase::SetRxSingle(void)
 {
@@ -310,24 +314,12 @@ void Sx127xDriverBase::SetRxTimeout(uint16_t tmo_symbols)
 }
 
 
-// Simple, low change rate, implementation of Autmatic Frequency Correction
-// Call on Rx side after succesfull receive
-void Sx127xDriverBase::HandleAFC(void)
-{
-  if (CurrFreq && (labs(FreqErrorEst) < ST127x_AFCLimit)) {
-    int8_t sign2 = (ReadRegister(SX1276_REG_FeiMsb) & 0b1000) >> 2; // negative -> 2, positive -> 0
-    FreqErrorEst -= sign2 - 1; // if error negative -> subtract 1, positive ->  add 1
-    WriteRegister(SX1276_REG_PpmCorrection, FreqErrorEst * 950000 / CurrFreq); // Adjust data rate.  This depends on ST127x_AFCLimit to not overflow.
-  }
-}
-
-
 void Sx127xDriverBase::GetPacketStatus(int16_t* RssiSync, int8_t* Snr)
 {
-  *RssiSync = (int16_t)-157 + ReadRegister(SX1276_REG_PktRssiValue);
-
-  *Snr = (int8_t)ReadRegister(SX1276_REG_PktSnrValue) / 4;
+    *RssiSync = (int16_t)-157 + ReadRegister(SX1276_REG_PktRssiValue);
+    *Snr = (int8_t)ReadRegister(SX1276_REG_PktSnrValue) / 4;
 }
+
 
 void Sx127xDriverBase::GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer)
 {
@@ -336,7 +328,7 @@ void Sx127xDriverBase::GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxSt
 }
 
 
-// auxiliary
+// auxiliary methods
 
 uint8_t Sx127xDriverBase::GetFirmwareRev(void)
 {
@@ -348,8 +340,4 @@ void Sx127xDriverBase::SetSyncWord(uint8_t SyncWord)
 {
     WriteRegister(SX1276_REG_SyncWord, SyncWord);
 }
-
-
-
-
 

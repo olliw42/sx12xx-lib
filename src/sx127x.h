@@ -15,9 +15,8 @@
 
 #define SX127X_FREQ_XTAL_HZ               32000000
 
-#define SX127X_FREQ_STEP ((double)SX127X_FREQ_XTAL_HZ / (double)(1<<19)) // 61.03515625 Hz
-#define ST127x_AFCLimit ((int32_t)(100000/SX127X_FREQ_STEP)) // Dimensonless
 #define SX127X_FREQ_MHZ_TO_REG(f_mhz)     (uint32_t)((double)f_mhz*1.0E6*(double)(1 << 19)/(double)SX127X_FREQ_XTAL_HZ)
+
 
 #ifndef ALIGNED
 #define ALIGNED  __attribute__((aligned(4)))
@@ -33,11 +32,8 @@
 
 class Sx127xDriverBase
 {
-  private:
-    uint32_t FreqErrorEst = 0; // In multiples of SX127X_FREQ_STEP.  Should this be reset on connection loss? (I think not)
-    uint32_t CurrFreq = 0;
   public:
-    Sx127xDriverBase() {} // constructor
+    Sx127xDriverBase(); // constructor
 
     // this you will have to fill in the derived class
 
@@ -93,7 +89,6 @@ class Sx127xDriverBase
     void SetRxSingle(void);
     void SetRxContinuous(void);
     void SetRxTimeout(uint16_t tmo_symbols);
-    void HandleAFC(void);
     void GetPacketStatus(int16_t* RssiSync, int8_t* Snr);
     void GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer);
 
@@ -147,7 +142,7 @@ typedef enum {
     SX1276_REG_HopPeriod              = 0x24, // 7-0 FreqHoppingPeriod(7:0)
     SX1276_REG_FifoRxByteAddr         = 0x25, // 7-0 FifoRxByteAddrPtr
     SX1276_REG_ModemConfig3           = 0x26, // 3 LowDataRateOptimize, 2 AgcAutoOn
-    SX1276_REG_PpmCorrection          = 0x27, // 7-0 PpmCorrection
+    SX1276_REG_0x27                   = 0x27, // 7-0 PpmCorrection
     SX1276_REG_FeiMsb                 = 0x28, // 3-0 FreqError(19:16)
     SX1276_REG_FeiMid                 = 0x29, // 7-0 FreqError(15:8)
     SX1276_REG_FeiLsb                 = 0x2A, // 7-0 FreqError(7:0)
