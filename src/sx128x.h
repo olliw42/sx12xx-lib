@@ -102,6 +102,7 @@ class Sx128xDriverBase
     // Rx methods
 
     void SetRx(uint8_t PeriodBase, uint16_t PeriodBaseCount);
+    void HandleAFC(void) {}
     void GetPacketStatus(int8_t* RssiSync, int8_t* Snr);
     void GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer);
 
