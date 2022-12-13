@@ -12,6 +12,8 @@
 
 Sx127xDriverBase::Sx127xDriverBase()
 {
+    _rf_freq_reg = 0; // 0 indicates not initialized
+    _rf_freq_reg_correction = 0;
 }
 
 
@@ -340,4 +342,75 @@ void Sx127xDriverBase::SetSyncWord(uint8_t SyncWord)
 {
     WriteRegister(SX1276_REG_SyncWord, SyncWord);
 }
+
+
+// AFC methods
+
+int32_t Sx127xDriverBase::GetFreqError(void)
+{
+uint8_t buf[3];
+
+    ReadRegister(SX1276_REG_FeiMsb, buf, 3);
+
+    uint32_t ufei = ((uint32_t)(buf[0] & 0b1111) << 16) + ((uint32_t)buf[1] << 8) + buf[2];
+    int32_t fei = ufei;
+    if (buf[0] & 0b1000) { // sign is negative
+        fei -= (1 << 20); // fei is 20 bit 2 complement
+    }
+
+    return fei;
+}
+
+
+// AFC algorithm heavily inspired by ExpressLRS' method (https://github.com/ExpressLRS/ExpressLRS)
+// limits: (for equations see datasheet p. 36,37)
+// ppm_correction is restricted to int8_t, i.e. 127 max
+// thus:
+// F_RF' = F_RF - F_RF/10e6 * F_errppm = F_RF - F_corr
+// => F_corr = 10e6/F_RF * F_errppm
+// offset = 0.95 * F_errppm = 0.95 * 10e6/F_RF * F_corr = 0.95 * 10e6/F_RF * F_step * F_corr_reg
+// => largest offset for smallest F_RF, let's assume 860 MHz
+// => F_corr_reg_max = 127 * 860 * 10e6 * 2^19 / (0.95 * 10e6 * 32 * 10e6) = 1883
+// this corresponds to a frequency correction of max
+// F_corr = offset * F_RF / (0.95 * 10e6) = 127 * 860 / 0.95 = 114.97 kHz
+// this is ca 23% at a BW 500 kHz
+// ELRS allows a max of 100 kHz, which corresponds to F_corr_reg_max = 1683 and offset_max = 110
+// => this is well designed!
+// the method is however slow unless for very fast update rates
+
+#define SX127X_AFC_LIMIT                  (int32_t)(100.0E3*(double)(1 << 19)/(double)SX127X_FREQ_XTAL_HZ)
+
+
+void Sx127xDriverBase::AfcSetRfFrequency(uint32_t RfFrequency)
+{
+    _rf_freq_reg = RfFrequency;
+
+    SetRfFrequency(RfFrequency - _rf_freq_reg_correction);
+}
+
+
+void Sx127xDriverBase::AfcDo(void)
+{
+    if (!_rf_freq_reg) return; // not initialized
+
+    uint8_t fei_msb = ReadRegister(SX1276_REG_FeiMsb);
+
+    if (fei_msb & 0b1000) {
+        // sign is negative
+        _rf_freq_reg_correction--;
+        if ((fei_msb & 0b0111) != 0b0111) _rf_freq_reg_correction -= 3; // speed up for large errors
+        if (_rf_freq_reg_correction < -SX127X_AFC_LIMIT) _rf_freq_reg_correction = -SX127X_AFC_LIMIT;
+    } else {
+        // sign is positive
+        _rf_freq_reg_correction++;
+        if ((fei_msb & 0b0111) != 0) _rf_freq_reg_correction += 3; // speed up for large errors
+        if (_rf_freq_reg_correction > SX127X_AFC_LIMIT) _rf_freq_reg_correction = SX127X_AFC_LIMIT;
+    }
+
+    // adjust data rate, see datasheet
+    // could avoid write when unchanged
+    int8_t ppm_correction = (_rf_freq_reg_correction * 950000) / _rf_freq_reg;
+    WriteRegister(SX1276_REG_0x27, ppm_correction);
+}
+
 

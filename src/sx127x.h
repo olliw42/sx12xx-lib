@@ -96,6 +96,19 @@ class Sx127xDriverBase
 
     uint8_t GetFirmwareRev(void);
     void SetSyncWord(uint8_t SyncWord);
+
+    // AFC methods
+
+    int32_t GetFreqError(void);
+
+    // this implements a "canonical" AFC method
+    // heavily inspired by ExpressLRS' method (https://github.com/ExpressLRS/ExpressLRS)
+    void AfcSetRfFrequency(uint32_t RfFrequency);
+    void AfcDo(void);
+
+  private:
+    int32_t _rf_freq_reg_correction;
+    uint32_t _rf_freq_reg; // 0 indicates not initialized
 };
 
 
