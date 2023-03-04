@@ -112,7 +112,7 @@ class Sx126xDriverBase
     void SetPaConfig_22dbm(void);
     void SetRxGain(uint8_t RxGain);
     void SetOverCurrentProtection(uint8_t OverCurrentProtection);
-    void imageCalibration(uint8_t freq1, uint8_t freq2);
+    void CalibrateImage(uint8_t freq1, uint8_t freq2);
 
     // what else we like to have
 
