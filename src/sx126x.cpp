@@ -498,5 +498,12 @@ uint8_t buf[4];
 }
 
 
+void imageCalibration(uint8_t freq1, uint8_t freq2)
+{
+uint8_t buf[2];
 
+    buf[0] = freq1;
+    buf[1] = freq2;
 
+    WriteCommand(SX126X_CMD_CALIBRATE_IMAGE, buf, 2);
+}
