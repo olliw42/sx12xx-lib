@@ -498,12 +498,12 @@ uint8_t buf[4];
 }
 
 
-void Sx126xDriverBase::CalibrateImage(uint8_t freq1, uint8_t freq2)
+void Sx126xDriverBase::CalibrateImage(uint8_t Freq1, uint8_t Freq2)
 {
 uint8_t buf[2];
 
-    buf[0] = freq1;
-    buf[1] = freq2;
+    buf[0] = Freq1;
+    buf[1] = Freq2;
 
     WriteCommand(SX126X_CMD_CALIBRATE_IMAGE, buf, 2);
 }
