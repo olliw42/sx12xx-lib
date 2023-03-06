@@ -113,6 +113,7 @@ class Sx126xDriverBase
     void SetRxGain(uint8_t RxGain);
     void SetOverCurrentProtection(uint8_t OverCurrentProtection);
     void CalibrateImage(uint8_t Freq1, uint8_t Freq2);
+    void CalibrateImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz);
 
     // what else we like to have
 
@@ -439,7 +440,7 @@ typedef enum {                                           // table 13-18 p. 75
 //-------------------------------------------------------
 // Image Calibration on specific frequency band
 //-------------------------------------------------------
-// cmd 0x98 CalibrateImage (uint8_t Freq1, uint8_t Freq2)
+// cmd 0x98 CalibrateImage(uint8_t Freq1, uint8_t Freq2)
 typedef enum {
     SX126X_CAL_IMG_430_MHZ_1             = 0x6B, // table 9-2 p. 57
     SX126X_CAL_IMG_430_MHZ_2             = 0x6F,

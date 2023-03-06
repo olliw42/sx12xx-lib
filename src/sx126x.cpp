@@ -507,3 +507,19 @@ uint8_t buf[2];
 
     WriteCommand(SX126X_CMD_CALIBRATE_IMAGE, buf, 2);
 }
+
+
+// thanks to https://github.com/Lora-net/sx126x_driver
+// they use Freq1 = Freq1_mhz / 4; Freq2 = (Freq2_mhz + 3) / 4;
+// compared to table 9-2, p. 58:
+// for 779-787: Freq1 is obtained as 0xC2 but is 0xC1 in the table
+// else:        Freq2 is obtained one too low
+// => we add +1 to Freq2, to reporduce table for most times
+void Sx126xDriverBase::CalibrateImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz)
+{
+    uint8_t Freq1 = Freq1_mhz / 4;
+    uint8_t Freq2 = (Freq2_mhz + 3) / 4 + 1;
+
+    CalibrateImage(Freq1, Freq2);
+}
+
