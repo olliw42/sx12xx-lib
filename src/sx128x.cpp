@@ -301,22 +301,24 @@ uint8_t buf[3];
 void Sx128xDriverBase::GetPacketStatus(int8_t* RssiSync, int8_t* Snr)
 {
 uint8_t status[5];
-int8_t RssiSyncTemp;
-int8_t SnrTemp;
-int8_t negOffset;
+int16_t rssi_sync_temp;
+int16_t snr_temp;
+int16_t neg_offset;
 
 // param 3 & 4 & 5 are not used, must read them nevertheless
 
     ReadCommand(SX1280_CMD_GET_PACKET_STATUS, status, 5);
 
-    RssiSyncTemp = -(int8_t)(status[0] / 2);
-    SnrTemp = (int8_t)status[1];
+    rssi_sync_temp = -(int16_t)(int8_t)(status[0] / 2);
+    snr_temp = (int16_t)(int8_t)status[1];
 
-    negOffset = (SnrTemp < 0) ? (SnrTemp / 4) : 0;
+    neg_offset = (snr_temp < 0) ? (snr_temp / 4) : 0;
+
+    rssi_sync_temp = ((rssi_sync_temp + neg_offset) >= INT8_MIN) ? (rssi_sync_temp + neg_offset) : INT8_MIN
      
-    *RssiSync = RssiSyncTemp + negOffset;
+    *RssiSync = (int8_t)rssi_sync_temp;
 
-    *Snr = SnrTemp / 4;
+    *Snr = (int8_t)snr_temp / 4;
 
     // datasheet p. 93, table 11-66: If the SNR ≤ 0, RSSI_{packet, real} = RSSI_{packet,measured} – SNR_{measured}
     // datasheet p.134, point 4: Actual SNR in dB =SnrPkt/4 , noting that only negative values should be used.
