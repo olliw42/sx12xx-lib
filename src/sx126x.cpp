@@ -326,7 +326,7 @@ uint8_t status[3];
     ReadCommand(SX126X_CMD_GET_PACKET_STATUS, status, 3);
 
     *RssiSync = -(int8_t)(status[0] / 2);
-    *Snr = (int8_t)(status[1] / 4);
+    *Snr = (int8_t)status[1] / 4;
 }
 
 
