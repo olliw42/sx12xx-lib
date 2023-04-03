@@ -319,14 +319,14 @@ uint8_t buf[3];
 }
 
 
-void Sx126xDriverBase::GetPacketStatus(int8_t* RssiSync, int8_t* Snr)
+void Sx126xDriverBase::GetPacketStatus(int16_t* RssiSync, int8_t* Snr)
 {
 uint8_t status[3];
 
     ReadCommand(SX126X_CMD_GET_PACKET_STATUS, status, 3);
 
-    *RssiSync = -(int8_t)(status[0] / 2);
-    *Snr = (int8_t)(status[1] / 4);
+    *RssiSync = -(int16_t)(status[0] / 2);
+    *Snr = (int8_t)status[1] / 4;
 }
 
 

@@ -96,7 +96,7 @@ class Sx126xDriverBase
 
     // Rx methods
     void SetRx(uint32_t tmo_periodbase); // max 24 bit
-    void GetPacketStatus(int8_t* RssiSync, int8_t* Snr);
+    void GetPacketStatus(int16_t* RssiSync, int8_t* Snr);
     void GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer);
     void ClearRxEvent(void); // clear any event, if any
 
