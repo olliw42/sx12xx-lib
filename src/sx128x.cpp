@@ -204,6 +204,7 @@ uint8_t buf[7];
     WriteCommand(SX1280_CMD_SET_PACKET_PARAMS, buf, 7);
 }
 
+
 void Sx128xDriverBase::SetModulationParamsFLRC(uint8_t Bandwidth, uint8_t CodingRate, uint8_t Bt)
 {
 uint8_t buf[3];
@@ -214,6 +215,7 @@ uint8_t buf[3];
 
     WriteCommand(SX1280_CMD_SET_MODULATION_PARAMS, buf, 3);
 }
+
 
 void Sx128xDriverBase::SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t PacketType, uint8_t PayloadLength, int16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
 {
