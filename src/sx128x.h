@@ -89,7 +89,8 @@ class Sx128xDriverBase
     void SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate);
     void SetPacketParams(uint8_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ);
     void SetModulationParamsFLRC(uint8_t Bandwidth, uint8_t CodingRate, uint8_t Bt);
-    void SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t PacketType, uint8_t PayloadLength, int16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate);
+    void SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t SyncWordLength, uint8_t SyncWordMatch, uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength, 
+        int16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate);
 
     void SetDioIrqParams(uint16_t IrqMask, uint16_t Dio1Mask, uint16_t Dio2Mask, uint16_t Dio3Mask);
     uint16_t GetIrqStatus(void);
@@ -207,7 +208,9 @@ typedef enum {
     SX1280_REG_SyncAddress1               = 0x9CE, // 5 bytes Synch Word 1 (Also used as the BLE Access Address)
     SX1280_REG_SyncAddress2               = 0x9D3, // 5 bytes SyncWord 2
     SX1280_REG_SyncAddress3               = 0x9D8, // 5 bytes SyncWord 3
-    SX1280_REG_FLRCSyncWord               = 0x9CF, // 4 bytes SyncWord 1
+    SX1280_REG_FLRCSyncWordAddress1       = 0x9CF, // 4 bytes SyncWord 1 for FLRC
+    SX1280_REG_FLRCSyncWordAddress2       = 0x9D4, // 4 bytes SyncWord 2 for FLRC
+    SX1280_REG_FLRCSyncWordAddress3       = 0x9D9, // 4 bytes SyncWord 3 for FLRC
 } SX1280_REG_ENUM;
 
 
@@ -332,7 +335,8 @@ typedef enum
 } SX1280_FLRC_GAUSSIAN_FILTER_ENUM;
 
 
-// cmd 0x8C SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t PacketType, uint8_t PayloadLength, int16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
+// cmd 0x8C SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t SyncWordLength, uint8_t SyncWordMatch, uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength, 
+// int16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
 typedef enum
 {
     SX1280_PREAMBLE_LENGTH_04_BITS = 0x00, //!< Preamble length: 04 bits (Reserved)

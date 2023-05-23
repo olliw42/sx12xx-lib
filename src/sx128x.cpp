@@ -217,16 +217,17 @@ uint8_t buf[3];
 }
 
 
-void Sx128xDriverBase::SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t PacketType, uint8_t PayloadLength, int16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
+void Sx128xDriverBase::SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t SyncWordLength, uint8_t SyncWordMatch, uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength, 
+    int16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
 {
 uint8_t buf[7];
 
     buf[0] = AGCPreambleLength;                     // AGC Preamble Length
-    buf[1] = SX1280_FLRC_SYNC_WORD_LEN_P32S;        // Sync Word Length
-    buf[2] = SX1280_FLRC_RX_MATCH_SYNC_WORD_1;      // Sync Word Match
+    buf[1] = SyncWordLength;                        // Sync Word Length
+    buf[2] = SyncWordMatch;                         // Sync Word Combination
     buf[3] = PacketType;                            // Packet Type
     buf[4] = PayloadLength;                         // Payload Length
-    buf[5] = SX1280_FLRC_CRC_4_BYTE;                // CRC Length
+    buf[5] = CrcLength;                             // CRC Length
     buf[6] = 0x08;                                  // Whitening (always disabled for FLRC) table 14-41, p. 125
 
     WriteCommand(SX1280_CMD_SET_PACKET_PARAMS, buf, 7);
