@@ -236,7 +236,7 @@ uint8_t buf[7];
     buf[0] = (uint8_t)(CrcSeed >> 8);
     buf[1] = (uint8_t)CrcSeed;
     
-    WriteCommand(SX1280_REG_CRCInitialValue, buf, 2);
+    WriteRegister(SX1280_REG_CRCInitialValue, buf, 2);
 
     // Set Sync Word 1
     buf[0] = (uint8_t)(SyncWord >> 24);
@@ -258,7 +258,7 @@ uint8_t buf[7];
             buf[3] |= 0x80; // 0x80 or 0x40 would work
     }
 
-    WriteCommand(SX1280_REG_FLRCSyncWord, buf, 4);
+    WriteRegister(SX1280_REG_FLRCSyncWord, buf, 4);
 }
 
 
