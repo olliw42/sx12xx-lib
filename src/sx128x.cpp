@@ -218,7 +218,7 @@ uint8_t buf[3];
 
 
 void Sx128xDriverBase::SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t SyncWordLength, uint8_t SyncWordMatch, uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength, 
-    int16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
+    uint16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
 {
 uint8_t buf[7];
 
@@ -258,7 +258,7 @@ uint8_t buf[7];
             buf[3] |= 0x80; // 0x80 or 0x40 would work
     }
 
-    WriteRegister(SX1280_REG_FLRCSyncWord, buf, 4);
+    WriteRegister(SX1280_REG_FLRCSyncWordAddress1, buf, 4);
 }
 
 
@@ -466,11 +466,4 @@ uint32_t fei;
 
     return fei;
 }
-
-
-
-
-
-
-
 
