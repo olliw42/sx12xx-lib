@@ -466,6 +466,6 @@ uint8_t buf[7];
             buf[3] |= 0x80; // 0x80 or 0x40 would work
     }
 
-    WriteRegister(SX1280_REG_FLRCSyncWordAddress1, buf, 4);
+    WriteRegister(SX1280_REG_FLRC_SyncWordAddress1, buf, 4);
 }
 
