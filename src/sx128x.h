@@ -209,9 +209,9 @@ typedef enum {
     SX1280_REG_SyncAddress1               = 0x9CE, // 5 bytes Synch Word 1 (Also used as the BLE Access Address)
     SX1280_REG_SyncAddress2               = 0x9D3, // 5 bytes SyncWord 2
     SX1280_REG_SyncAddress3               = 0x9D8, // 5 bytes SyncWord 3
-    SX1280_REG_FLRCSyncWordAddress1       = 0x9CF, // 4 bytes SyncWord 1 for FLRC
-    SX1280_REG_FLRCSyncWordAddress2       = 0x9D4, // 4 bytes SyncWord 2 for FLRC
-    SX1280_REG_FLRCSyncWordAddress3       = 0x9D9, // 4 bytes SyncWord 3 for FLRC
+    SX1280_REG_FLRC_SyncWordAddress1      = 0x9CF, // 4 bytes SyncWord 1 for FLRC
+    SX1280_REG_FLRC_SyncWordAddress2      = 0x9D4, // 4 bytes SyncWord 2 for FLRC
+    SX1280_REG_FLRC_SyncWordAddress3      = 0x9D9, // 4 bytes SyncWord 3 for FLRC
 } SX1280_REG_ENUM;
 
 
@@ -308,91 +308,6 @@ typedef enum {
     SX1280_LORA_IQ_NORMAL                 = 0x40, // table 14-54, p. 133
     SX1280_LORA_IQ_INVERTED               = 0x00,
 } SX1280_LORA_IQMODE_ENUM;
-
-
-// cmd 0x8B SetModulationParamsFLRC(uint8_t Bandwidth, uint8_t CodingRate, uint8_t Bt)
-typedef enum
-{
-    SX1280_FLRC_BR_1_300_BW_1_2 = 0x45,
-    SX1280_FLRC_BR_1_000_BW_1_2 = 0x69,
-    SX1280_FLRC_BR_0_650_BW_0_6 = 0x86,
-    SX1280_FLRC_BR_0_520_BW_0_6 = 0xAA,
-    SX1280_FLRC_BR_0_325_BW_0_3 = 0xC7,
-    SX1280_FLRC_BR_0_260_BW_0_3 = 0xEB,
-} SX1280_FLRC_BW_ENUM;
-
-typedef enum
-{
-    SX1280_FLRC_CR_1_2 = 0x00,
-    SX1280_FLRC_CR_3_4 = 0x02,
-    SX1280_FLRC_CR_1_0 = 0x04,
-} SX1280_FLRC_CR_ENUM;
-
-typedef enum
-{
-    SX1280_FLRC_BT_DIS  = 0x00,
-    SX1280_FLRC_BT_1    = 0x10,
-    SX1280_FLRC_BT_0_5  = 0x20,
-} SX1280_FLRC_GAUSSIAN_FILTER_ENUM;
-
-
-// cmd 0x8C SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t SyncWordLength, uint8_t SyncWordMatch, uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength, 
-// uint16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
-typedef enum
-{
-    SX1280_PREAMBLE_LENGTH_04_BITS = 0x00, //!< Preamble length: 04 bits (Reserved)
-    SX1280_PREAMBLE_LENGTH_08_BITS = 0x10, //!< Preamble length: 08 bits
-    SX1280_PREAMBLE_LENGTH_12_BITS = 0x20, //!< Preamble length: 12 bits
-    SX1280_PREAMBLE_LENGTH_16_BITS = 0x30, //!< Preamble length: 16 bits
-    SX1280_PREAMBLE_LENGTH_20_BITS = 0x40, //!< Preamble length: 20 bits
-    SX1280_PREAMBLE_LENGTH_24_BITS = 0x50, //!< Preamble length: 24 bits
-    SX1280_PREAMBLE_LENGTH_28_BITS = 0x60, //!< Preamble length: 28 bits
-    SX1280_PREAMBLE_LENGTH_32_BITS = 0x70, //!< Preamble length: 32 bits
-} SX1280_FLRC_PREAMBLE_LENGTH_ENUM;
-
-typedef enum
-{
-    SX1280_FLRC_SYNC_NOSYNC        = 0x00,
-    SX1280_FLRC_SYNC_WORD_LEN_P32S = 0x04,
-} SX1280_FLRC_SYNC_WORD_LENGTH_ENUM;
-
-typedef enum
-{
-    SX1280_FLRC_RX_DISABLE_SYNC_WORD     = 0x00,
-    SX1280_FLRC_RX_MATCH_SYNC_WORD_1     = 0x10,
-    SX1280_FLRC_RX_MATCH_SYNC_WORD_2     = 0x20,
-    SX1280_FLRC_RX_MATCH_SYNC_WORD_1_2   = 0x30,
-    SX1280_FLRC_RX_MATCH_SYNC_WORD_3     = 0x40,
-    SX1280_FLRC_RX_MATCH_SYNC_WORD_1_3   = 0x50,
-    SX1280_FLRC_RX_MATCH_SYNC_WORD_2_3   = 0x60,
-    SX1280_FLRC_RX_MATCH_SYNC_WORD_1_2_3 = 0x70,
-} SX1280_FLRC_SYNC_WORD_COMBINATION_ENUM;
-
-typedef enum
-{
-    SX1280_FLRC_PACKET_FIXED_LENGTH    = 0x00,
-    SX1280_FLRC_PACKET_VARIABLE_LENGTH = 0x20,
-} SX1280_FLRC_PACKET_TYPE_ENUM;
-
-typedef enum
-{
-    SX1280_FLRC_CRC_OFF    = 0x00,
-    SX1280_FLRC_CRC_2_BYTE = 0x10,
-    SX1280_FLRC_CRC_3_BYTE = 0x20,
-    SX1280_FLRC_CRC_4_BYTE = 0x30,
-} SX1280_FLRC_CRC_DEFINITION_ENUM;
-
-enum
-{
-    // FLRC Error Packet Status
-    SX1280_FLRC_PKT_ERROR_BUSY      = 1 << 0,
-    SX1280_FLRC_PKT_ERROR_PKT_RCVD  = 1 << 1,
-    SX1280_FLRC_PKT_ERROR_HDR_RCVD  = 1 << 2,
-    SX1280_FLRC_PKT_ERROR_ABORT     = 1 << 3,
-    SX1280_FLRC_PKT_ERROR_CRC       = 1 << 4,
-    SX1280_FLRC_PKT_ERROR_LENGTH    = 1 << 5,
-    SX1280_FLRC_PKT_ERROR_SYNC      = 1 << 6,
-};
 
 
 // cmd 0x8D SetDioIrqParams(uint16_t IrqMask, uint16_t Dio1Mask, uint16_t Dio2Mask, uint16_t Dio3Mask)
@@ -501,6 +416,94 @@ typedef enum {
   SX1280_LNAGAIN_MODE_HIGH_SENSITIVITY    = 0x01,
 } SX1280_LNAGAIN_MODE_ENUM;
 
+//-------------------------------------------------------
+// FLRC
+//-------------------------------------------------------
+
+// cmd 0x8B SetModulationParamsFLRC(uint8_t Bandwidth, uint8_t CodingRate, uint8_t Bt)
+typedef enum
+{
+    SX1280_FLRC_BR_1_300_BW_1_2 = 0x45,
+    SX1280_FLRC_BR_1_000_BW_1_2 = 0x69,
+    SX1280_FLRC_BR_0_650_BW_0_6 = 0x86,
+    SX1280_FLRC_BR_0_520_BW_0_6 = 0xAA,
+    SX1280_FLRC_BR_0_325_BW_0_3 = 0xC7,
+    SX1280_FLRC_BR_0_260_BW_0_3 = 0xEB,
+} SX1280_FLRC_BW_ENUM;
+
+typedef enum
+{
+    SX1280_FLRC_CR_1_2 = 0x00,
+    SX1280_FLRC_CR_3_4 = 0x02,
+    SX1280_FLRC_CR_1_0 = 0x04,
+} SX1280_FLRC_CR_ENUM;
+
+typedef enum
+{
+    SX1280_FLRC_BT_DIS  = 0x00,
+    SX1280_FLRC_BT_1    = 0x10,
+    SX1280_FLRC_BT_0_5  = 0x20,
+} SX1280_FLRC_GAUSSIAN_FILTER_ENUM;
+
+
+// cmd 0x8C SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t SyncWordLength, uint8_t SyncWordMatch, 
+// uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength, 
+// uint16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
+typedef enum
+{
+    SX1280_FLRC_PREAMBLE_LENGTH_04_BITS = 0x00, //!< Preamble length: 04 bits (Reserved)
+    SX1280_FLRC_PREAMBLE_LENGTH_08_BITS = 0x10, //!< Preamble length: 08 bits
+    SX1280_FLRC_PREAMBLE_LENGTH_12_BITS = 0x20, //!< Preamble length: 12 bits
+    SX1280_FLRC_PREAMBLE_LENGTH_16_BITS = 0x30, //!< Preamble length: 16 bits
+    SX1280_FLRC_PREAMBLE_LENGTH_20_BITS = 0x40, //!< Preamble length: 20 bits
+    SX1280_FLRC_PREAMBLE_LENGTH_24_BITS = 0x50, //!< Preamble length: 24 bits
+    SX1280_FLRC_PREAMBLE_LENGTH_28_BITS = 0x60, //!< Preamble length: 28 bits
+    SX1280_FLRC_PREAMBLE_LENGTH_32_BITS = 0x70, //!< Preamble length: 32 bits
+} SX1280_FLRC_PREAMBLE_LENGTH_ENUM;
+
+typedef enum
+{
+    SX1280_FLRC_SYNC_NOSYNC        = 0x00,
+    SX1280_FLRC_SYNC_WORD_LEN_P32S = 0x04,
+} SX1280_FLRC_SYNC_WORD_LENGTH_ENUM;
+
+typedef enum
+{
+    SX1280_FLRC_RX_DISABLE_SYNC_WORD     = 0x00,
+    SX1280_FLRC_RX_MATCH_SYNC_WORD_1     = 0x10,
+    SX1280_FLRC_RX_MATCH_SYNC_WORD_2     = 0x20,
+    SX1280_FLRC_RX_MATCH_SYNC_WORD_1_2   = 0x30,
+    SX1280_FLRC_RX_MATCH_SYNC_WORD_3     = 0x40,
+    SX1280_FLRC_RX_MATCH_SYNC_WORD_1_3   = 0x50,
+    SX1280_FLRC_RX_MATCH_SYNC_WORD_2_3   = 0x60,
+    SX1280_FLRC_RX_MATCH_SYNC_WORD_1_2_3 = 0x70,
+} SX1280_FLRC_SYNC_WORD_COMBINATION_ENUM;
+
+typedef enum
+{
+    SX1280_FLRC_PACKET_FIXED_LENGTH    = 0x00,
+    SX1280_FLRC_PACKET_VARIABLE_LENGTH = 0x20,
+} SX1280_FLRC_PACKET_TYPE_ENUM;
+
+typedef enum
+{
+    SX1280_FLRC_CRC_OFF    = 0x00,
+    SX1280_FLRC_CRC_2_BYTE = 0x10,
+    SX1280_FLRC_CRC_3_BYTE = 0x20,
+    SX1280_FLRC_CRC_4_BYTE = 0x30,
+} SX1280_FLRC_CRC_DEFINITION_ENUM;
+
+enum
+{
+    // FLRC Error Packet Status
+    SX1280_FLRC_PKT_ERROR_BUSY      = 1 << 0,
+    SX1280_FLRC_PKT_ERROR_PKT_RCVD  = 1 << 1,
+    SX1280_FLRC_PKT_ERROR_HDR_RCVD  = 1 << 2,
+    SX1280_FLRC_PKT_ERROR_ABORT     = 1 << 3,
+    SX1280_FLRC_PKT_ERROR_CRC       = 1 << 4,
+    SX1280_FLRC_PKT_ERROR_LENGTH    = 1 << 5,
+    SX1280_FLRC_PKT_ERROR_SYNC      = 1 << 6,
+};
 
 
 #endif // SX128X_LIB_H

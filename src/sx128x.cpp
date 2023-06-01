@@ -205,63 +205,6 @@ uint8_t buf[7];
 }
 
 
-void Sx128xDriverBase::SetModulationParamsFLRC(uint8_t Bandwidth, uint8_t CodingRate, uint8_t Bt)
-{
-uint8_t buf[3];
-
-    buf[0] = Bandwidth;
-    buf[1] = CodingRate;
-    buf[2] = Bt;
-
-    WriteCommand(SX1280_CMD_SET_MODULATION_PARAMS, buf, 3);
-}
-
-
-void Sx128xDriverBase::SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t SyncWordLength, uint8_t SyncWordMatch, uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength, 
-    uint16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
-{
-uint8_t buf[7];
-
-    buf[0] = AGCPreambleLength;                     // AGC Preamble Length
-    buf[1] = SyncWordLength;                        // Sync Word Length
-    buf[2] = SyncWordMatch;                         // Sync Word Combination
-    buf[3] = PacketType;                            // Packet Type
-    buf[4] = PayloadLength;                         // Payload Length
-    buf[5] = CrcLength;                             // CRC Length
-    buf[6] = 0x08;                                  // Whitening (always disabled for FLRC) table 14-41, p. 125
-
-    WriteCommand(SX1280_CMD_SET_PACKET_PARAMS, buf, 7);
-
-    // CRC Seed
-    buf[0] = (uint8_t)(CrcSeed >> 8);
-    buf[1] = (uint8_t)CrcSeed;
-    
-    WriteRegister(SX1280_REG_CRCInitialValue, buf, 2);
-
-    // Set Sync Word 1
-    buf[0] = (uint8_t)(SyncWord >> 24);
-    buf[1] = (uint8_t)(SyncWord >> 16);
-    buf[2] = (uint8_t)(SyncWord >> 8);
-    buf[3] = (uint8_t)SyncWord;
-
-    // Borrowed from ELRS: https://github.com/ExpressLRS/ExpressLRS/blob/master/src/lib/SX1280Driver/SX1280.cpp#L382
-    // DS_SX1280-1_V3.2.pdf - 16.4 FLRC Modem: Increased PER in FLRC Packets with Synch Word
-    if (((CodingRate == SX1280_FLRC_CR_1_2) || (CodingRate == SX1280_FLRC_CR_3_4)) &&
-        ((buf[0] == 0x8C && buf[1] == 0x38) || (buf[0] == 0x63 && buf[1] == 0x0E)))
-    {
-        uint8_t temp = buf[0];
-        buf[0] = buf[1];
-        buf[1] = temp;
-        // For SX1280_FLRC_CR_3_4 the datasheet also says
-        // "In addition to this the two LSB values XX XX must not be in the range 0x0000 to 0x3EFF"
-        if (CodingRate == SX1280_FLRC_CR_3_4 && buf[3] <= 0x3E)
-            buf[3] |= 0x80; // 0x80 or 0x40 would work
-    }
-
-    WriteRegister(SX1280_REG_FLRCSyncWordAddress1, buf, 4);
-}
-
-
 void Sx128xDriverBase::SetDioIrqParams(uint16_t IrqMask, uint16_t Dio1Mask, uint16_t Dio2Mask, uint16_t Dio3Mask)
 {
 uint8_t buf[8];
@@ -465,5 +408,64 @@ uint32_t fei;
     fei &= (uint32_t)0x0FFFFF;
 
     return fei;
+}
+
+
+// FLRC
+
+void Sx128xDriverBase::SetModulationParamsFLRC(uint8_t Bandwidth, uint8_t CodingRate, uint8_t Bt)
+{
+uint8_t buf[3];
+
+    buf[0] = Bandwidth;
+    buf[1] = CodingRate;
+    buf[2] = Bt;
+
+    WriteCommand(SX1280_CMD_SET_MODULATION_PARAMS, buf, 3);
+}
+
+
+void Sx128xDriverBase::SetPacketParamsFLRC(uint8_t AGCPreambleLength, uint8_t SyncWordLength, uint8_t SyncWordMatch, uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength, 
+    uint16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
+{
+uint8_t buf[7];
+
+    buf[0] = AGCPreambleLength;                     // AGC Preamble Length
+    buf[1] = SyncWordLength;                        // Sync Word Length
+    buf[2] = SyncWordMatch;                         // Sync Word Combination
+    buf[3] = PacketType;                            // Packet Type
+    buf[4] = PayloadLength;                         // Payload Length
+    buf[5] = CrcLength;                             // CRC Length
+    buf[6] = 0x08;                                  // Whitening (always disabled for FLRC) table 14-41, p. 125
+
+    WriteCommand(SX1280_CMD_SET_PACKET_PARAMS, buf, 7);
+
+    // CRC Seed
+    buf[0] = (uint8_t)(CrcSeed >> 8);
+    buf[1] = (uint8_t)CrcSeed;
+    
+    WriteRegister(SX1280_REG_CRCInitialValue, buf, 2);
+
+    // Set Sync Word 1
+    buf[0] = (uint8_t)(SyncWord >> 24);
+    buf[1] = (uint8_t)(SyncWord >> 16);
+    buf[2] = (uint8_t)(SyncWord >> 8);
+    buf[3] = (uint8_t)SyncWord;
+
+    // Borrowed from ELRS: https://github.com/ExpressLRS/ExpressLRS/blob/master/src/lib/SX1280Driver/SX1280.cpp#L382
+    // DS_SX1280-1_V3.2.pdf - 16.4 FLRC Modem: Increased PER in FLRC Packets with Synch Word
+    if (((CodingRate == SX1280_FLRC_CR_1_2) || (CodingRate == SX1280_FLRC_CR_3_4)) &&
+        ((buf[0] == 0x8C && buf[1] == 0x38) || (buf[0] == 0x63 && buf[1] == 0x0E)))
+    {
+        uint8_t temp = buf[0];
+        buf[0] = buf[1];
+        buf[1] = temp;
+        // For SX1280_FLRC_CR_3_4 the datasheet also says
+        // "In addition to this the two LSB values XX XX must not be in the range 0x0000 to 0x3EFF"
+        if (CodingRate == SX1280_FLRC_CR_3_4 && buf[3] <= 0x3E)
+            buf[3] |= 0x80; // 0x80 or 0x40 would work
+    }
+
+    WriteRegister(SX1280_REG_FLRCSyncWordAddress1, buf, 4);
 }
 
