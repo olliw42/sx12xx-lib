@@ -492,7 +492,7 @@ typedef enum {
 
 
 // FLRC error packet status
-enum {
+typedef enum {
     SX1280_FLRC_PACKET_ERROR_BUSY         = 0x01,
     SX1280_FLRC_PACKET_ERROR_PKT_RCVD     = 0x02,
     SX1280_FLRC_PACKET_ERROR_HDR_RCVD     = 0x04,
