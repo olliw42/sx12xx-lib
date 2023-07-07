@@ -471,3 +471,15 @@ uint8_t buf[7];
     WriteRegister(SX1280_REG_FLRC_SyncWordAddress1, buf, 4);
 }
 
+
+void Sx128xDriverBase::GetPacketStatusFLRC(int16_t* RssiSync)
+{
+uint8_t status[5];
+
+// param 2 & 3 & 4 & 5 are not used, must read them nevertheless
+
+    ReadCommand(SX1280_CMD_GET_PACKET_STATUS, status, 5);
+
+    *RssiSync = -(int16_t)(status[0] / 2);
+}
+
