@@ -483,3 +483,12 @@ uint8_t status[5];
     *RssiSync = -(int16_t)(status[0] / 2);
 }
 
+void Sx128xDriverBase::SetSyncWordErrorToleranceFLRC(uint8_t ErrorBits)
+{
+uint8_t tolerance;
+
+	tolerance = ReadRegister(SX1280_REG_FLRC_SyncAddressControl);
+	tolerance = (tolerance & 0xF0) | (ErrorBits & 0x0F);  // Preserve upper 4 bits, update lower 4 bits
+	WriteRegister(SX1280_REG_FLRC_SyncAddressControl, tolerance);
+}
+
