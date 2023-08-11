@@ -128,7 +128,7 @@ class Sx128xDriverBase
         uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength,
         uint16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate);
     void GetPacketStatusFLRC(int16_t* RssiSync);
-    void SetSyncWordErrorToleranceFLRC(uint8_t errorBits);
+    void SetSyncWordErrorToleranceFLRC(uint8_t ErrorBits);
 
   private:
     uint8_t _status; // all spi transfers yield the status, so we can just get it
