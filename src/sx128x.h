@@ -211,14 +211,13 @@ typedef enum {
     SX1280_REG_CRCPolynomialDefinition    = 0x9C6, // 2 bytes CRC Polynomial Definition for GFSK.
     SX1280_REG_CRCPolynomialSeed          = 0x9C7, // 3 bytes CRC Seed for BLE modulation.
     SX1280_REG_CRCInitialValue            = 0x9C8, // 2 bytes CRC Seed used for GFSK and FLRC modulation.
-    SX1280_REG_SynchAddressControl        = 0x9CD, // 0:3 rw 0x80 The number of synch word bit errors tolerated in FLRC and GFSK modes
     SX1280_REG_SyncAddress1               = 0x9CE, // 5 bytes Synch Word 1 (Also used as the BLE Access Address)
     SX1280_REG_SyncAddress2               = 0x9D3, // 5 bytes SyncWord 2
     SX1280_REG_SyncAddress3               = 0x9D8, // 5 bytes SyncWord 3
     SX1280_REG_FLRC_SyncWordAddress1      = 0x9CF, // 4 bytes SyncWord 1 for FLRC
     SX1280_REG_FLRC_SyncWordAddress2      = 0x9D4, // 4 bytes SyncWord 2 for FLRC
     SX1280_REG_FLRC_SyncWordAddress3      = 0x9D9, // 4 bytes SyncWord 3 for FLRC
-    SX1280_REG_FLRC_SyncAddressControl    = 0x9CD, // 0:3 rw 0x80 Sync work bit errors for FLRC
+    SX1280_REG_FLRC_SyncAddressControl    = 0x9CD, // 0:3 rw 0x80 Sync word bit errors for FLRC
 } SX1280_REG_ENUM;
 
 
