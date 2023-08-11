@@ -217,7 +217,7 @@ typedef enum {
     SX1280_REG_FLRC_SyncWordAddress1      = 0x9CF, // 4 bytes SyncWord 1 for FLRC
     SX1280_REG_FLRC_SyncWordAddress2      = 0x9D4, // 4 bytes SyncWord 2 for FLRC
     SX1280_REG_FLRC_SyncWordAddress3      = 0x9D9, // 4 bytes SyncWord 3 for FLRC
-    SX1280_REG_FLRC_SyncAddressControl    = 0x9CD, // 0:3 rw 0x80 Sync word bit errors for FLRC
+    SX1280_REG_FLRC_SyncAddressControl    = 0x9CD, // 0:3 rw 0x80 The number of synch word bit errors tolerated in FLRC and GFSK modes
 } SX1280_REG_ENUM;
 
 
