@@ -23,9 +23,6 @@
 #endif
 
 
-#define SX127X_SPI_BUF_SIZE               256 // this must hold the max payload plus additional bytes
-
-
 //-------------------------------------------------------
 // Base Class
 //-------------------------------------------------------
@@ -43,12 +40,17 @@ class Sx127xDriverBase
 
     virtual void SpiSelect(void) = 0;
     virtual void SpiDeselect(void) = 0;
-    virtual void SpiTransfer(uint8_t* dataout, uint8_t* datain, uint8_t len) = 0;
+    virtual void SpiTransferByte(uint8_t* byteout, uint8_t* bytein) = 0;
+
+    // spi methods
+
+    void SpiRead(uint8_t* datain, uint8_t len);
+    void SpiWrite(uint8_t* dataout, uint8_t len);
+    void SpiTransfer(uint8_t dataout, uint8_t* datain) { SpiTransferByte(&dataout, datain); }
+    void SpiRead(uint8_t* datain) { SpiRead(datain, 1); }
+    void SpiWrite(uint8_t dataout) { SpiWrite(&dataout, 1); }
 
     // low level methods, usually no need to use them
-
-    void SpiTransfer(uint8_t data, uint8_t* datain) { SpiTransfer(&data, datain, 1); }
-    void SpiTransfer(uint8_t data) { uint8_t dummy; SpiTransfer(&data, &dummy, 1); }
 
     void WriteRegister(uint16_t adr, uint8_t* data, uint8_t len);
     void ReadRegister(uint16_t adr, uint8_t* data, uint8_t len);

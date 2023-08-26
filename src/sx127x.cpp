@@ -17,28 +17,48 @@ Sx127xDriverBase::Sx127xDriverBase()
 }
 
 
+// spi
+
+void Sx127xDriverBase::SpiRead(uint8_t* datain, uint8_t len)
+{
+uint8_t dummy = 0; // NOP
+
+    while (len) {
+        SpiTransferByte(&dummy, datain);
+        datain++;
+        len--;
+    }
+}
+
+
+void Sx127xDriverBase::SpiWrite(uint8_t* dataout, uint8_t len)
+{
+uint8_t dummy;
+
+    while (len) {
+        SpiTransferByte(dataout, &dummy);
+        dataout++;
+        len--;
+    }
+}
+
+
 // low level methods
 
 void Sx127xDriverBase::WriteRegister(uint16_t adr, uint8_t* data, uint8_t len)
 {
-uint8_t in_buf[SX127X_SPI_BUF_SIZE];
-
     SpiSelect();
-    SpiTransfer((adr & 0x7F) | 0x80); // write bit set
-    SpiTransfer(data, in_buf, len);
+    SpiWrite((adr & 0x7F) | 0x80); // write bit set
+    SpiWrite(data, len);
     SpiDeselect();
 }
 
 
 void Sx127xDriverBase::ReadRegister(uint16_t adr, uint8_t* data, uint8_t len)
 {
-uint8_t out_buf[SX127X_SPI_BUF_SIZE];
-
-    for (uint8_t i = 0; i < len; i++) out_buf[i] = 0; // NOP
-
     SpiSelect();
-    SpiTransfer((adr & 0x7F) | 0x00); // write bit cleared to read
-    SpiTransfer(out_buf, data, len);
+    SpiWrite((adr & 0x7F) | 0x00); // write bit cleared to read
+    SpiRead(data, len);
     SpiDeselect();
 }
 

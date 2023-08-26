@@ -11,16 +11,40 @@
 #include "sx126x.h"
 
 
+// spi
+
+void Sx126xDriverBase::SpiRead(uint8_t* datain, uint8_t len)
+{
+uint8_t dummy = 0; // NOP
+
+    while (len) {
+        SpiTransferByte(&dummy, datain);
+        datain++;
+        len--;
+    }
+}
+
+
+void Sx126xDriverBase::SpiWrite(uint8_t* dataout, uint8_t len)
+{
+uint8_t dummy;
+
+    while (len) {
+        SpiTransferByte(dataout, &dummy);
+        dataout++;
+        len--;
+    }
+}
+
+
 // low level
 
 void Sx126xDriverBase::WriteCommand(uint8_t opcode, uint8_t* data, uint8_t len)
 {
-uint8_t in_buf[SX126X_SPI_BUF_SIZE];
-
     WaitOnBusy();
     SpiSelect();
     SpiTransfer(opcode, &_status);
-    if (len > 0) SpiTransfer(data, in_buf, len);
+    if (len > 0) SpiWrite(data, len);
     SpiDeselect();
     SetDelay(12); // semtech driver says 12 us // TODO: ??
 }
@@ -28,15 +52,11 @@ uint8_t in_buf[SX126X_SPI_BUF_SIZE];
 
 void Sx126xDriverBase::ReadCommand(uint8_t opcode, uint8_t* data, uint8_t len)
 {
-uint8_t out_buf[SX126X_SPI_BUF_SIZE];
-
-    for (uint8_t i = 0; i < len; i++) out_buf[i] = 0; // NOP
-
     WaitOnBusy();
     SpiSelect();
     SpiTransfer(opcode, &_status);
-    SpiTransfer(0); // NOP
-    SpiTransfer(out_buf, data, len);
+    SpiWrite(0); // NOP
+    SpiRead(data, len);
     SpiDeselect();
     // no delay according to semtech driver // TODO: ??
 }
@@ -44,14 +64,12 @@ uint8_t out_buf[SX126X_SPI_BUF_SIZE];
 
 void Sx126xDriverBase::WriteRegister(uint16_t adr, uint8_t* data, uint8_t len)
 {
-uint8_t in_buf[SX126X_SPI_BUF_SIZE];
-
     WaitOnBusy();
     SpiSelect();
     SpiTransfer(SX126X_CMD_WRITE_REGISTER, &_status);
-    SpiTransfer((adr & 0xFF00) >> 8);
-    SpiTransfer(adr & 0x00FF);
-    SpiTransfer(data, in_buf, len);
+    SpiWrite((adr & 0xFF00) >> 8);
+    SpiWrite(adr & 0x00FF);
+    SpiWrite(data, len);
     SpiDeselect();
     SetDelay(12); // semtech driver says 12 us // TODO: ??
 }
@@ -59,17 +77,13 @@ uint8_t in_buf[SX126X_SPI_BUF_SIZE];
 
 void Sx126xDriverBase::ReadRegister(uint16_t adr, uint8_t* data, uint8_t len)
 {
-uint8_t out_buf[SX126X_SPI_BUF_SIZE];
-
-    for (uint8_t i = 0; i < len; i++) out_buf[i] = 0; // NOP
-
     WaitOnBusy();
     SpiSelect();
     SpiTransfer(SX126X_CMD_READ_REGISTER, &_status);
-    SpiTransfer((adr & 0xFF00) >> 8);
-    SpiTransfer(adr & 0x00FF);
-    SpiTransfer(0); // NOP
-    SpiTransfer(out_buf, data, len);
+    SpiWrite((adr & 0xFF00) >> 8);
+    SpiWrite(adr & 0x00FF);
+    SpiWrite(0); // NOP
+    SpiRead(data, len);
     SpiDeselect();
     // no delay according to semtech driver // TODO: ??
 }
@@ -77,13 +91,11 @@ uint8_t out_buf[SX126X_SPI_BUF_SIZE];
 
 void Sx126xDriverBase::WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
-uint8_t in_buf[SX126X_SPI_BUF_SIZE];
-
     WaitOnBusy();
     SpiSelect();
     SpiTransfer(SX126X_CMD_WRITE_BUFFER, &_status);
-    SpiTransfer(offset);
-    SpiTransfer(data, in_buf, len);
+    SpiWrite(offset);
+    SpiWrite(data, len);
     SpiDeselect();
     SetDelay(12); // semtech driver says 12 us // TODO: ??
 }
@@ -91,16 +103,12 @@ uint8_t in_buf[SX126X_SPI_BUF_SIZE];
 
 void Sx126xDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
-uint8_t out_buf[SX126X_SPI_BUF_SIZE];
-
-    for (uint8_t i = 0; i < len; i++) out_buf[i] = 0; // NOP
-
     WaitOnBusy();
     SpiSelect();
     SpiTransfer(SX126X_CMD_READ_BUFFER, &_status);
-    SpiTransfer(offset);
-    SpiTransfer(0); // NOP
-    SpiTransfer(out_buf, data, len);
+    SpiWrite(offset);
+    SpiWrite(0); // NOP
+    SpiRead(data, len);
     SpiDeselect();
     // no delay according to semtech driver // TODO: ??
 }
