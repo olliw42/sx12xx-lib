@@ -531,3 +531,47 @@ void Sx126xDriverBase::CalibrateImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz
     CalibrateImage(Freq1, Freq2);
 }
 
+
+// GFSK 
+
+void Sx126xDriverBase::SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t Bandwidth, uint32_t Fdev_hz)
+{
+uint8_t buf[8];
+
+    uint32_t br = (uint32_t)(32 * SX126X_FREQ_XTAL_HZ) / br_bps;
+    buf[0] = (uint8_t)((br >> 16) & 0xFF);
+    buf[1] = (uint8_t)((br >> 8) & 0xFF);
+    buf[2] = (uint8_t)(br & 0xFF);
+
+    buf[3] = PulseShape;
+    buf[4] = Bandwidth;
+
+    double freqStep = (double)SX126X_FREQ_XTAL_HZ / (double)(1 << 25);
+    uint32_t Fdev = (uint32_t)((double)Fdev_hz / freqStep);
+
+    buf[5] = (uint8_t)((Fdev >> 16) & 0xFF);
+    buf[6] = (uint8_t)((Fdev >> 8) & 0xFF);
+    buf[7] = (uint8_t)(Fdev & 0xFF);
+
+    WriteCommand(SX126X_CMD_SET_MODULATION_PARAMS, buf, 8);
+}
+
+
+void SetPacketParamsGFSK(uint16_t PreambleLength, uint8_t PreambleDetectorLength, uint8_t SyncWordLength, uint8_t AddrComp,
+    uint8_t PacketType, uint8_t PayloadLength, uint8_t CRCType, uint8_t Whitening)
+{
+uint8_t buf[9];
+
+    buf[0] = (uint8_t)((PreambleLength >> 8) & 0xFF);
+    buf[1] = (uint8_t)(PreambleLength & 0xFF);
+    buf[2] = PreambleDetectorLength;
+    buf[3] = SyncWordLength;
+    buf[4] = AddrComp;
+    buf[5] = PacketType;
+    buf[6] = PayloadLength;
+    buf[7] = CRCType;
+    buf[8] = Whitening;
+
+    WriteCommand(SX126X_CMD_SET_PACKET_PARAMS, buf, 9);
+}
+
