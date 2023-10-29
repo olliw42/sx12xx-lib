@@ -125,6 +125,12 @@ class Sx126xDriverBase
 
     uint8_t GetLastStatus(void) { return _status; }
 
+    // GFSK methods
+
+    void SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t Bandwidth, uint32_t Fdev_hz);
+    void SetPacketParamsGFSK(uint16_t PreambleLength, uint8_t PreambleDetectorLength, uint8_t SyncWordLength, uint8_t AddrComp,
+        uint8_t PacketType, uint8_t PayloadLength, uint8_t CRCType, uint8_t Whitening);
+
   private:
     uint8_t _status; // all spi transfers yield the status, so we can just get it
 
@@ -503,6 +509,77 @@ typedef enum {
     SX126X_OCP_CONFIGURATION_60_MA        = 0x18, // table 12-1, p. 67
     SX126X_OCP_CONFIGURATION_140_MA       = 0x38,
 } SX126X_OCP_CONFIG_ENUM;
+
+//-------------------------------------------------------
+// Enum Definitions GFSK
+//-------------------------------------------------------
+
+// void SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t Bandwidth, uint32_t Fdev_hz);
+typedef enum {
+    SX126X_GFSK_PULSESHAPE_OFF      = 0x00,
+    SX126X_GFSK_PULSESHAPE_BT_03    = 0x08,
+    SX126X_GFSK_PULSESHAPE_BT_05    = 0x09,
+    SX126X_GFSK_PULSESHAPE_BT_07    = 0x0A,
+    SX126X_GFSK_PULSESHAPE_BT_1     = 0x0B,
+} SX126X_GFSK_PULSESHAPE_ENUM;
+
+typedef enum {
+    SX126X_GFSK_BW_4800             = 0x1F,
+    SX126X_GFSK_BW_5800             = 0x17,
+    SX126X_GFSK_BW_7300             = 0x0F,
+    SX126X_GFSK_BW_9700             = 0x1E,
+    SX126X_GFSK_BW_11700            = 0x16,
+    SX126X_GFSK_BW_14600            = 0x0E,
+    SX126X_GFSK_BW_19500            = 0x1D,
+    SX126X_GFSK_BW_23400            = 0x15,
+    SX126X_GFSK_BW_29300            = 0x0D,
+    SX126X_GFSK_BW_39000            = 0x1C,
+    SX126X_GFSK_BW_46900            = 0x14,
+    SX126X_GFSK_BW_58600            = 0x0C,
+    SX126X_GFSK_BW_78200            = 0x1B,
+    SX126X_GFSK_BW_93800            = 0x13,
+    SX126X_GFSK_BW_117300           = 0x0B,
+    SX126X_GFSK_BW_156200           = 0x1A,
+    SX126X_GFSK_BW_187200           = 0x12,
+    SX126X_GFSK_BW_234300           = 0x0A,
+    SX126X_GFSK_BW_312000           = 0x19,
+    SX126X_GFSK_BW_373600           = 0x11,
+    SX126X_GFSK_BW_467000           = 0x09,
+} SX126X_GFSK_BANDWIDTH_ENUM;
+
+// void SetPacketParamsGFSK(uint16_t PreambleLength, uint8_t PreambleDetectorLength, uint8_t SyncWordLength, uint8_t AddrComp,
+//      uint8_t PacketType, uint8_t PayloadLength, uint8_t CRCType, uint8_t Whitening);
+typedef enum {
+    SX126X_GFSK_PREAMBLE_DETECTOR_OFF                           = 0x00,
+    SX126X_GFSK_PREAMBLE_DETECTOR_LENGTH_8BITS                  = 0x04,
+    SX126X_GFSK_PREAMBLE_DETECTOR_LENGTH_16BITS                 = 0x05,
+    SX126X_GFSK_PREAMBLE_DETECTOR_LENGTH_24BITS                 = 0x06,
+    SX126X_GFSK_PREAMBLE_DETECTOR_LENGTH_32BITS                 = 0x07,
+} SX126X_GFSK_PREAMBLE_DETECTOR_LENGTH_ENUM;
+
+typedef enum {
+    SX126X_GFSK_ADDRESS_FILTERING_DISABLE                       = 0x00,
+    SX126X_GFSK_ADDRESS_FILTERING_NODE_ADDRESS                  = 0x01,
+    SX126X_GFSK_ADDRESS_FILTERING_NODE_AND_BROADCAST_ADDRESSES  = 0x02,
+} SX126X_GFSK_ADDRESS_FILTERING_ENUM;
+
+typedef enum {
+    SX126X_GFSK_PKT_FIX_LEN                                     = 0x00,  
+    SX126X_GFSK_PKT_VAR_LEN                                     = 0x01,  
+} SX126X_GFSK_PKT_LEN_ENUM;
+
+typedef enum {
+    SX126X_GFSK_CRC_OFF                                         = 0x01,
+    SX126X_GFSK_CRC_1_BYTE                                      = 0x00,
+    SX126X_GFSK_CRC_2_BYTES                                     = 0x02,
+    SX126X_GFSK_CRC_1_BYTE_INV                                  = 0x04,
+    SX126X_GFSK_CRC_2_BYTES_INV                                 = 0x06,
+} SX126X_GFSK_CRC_TYPES_ENUM;
+
+typedef enum {
+    SX126X_GFSK_WHITENING_OFF                                   = 0x00,
+    SX126X_GFSK_WHITENING_ENABLE                                = 0x01,
+} SX126X_GFSK_WHITENING_TYPES_ENUM;
 
 
 #endif // SX126X_LIB_H
