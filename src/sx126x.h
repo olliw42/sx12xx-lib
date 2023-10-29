@@ -511,7 +511,7 @@ typedef enum {
 } SX126X_OCP_CONFIG_ENUM;
 
 //-------------------------------------------------------
-// Enum Definitions FSK
+// Enum Definitions GFSK
 //-------------------------------------------------------
 
 // void SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t Bandwidth, uint32_t Fdev_hz);

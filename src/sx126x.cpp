@@ -557,7 +557,7 @@ uint8_t buf[8];
 }
 
 
-void SetPacketParamsGFSK(uint16_t PreambleLength, uint8_t PreambleDetectorLength, uint8_t SyncWordLength, uint8_t AddrComp,
+void Sx126xDriverBase::SetPacketParamsGFSK(uint16_t PreambleLength, uint8_t PreambleDetectorLength, uint8_t SyncWordLength, uint8_t AddrComp,
     uint8_t PacketType, uint8_t PayloadLength, uint8_t CRCType, uint8_t Whitening)
 {
 uint8_t buf[9];
