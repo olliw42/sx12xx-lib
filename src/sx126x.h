@@ -130,6 +130,8 @@ class Sx126xDriverBase
     void SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t Bandwidth, uint32_t Fdev_hz);
     void SetPacketParamsGFSK(uint16_t PreambleLength, uint8_t PreambleDetectorLength, uint8_t SyncWordLength, uint8_t AddrComp,
         uint8_t PacketType, uint8_t PayloadLength, uint8_t CRCType, uint8_t Whitening);
+    void SetSyncWordGFSK(uint16_t SyncWord);
+    void GetPacketStatusGFSK(int16_t* RssiSync);
 
   private:
     uint8_t _status; // all spi transfers yield the status, so we can just get it

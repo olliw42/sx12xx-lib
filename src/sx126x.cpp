@@ -539,6 +539,7 @@ void Sx126xDriverBase::SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseSha
 uint8_t buf[8];
 
     uint32_t br = (uint32_t)(32 * SX126X_FREQ_XTAL_HZ) / br_bps;
+    
     buf[0] = (uint8_t)((br >> 16) & 0xFF);
     buf[1] = (uint8_t)((br >> 8) & 0xFF);
     buf[2] = (uint8_t)(br & 0xFF);
@@ -573,5 +574,30 @@ uint8_t buf[9];
     buf[8] = Whitening;
 
     WriteCommand(SX126X_CMD_SET_PACKET_PARAMS, buf, 9);
+}
+
+void Sx126xDriverBase::SetSyncWordGFSK(uint16_t SyncWord)
+{
+uint8_t buf[8];
+
+    buf[0] = (uint8_t)((SyncWord >> 8) & 0xFF);
+    buf[1] = (uint8_t)(SyncWord & 0xFF);
+    buf[2] = 0;
+    buf[3] = 0;
+    buf[4] = 0;
+    buf[5] = 0;
+    buf[6] = 0;
+    buf[7] = 0;
+
+    WriteRegister(SX126X_REG_SYNC_WORD_0, buf, 8);
+}
+
+void Sx126xDriverBase::GetPacketStatusGFSK(int16_t* RssiSync)
+{
+uint8_t status[3];
+
+    ReadCommand(SX126X_CMD_GET_PACKET_STATUS, status, 3);
+
+    *RssiSync = -(int16_t)(status[2] / 2);
 }
 
