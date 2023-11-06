@@ -120,7 +120,7 @@ class Sx127xDriverBase
 // extracted from datasheet by copy&paste and then formatting
 
 typedef enum {
-    //-- LoRa Registers
+    //-- Common Registers
 
     SX1276_REG_Fifo                   = 0x00, // 7-0 Fifo
     SX1276_REG_OpMode                 = 0x01, // 7 LongRangeMode, 6 AccessSharedReg, 3 LowFrequencyModeOn, 2-0 Mode
@@ -131,6 +131,20 @@ typedef enum {
     SX1276_REG_PaRamp                 = 0x0A, // 3-0 PaRamp(3:0)
     SX1276_REG_Ocp                    = 0x0B, // 5 OcpOn, 4-0 OcpTrim
     SX1276_REG_Lna                    = 0x0C, // 7-5 LnaGain, 4-3 LnaBoostLf, 1-0 LnaBoostHf
+    SX1276_REG_DioMapping1            = 0x40, // 7-6 Dio0Mapping, 5-4 Dio1Mapping, 3-2 Dio2Mapping, 1-0 Dio3Mapping
+    SX1276_REG_DioMapping2            = 0x41, // 7-6 Dio4Mapping, 5-4 Dio5Mapping, 0 MapPreambleDetect
+    SX1276_REG_Version                = 0x42, // 7-0 Version
+    SX1276_REG_Tcxo                   = 0x4B, // 4 TcxoInputOn
+    SX1276_REG_PaDac                  = 0x4D, // 2-0 PaDac
+    SX1276_REG_FormerTemp             = 0x5B, // 7-0 FormerTemp
+    SX1276_REG_AgcRef                 = 0x61, // 5-0 AgcReferenceLevel
+    SX1276_REG_AgcThresh1             = 0x62, // 4-0 AgcStep1,
+    SX1276_REG_AgcThresh2             = 0x63, // 7-4 AgcStep2, 3-0 AgcStep3
+    SX1276_REG_AgcThresh3             = 0x64, // 7-4 AgcStep4, 3-0 AgcStep5
+    SX1276_REG_Pll                    = 0x70, // 7-6 PllBandwidth
+
+    //-- LoRa Registers
+    
     SX1276_REG_FifoAddrPtr            = 0x0D, // 7-0 FifoAddrPtr
     SX1276_REG_FifoTxBaseAddr         = 0x0E, // 7-0 FifoTxBaseAddr
     SX1276_REG_FifoRxBaseAddr         = 0x0F, // 7-0 FifoRxBaseAddr
@@ -172,22 +186,63 @@ typedef enum {
     SX1276_REG_HighBWOptimize2        = 0x3A, // 7-0 HighBWOptimize2, See errata note
     SX1276_REG_InvertIQ2              = 0x3B, // 7-0 InvertIQ2
 
-    //-- FSK Registers required for LoRa
-    
-    SX1276_REG_DioMapping1            = 0x40, // 7-6 Dio0Mapping, 5-4 Dio1Mapping, 3-2 Dio2Mapping, 1-0 Dio3Mapping
-    SX1276_REG_DioMapping2            = 0x41, // 7-6 Dio4Mapping, 5-4 Dio5Mapping, 0 MapPreambleDetect
-    SX1276_REG_Version                = 0x42, // 7-0 Version
-    SX1276_REG_Tcxo                   = 0x4B, // 4 TcxoInputOn
-    SX1276_REG_PaDac                  = 0x4D, // 2-0 PaDac
-    SX1276_REG_FormerTemp             = 0x5B, // 7-0 FormerTemp
+    //-- FSK Registers
 
-    //-- Band Specific Registers
+    SX1276_REG_FSK_BitrateMsb         = 0x02, // 
+    SX1276_REG_FSK_BitrateLsb         = 0x03, // 
+    SX1276_REG_FSK_FdevMsb            = 0x04, // 
+    SX1276_REG_FSK_FdevLsb            = 0x05, // 
+    SX1276_REG_FSK_RxConfig           = 0x0D, // 
+    SX1276_REG_FSK_RssiConfig         = 0x0E, // 
+    SX1276_REG_FSK_RssiCollision      = 0x0F, // 
+    SX1276_REG_FSK_RssiThresh         = 0x10, // 
+    SX1276_REG_FSK_RssiValue          = 0x11, // 
+    SX1276_REG_FSK_RxBw               = 0x12, // 
+    SX1276_REG_FSK_AfcBw              = 0x13, // 
+    SX1276_REG_FSK_OokPeak            = 0x14, // 
+    SX1276_REG_FSK_OokFix             = 0x15, // 
+    SX1276_REG_FSK_OokAvg             = 0x16, // 
+    SX1276_REG_FSK_AfcFei             = 0x1A, // 
+    SX1276_REG_FSK_AfcMsb             = 0x1B, // 
+    SX1276_REG_FSK_AfcLsb             = 0x1C, //
+    SX1276_REG_FSK_FeiMsb             = 0x1D, //
+    SX1276_REG_FSK_FeiLsb             = 0x1E, // 
+    SX1276_REG_FSK_PreambleDetect     = 0x1F, // 
+    SX1276_REG_FSK_RxTimeout1         = 0x20, //
+    SX1276_REG_FSK_RxTimeout2         = 0x21, // 
+    SX1276_REG_FSK_RxTimeout3         = 0x22, // 
+    SX1276_REG_FSK_RxDelay            = 0x23, // 
+    SX1276_REG_FSK_Osc                = 0x24, //
+    SX1276_REG_FSK_PreambleMsb        = 0x25, // 
+    SX1276_REG_FSK_PreambleLsb        = 0x26, // 
+    SX1276_REG_FSK_SyncConfig         = 0x27, // 
+    SX1276_REG_FSK_SyncValue1         = 0x28, // 
+    SX1276_REG_FSK_SyncValue2         = 0x29, // 
+    SX1276_REG_FSK_SyncValue3         = 0x2A, // 
+    SX1276_REG_FSK_SyncValue4         = 0x2B, // 
+    SX1276_REG_FSK_SyncValue5         = 0x2C, // 
+    SX1276_REG_FSK_SyncValue6         = 0x2D, // 
+    SX1276_REG_FSK_SyncValue7         = 0x2E, // 
+    SX1276_REG_FSK_SyncValue8         = 0x2F, // 
+    SX1276_REG_FSK_PacketConfig1      = 0x30, // 
+    SX1276_REG_FSK_PacketConfig2      = 0x31, // 
+    SX1276_REG_FSK_PayloadLength      = 0x32, // 
+    SX1276_REG_FSK_NodeAdrs           = 0x33, // 
+    SX1276_REG_FSK_Broadcast Adrs     = 0x34, // 
+    SX1276_REG_FSK_FifoThresh         = 0x35, // 
+    SX1276_REG_FSK_SeqConfig1         = 0x36, // 
+    SX1276_REG_FSK_SeqConfig1         = 0x37, // 
+    SX1276_REG_FSK_TimerResol         = 0x38, // 
+    SX1276_REG_FSK_Timer1Coef         = 0x39, // 
+    SX1276_REG_FSK_Timer2Coef         = 0x3A, // 
+    SX1276_REG_FSK_ImageCal           = 0x3B, // 
+    SX1276_REG_FSK_RegTemp            = 0x3C, // 
+    SX1276_REG_FSK_RegLowBat          = 0x3D, // 
+    SX1276_REG_FSK_IrqFlags1          = 0x3E, // 
+    SX1276_REG_FSK_IrqFlags2          = 0x3F, // 
+    SX1276_REG_FSK_PllHop             = 0x44, // 
+    SX1276_REG_FSK_BitRateFrac        = 0x5D, // 
 
-    SX1276_REG_AgcRef                 = 0x61, // 5-0 AgcReferenceLevel
-    SX1276_REG_AgcThresh1             = 0x62, // 4-0 AgcStep1,
-    SX1276_REG_AgcThresh2             = 0x63, // 7-4 AgcStep2, 3-0 AgcStep3
-    SX1276_REG_AgcThresh3             = 0x64, // 7-4 AgcStep4, 3-0 AgcStep5
-    SX1276_REG_Pll                    = 0x70, // 7-6 PllBandwidth
     
 } SX1276_REG_ENUM;
 
