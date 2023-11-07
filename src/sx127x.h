@@ -118,9 +118,11 @@ class Sx127xDriverBase
 // Enum Definitions
 //-------------------------------------------------------
 // extracted from datasheet by copy&paste and then formatting
+// many registers function differently according to whether LoRa or FSK mode is used
+// seperate enums have been created to address the overlap
 
 typedef enum {
-    //-- Common Registers
+    //-- Common Registers, applicable to both LoRa and FSK modes
 
     SX1276_REG_Fifo                   = 0x00, // 7-0 Fifo
     SX1276_REG_OpMode                 = 0x01, // 7 LongRangeMode, 6 AccessSharedReg, 3 LowFrequencyModeOn, 2-0 Mode
@@ -128,7 +130,7 @@ typedef enum {
     SX1276_REG_FrMid                  = 0x07, // 7-0 Frf(15:8)
     SX1276_REG_FrLsb                  = 0x08, // 7-0 Frf(7:0)
     SX1276_REG_PaConfig               = 0x09, // 7 PaSelect, 6-4 MaxPower, 3-0 OutputPower
-    SX1276_REG_PaRamp                 = 0x0A, // 3-0 PaRamp(3:0)
+    SX1276_REG_PaRamp                 = 0x0A, // 6-5 ModulationShaping, 3-0 PaRamp(3:0)
     SX1276_REG_Ocp                    = 0x0B, // 5 OcpOn, 4-0 OcpTrim
     SX1276_REG_Lna                    = 0x0C, // 7-5 LnaGain, 4-3 LnaBoostLf, 1-0 LnaBoostHf
     SX1276_REG_DioMapping1            = 0x40, // 7-6 Dio0Mapping, 5-4 Dio1Mapping, 3-2 Dio2Mapping, 1-0 Dio3Mapping
@@ -142,9 +144,11 @@ typedef enum {
     SX1276_REG_AgcThresh2             = 0x63, // 7-4 AgcStep2, 3-0 AgcStep3
     SX1276_REG_AgcThresh3             = 0x64, // 7-4 AgcStep4, 3-0 AgcStep5
     SX1276_REG_Pll                    = 0x70, // 7-6 PllBandwidth
+} SX1276_REG_ENUM;
 
-    //-- LoRa Registers
-    
+typedef enum {
+    //-- LoRa Registers, applicable to only LoRa mode
+
     SX1276_REG_FifoAddrPtr            = 0x0D, // 7-0 FifoAddrPtr
     SX1276_REG_FifoTxBaseAddr         = 0x0E, // 7-0 FifoTxBaseAddr
     SX1276_REG_FifoRxBaseAddr         = 0x0F, // 7-0 FifoRxBaseAddr
@@ -185,8 +189,10 @@ typedef enum {
     SX1276_REG_SyncWord               = 0x39, // 7-0 SyncWord
     SX1276_REG_HighBWOptimize2        = 0x3A, // 7-0 HighBWOptimize2, See errata note
     SX1276_REG_InvertIQ2              = 0x3B, // 7-0 InvertIQ2
+} SX1276_REG_LORA_ENUM;
 
-    //-- FSK Registers
+typedef enum {
+    //-- FSK Registers, applicable to only FSK mode
 
     SX1276_REG_FSK_BitrateMsb         = 0x02, // 7-0 BitRate(15:8)
     SX1276_REG_FSK_BitrateLsb         = 0x03, // 7-0 BitRate(7:0)
@@ -241,10 +247,8 @@ typedef enum {
     SX1276_REG_FSK_IrqFlags1          = 0x3E, // 7 ModeReady, 6 RxReady, 5 TxReady, 4 PllLock, 3 Rssi, 2 Timeout, 1 PreambleDetect, 0 SyncAddressMatch
     SX1276_REG_FSK_IrqFlags2          = 0x3F, // 7 FifoFull, 6 FifoEmpty, 5 FifoLevel, 4 FifoOverrun, 3 PacketSent, 2 PayloadReady, 1 CrcOk, 0 LowBat
     SX1276_REG_FSK_PllHop             = 0x44, // 7 FastHopOn
-    SX1276_REG_FSK_BitRateFrac        = 0x5D, // 3-0 BitRateFrac
-
-    
-} SX1276_REG_ENUM;
+    SX1276_REG_FSK_BitRateFrac        = 0x5D, // 3-0 BitRateFrac  
+} SX1276_REG_GFSK_ENUM;
 
 
 //-------------------------------------------------------
