@@ -248,7 +248,7 @@ typedef enum {
     SX1276_REG_FSK_IrqFlags2          = 0x3F, // 7 FifoFull, 6 FifoEmpty, 5 FifoLevel, 4 FifoOverrun, 3 PacketSent, 2 PayloadReady, 1 CrcOk, 0 LowBat
     SX1276_REG_FSK_PllHop             = 0x44, // 7 FastHopOn
     SX1276_REG_FSK_BitRateFrac        = 0x5D, // 3-0 BitRateFrac  
-} SX1276_REG_GFSK_ENUM;
+} SX1276_REG_FSK_ENUM;
 
 
 //-------------------------------------------------------
