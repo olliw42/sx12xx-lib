@@ -234,10 +234,10 @@ typedef enum {
     SX1276_REG_FSK_PacketConfig2           = 0x31, // 6 DataMode, 5 IoHomeOn, 4 IoHomePowerFrame, 3 BeaconOn, 2-0 PayloadLength(10:8)
     SX1276_REG_FSK_PayloadLength           = 0x32, // 7-0 PayloadLength(7:0)
     SX1276_REG_FSK_NodeAdrs                = 0x33, // 7-0 NodeAddress
-    SX1276_REG_FSK_Broadcast Adrs          = 0x34, // 7-0 BroadcastAddress
+    SX1276_REG_FSK_BroadcastAdrs           = 0x34, // 7-0 BroadcastAddress
     SX1276_REG_FSK_FifoThresh              = 0x35, // 7 TxStartCondition, 5-0 FifoThreshold
     SX1276_REG_FSK_SeqConfig1              = 0x36, // 7 SequencerStart, 6 SequencerStop, 5 IdleMode, 4-3 FromStart, 2 LowPowerSelection, 1 FromIdle, 0 FromTransmit
-    SX1276_REG_FSK_SeqConfig1              = 0x37, // 7-5 FromReceive, 4-3 FromRxTimeout, 2-0 FromPacketReceived
+    SX1276_REG_FSK_SeqConfig2              = 0x37, // 7-5 FromReceive, 4-3 FromRxTimeout, 2-0 FromPacketReceived
     SX1276_REG_FSK_TimerResol              = 0x38, // 3-2 Timer1Resolution, 1-0 Timer2Resolution
     SX1276_REG_FSK_Timer1Coef              = 0x39, // 7-0 Timer1Coefficient
     SX1276_REG_FSK_Timer2Coef              = 0x3A, // 7-0 Timer2Coefficient

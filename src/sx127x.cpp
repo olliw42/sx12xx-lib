@@ -219,7 +219,7 @@ void Sx127xDriverBase::SetModulationParams(uint8_t SpreadingFactor, uint8_t Band
           WriteRegister(SX1276_REG_LORA_DetectionThreshold, SX1276_LORA_DETECTION_TRESHOLD_SF_6);
     } else {
           // 7 AutomaticIFOn, 2-0 DetectionOptimize
-          ReadWriteRegister(SX1276_LORA_REG_DetectOptimize, 0x07, SX1276_LORA_DETECTION_OPTIMIZE_SF_7_12);
+          ReadWriteRegister(SX1276_REG_LORA_DetectOptimize, 0x07, SX1276_LORA_DETECTION_OPTIMIZE_SF_7_12);
           WriteRegister(SX1276_REG_LORA_DetectionThreshold, SX1276_LORA_DETECTION_TRESHOLD_SF_7_12);
     }
 }
