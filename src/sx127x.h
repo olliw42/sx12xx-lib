@@ -288,10 +288,6 @@ typedef enum {
 } SX1276_MODE_ENUM;
 
 
-//-------------------------------------------------------
-// Enum Definitions Registers For RF Blocks
-//-------------------------------------------------------
-
 // SX1276_REG_PaConfig = 0x09
 
 // 7 PaSelect, Selects PA output pin
@@ -393,6 +389,92 @@ typedef enum {
 } SX1276_LNA_BOOST_HF_ENUM;
 
 
+// Mapping of pins DIO0 to DIO5
+// See Table 18 for mapping in LoRa mode
+
+// SX1276_REG_DioMapping1 = 0x40
+
+// 7-6 Dio0Mapping 
+typedef enum {
+    SX1276_DIO0_MAPPING_RX_DONE                 = 0x00,
+    SX1276_DIO0_MAPPING_TX_DONE                 = (1 << 6),
+    SX1276_DIO0_MAPPING_CAD_DONE                = (2 << 6),
+    // from ExpressLRS:
+    // undocumented "hack", looking at Table 18 from datasheet SX127X_REG_DIO_MAPPING_1 = 11 appears to be
+    // unspported by infact it generates an intterupt on both RXdone and TXdone, this saves switching modes.
+    SX1276_DIO0_MAPPING_RX_TX_DONE              = (3 << 6),
+} SX1276_DIO0_MAPPING_ENUM;
+
+// 5-4 Dio1Mapping
+typedef enum {
+    SX1276_DIO1_MAPPING_RX_TIMEOUT              = 0x00,
+    SX1276_DIO1_MAPPING_FHSS_CHANGE_CHANNEL     = (1 << 4),
+    SX1276_DIO1_MAPPING_CAD_DETECTED            = (2 << 4),
+} SX1276_DIO1_MAPPING_ENUM;
+
+// 3-2 Dio2Mapping
+typedef enum {
+    SX1276_DIO2_MAPPING_FHSS_CHANGE_CHANNEL     = 0x00,
+} SX1276_DIO2_MAPPING_ENUM;
+
+// 1-0 Dio3Mapping
+typedef enum {
+    SX1276_DIO3_MAPPING_CAD_DONE                = 0x00,
+    SX1276_DIO3_MAPPING_VALID_HEADER            = 0x01,
+    SX1276_DIO3_MAPPING_PAYLOAD_CRC_ERROR       = 0x02,
+} SX1276_DIO3_MAPPING_ENUM; 
+
+// SX1276_REG_DioMapping2 = 0x41
+
+// 7-6 Dio4Mapping
+typedef enum {
+    SX1276_DIO4_MAPPING_CAD_DETECTED            = 0x00,
+    SX1276_DIO4_MAPPING_PLL_LOCK                = (1 << 6),
+} SX1276_DIO4_MAPPING_ENUM;
+
+// 5-4 Dio5Mapping
+typedef enum {
+    SX1276_DIO5_MAPPING_MODE_READY              = 0x00,
+    SX1276_DIO5_MAPPING_CLKOUT                  = (1 << 4),
+} SX1276_DIO5_MAPPING_ENUM;
+
+// 0 MapPreambleDetect, Allows the mapping of either Rssi Or PreambleDetect to the DIO pins, as summarized on Table 29 and Table 30
+typedef enum {
+    SX1276_MAP_PREAMBLE_DETECT_IRQ_RSSI             = 0x00, // 0 : Rssi interrupt
+    SX1276_MAP_PREAMBLE_DETECT_IRQ_PREAMBLE_DETECT  = 0x01, // 1 : PreambleDetect interrupt
+} SX1276_MAP_PREAMBLE_DETECT_ENUM;
+
+
+// SX1276_REG_Tcxo = 0x4B
+
+// 4 TcxoInputOn, Controls the crystal oscillator
+typedef enum {
+    SX1276_TCXO_INPUT_NORMAL          = 0x00, // 0 : Crystal Oscillator with external Crystal
+    SX1276_TCXO_INPUT_CLIPPED         = (1 << 4), // 1 : External clipped sine TCXO AC-connected to XTA pin
+} SX1276_TCXO_INPUT_ENUM;    
+
+
+// SX1276_REG_PaDac = 0x4D
+
+// 2-0 PaDac, Enables the +20dBm option on PA_BOOST pin
+typedef enum {
+    SX1276_PA_DAC_DEFAULT             = 0x04, // 0x04 : Default value
+    SX1276_PA_DAC_BOOST               = 0x07, // 0x07 : +20dBm on PA_BOOST when OutputPower = 1111
+} SX1276_PA_DAC_ENUM;
+
+
+// SX1276_REG_PllLf = 0x70
+// SX1276_REG_PllHf = 0x70
+
+// 7-6 PllBandwidth, Controls the PLL bandwidth:
+typedef enum {
+    SX1276_PLL_BW_75_KHZ              = 0x00, // 00 : 75 kHz
+    SX1276_PLL_BW_150_KHZ             = (1 << 6), // 01 : 150 kHz
+    SX1276_PLL_BW_225_KHZ             = (2 << 6), // 10 : 225 kHz
+    SX1276_PLL_BW_300_KHZ             = (3 << 6), // 11 : 300 kHz
+} SX1276_PLL_BW_ENUM;
+
+
 //-------------------------------------------------------
 // Enum Definitions Lora Page Registers
 //-------------------------------------------------------
@@ -409,7 +491,7 @@ typedef enum {
     SX1276_IRQ_RX_DONE                = 0x40, // 6 RxDone, Packet reception complete interrupt
     SX1276_IRQ_RX_TIMEOUT             = 0x80, // 7 RxTimeout, Timeout interrupt
     SX1276_IRQ_ALL                    = 0xFF,
-} SX1276_IRQ_ENUM;
+} SX1276_LORA_IRQ_ENUM;
 
 
 // SX1276_REG_ModemStat = 0x18
@@ -422,7 +504,7 @@ typedef enum {
     SX1276_MODEM_STAT_HEADER_INFO_VALID         = 0x08, // 3 : Header info valid
     SX1276_MODEM_STAT_MODEM_CLEAR               = 0x10, // 4 : Modem clear
     SX1276_MODEM_STAT_MASK                      = 0x1F,
-} SX1276_MODEM_STAT_ENUM;
+} SX1276_LORA_MODEM_STAT_ENUM;
 
 
 // SX1276_REG_HopChannel = 0x1C
@@ -565,7 +647,7 @@ typedef enum {
 typedef enum {
     SX1276_LORA_DETECTION_TRESHOLD_SF_6         = 0x0C, // 0x0C : SF6
     SX1276_LORA_DETECTION_TRESHOLD_SF_7_12      = 0x0A, // 0x0A : SF7 to SF12
-} SX1276_DETECTION_TRESHOLD_ENUM;
+} SX1276_LORA_DETECTION_TRESHOLD_ENUM;
 
 
 // SX1276_REG_InvertIQ2 = 0x3B
@@ -577,117 +659,7 @@ typedef enum {
 } SX1276_LORA_IQ2_ENUM;
 
 
-//-------------------------------------------------------
-// Enum Definitions FSK Registers required for LoRa
-//-------------------------------------------------------
-
-// Mapping of pins DIO0 to DIO5
-// See Table 18 for mapping in LoRa mode
-
-// SX1276_REG_DioMapping1 = 0x40
-
-// 7-6 Dio0Mapping 
-typedef enum {
-    SX1276_DIO0_MAPPING_RX_DONE                 = 0x00,
-    SX1276_DIO0_MAPPING_TX_DONE                 = (1 << 6),
-    SX1276_DIO0_MAPPING_CAD_DONE                = (2 << 6),
-    // from ExpressLRS:
-    // undocumented "hack", looking at Table 18 from datasheet SX127X_REG_DIO_MAPPING_1 = 11 appears to be
-    // unspported by infact it generates an intterupt on both RXdone and TXdone, this saves switching modes.
-    SX1276_DIO0_MAPPING_RX_TX_DONE              = (3 << 6),
-} SX1276_DIO0_MAPPING_ENUM;
-
-// 5-4 Dio1Mapping
-typedef enum {
-    SX1276_DIO1_MAPPING_RX_TIMEOUT              = 0x00,
-    SX1276_DIO1_MAPPING_FHSS_CHANGE_CHANNEL     = (1 << 4),
-    SX1276_DIO1_MAPPING_CAD_DETECTED            = (2 << 4),
-} SX1276_DIO1_MAPPING_ENUM;
-
-// 3-2 Dio2Mapping
-typedef enum {
-    SX1276_DIO2_MAPPING_FHSS_CHANGE_CHANNEL     = 0x00,
-} SX1276_DIO2_MAPPING_ENUM;
-
-// 1-0 Dio3Mapping
-typedef enum {
-    SX1276_DIO3_MAPPING_CAD_DONE                = 0x00,
-    SX1276_DIO3_MAPPING_VALID_HEADER            = 0x01,
-    SX1276_DIO3_MAPPING_PAYLOAD_CRC_ERROR       = 0x02,
-} SX1276_DIO3_MAPPING_ENUM; 
-
-
-// SX1276_REG_DioMapping2 = 0x41
-
-// 7-6 Dio4Mapping
-typedef enum {
-    SX1276_DIO4_MAPPING_CAD_DETECTED            = 0x00,
-    SX1276_DIO4_MAPPING_PLL_LOCK                = (1 << 6),
-} SX1276_DIO4_MAPPING_ENUM;
-
-// 5-4 Dio5Mapping
-typedef enum {
-    SX1276_DIO5_MAPPING_MODE_READY              = 0x00,
-    SX1276_DIO5_MAPPING_CLKOUT                  = (1 << 4),
-} SX1276_DIO5_MAPPING_ENUM;
-
-// 0 MapPreambleDetect, Allows the mapping of either Rssi Or PreambleDetect to the DIO pins, as summarized on Table 29 and Table 30
-typedef enum {
-    SX1276_MAP_PREAMBLE_DETECT_IRQ_RSSI             = 0x00, // 0 : Rssi interrupt
-    SX1276_MAP_PREAMBLE_DETECT_IRQ_PREAMBLE_DETECT  = 0x01, // 1 : PreambleDetect interrupt
-} SX1276_MAP_PREAMBLE_DETECT_ENUM;
-
-
-// SX1276_REG_Tcxo = 0x4B
-
-// 4 TcxoInputOn, Controls the crystal oscillator
-typedef enum {
-    SX1276_TCXO_INPUT_NORMAL          = 0x00, // 0 : Crystal Oscillator with external Crystal
-    SX1276_TCXO_INPUT_CLIPPED         = (1 << 4), // 1 : External clipped sine TCXO AC-connected to XTA pin
-} SX1276_TCXO_INPUT_ENUM;    
-
-
-// SX1276_REG_PaDac = 0x4D
-
-// 2-0 PaDac, Enables the +20dBm option on PA_BOOST pin
-typedef enum {
-    SX1276_PA_DAC_DEFAULT             = 0x04, // 0x04 : Default value
-    SX1276_PA_DAC_BOOST               = 0x07, // 0x07 : +20dBm on PA_BOOST when OutputPower = 1111
-} SX1276_PA_DAC_ENUM;
-
-
-//-------------------------------------------------------
-// Enum Definitions Band Specific Registers
-//-------------------------------------------------------
-
-// SX1276_REG_PllLf = 0x70
-// SX1276_REG_PllHf = 0x70
-
-// 7-6 PllBandwidth, Controls the PLL bandwidth:
-typedef enum {
-    SX1276_PLL_BW_75_KHZ              = 0x00, // 00 : 75 kHz
-    SX1276_PLL_BW_150_KHZ             = (1 << 6), // 01 : 150 kHz
-    SX1276_PLL_BW_225_KHZ             = (2 << 6), // 10 : 225 kHz
-    SX1276_PLL_BW_300_KHZ             = (3 << 6), // 11 : 300 kHz
-} SX1276_PLL_BW_ENUM;
-
-
 #endif // SX127X_LIB_H
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
