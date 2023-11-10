@@ -118,137 +118,78 @@ class Sx127xDriverBase
 // Enum Definitions
 //-------------------------------------------------------
 // extracted from datasheet by copy&paste and then formatting
-// many registers function differently according to whether LoRa or FSK mode is used
-// seperate enums have been created to address the overlap
 
 typedef enum {
-    //-- Common Registers, applicable to both LoRa and FSK modes
+    //-- LoRa Registers
 
-    SX1276_REG_Fifo                        = 0x00, // 7-0 Fifo
-    SX1276_REG_OpMode                      = 0x01, // 7 LongRangeMode, 6 AccessSharedReg, 3 LowFrequencyModeOn, 2-0 Mode
-    SX1276_REG_FrMsb                       = 0x06, // 7-0 Frf(23:16)
-    SX1276_REG_FrMid                       = 0x07, // 7-0 Frf(15:8)
-    SX1276_REG_FrLsb                       = 0x08, // 7-0 Frf(7:0)
-    SX1276_REG_PaConfig                    = 0x09, // 7 PaSelect, 6-4 MaxPower, 3-0 OutputPower
-    SX1276_REG_PaRamp                      = 0x0A, // 6-5 ModulationShaping, 3-0 PaRamp(3:0)
-    SX1276_REG_Ocp                         = 0x0B, // 5 OcpOn, 4-0 OcpTrim
-    SX1276_REG_Lna                         = 0x0C, // 7-5 LnaGain, 4-3 LnaBoostLf, 1-0 LnaBoostHf
-    SX1276_REG_DioMapping1                 = 0x40, // 7-6 Dio0Mapping, 5-4 Dio1Mapping, 3-2 Dio2Mapping, 1-0 Dio3Mapping
-    SX1276_REG_DioMapping2                 = 0x41, // 7-6 Dio4Mapping, 5-4 Dio5Mapping, 0 MapPreambleDetect
-    SX1276_REG_Version                     = 0x42, // 7-0 Version
-    SX1276_REG_Tcxo                        = 0x4B, // 4 TcxoInputOn
-    SX1276_REG_PaDac                       = 0x4D, // 2-0 PaDac
-    SX1276_REG_FormerTemp                  = 0x5B, // 7-0 FormerTemp
-    SX1276_REG_AgcRef                      = 0x61, // 5-0 AgcReferenceLevel
-    SX1276_REG_AgcThresh1                  = 0x62, // 4-0 AgcStep1,
-    SX1276_REG_AgcThresh2                  = 0x63, // 7-4 AgcStep2, 3-0 AgcStep3
-    SX1276_REG_AgcThresh3                  = 0x64, // 7-4 AgcStep4, 3-0 AgcStep5
-    SX1276_REG_Pll                         = 0x70, // 7-6 PllBandwidth
+    SX1276_REG_Fifo                   = 0x00, // 7-0 Fifo
+    SX1276_REG_OpMode                 = 0x01, // 7 LongRangeMode, 6 AccessSharedReg, 3 LowFrequencyModeOn, 2-0 Mode
+    SX1276_REG_FrMsb                  = 0x06, // 7-0 Frf(23:16)
+    SX1276_REG_FrMid                  = 0x07, // 7-0 Frf(15:8)
+    SX1276_REG_FrLsb                  = 0x08, // 7-0 Frf(7:0)
+    SX1276_REG_PaConfig               = 0x09, // 7 PaSelect, 6-4 MaxPower, 3-0 OutputPower
+    SX1276_REG_PaRamp                 = 0x0A, // 3-0 PaRamp(3:0)
+    SX1276_REG_Ocp                    = 0x0B, // 5 OcpOn, 4-0 OcpTrim
+    SX1276_REG_Lna                    = 0x0C, // 7-5 LnaGain, 4-3 LnaBoostLf, 1-0 LnaBoostHf
+    SX1276_REG_FifoAddrPtr            = 0x0D, // 7-0 FifoAddrPtr
+    SX1276_REG_FifoTxBaseAddr         = 0x0E, // 7-0 FifoTxBaseAddr
+    SX1276_REG_FifoRxBaseAddr         = 0x0F, // 7-0 FifoRxBaseAddr
+    SX1276_REG_FifoRxCurrentAddr      = 0x10, // 7-0 FifoRxCurrentAddr
+    SX1276_REG_IrqFlagsMask           = 0x11, // 7 RxTimeoutMask, 6 RxDoneMask, 5 PayloadCrcErrorMask, 4 ValidHeaderMask, 3 TxDoneMask, 2 CadDoneMask, 1 FhssChangeChannelMask, 0 CadDetectedMask
+    SX1276_REG_IrqFlags               = 0x12, // 7 RxTimeout, 6 RxDone, 5 PayloadCrcError, 4 ValidHeader, 3 TxDone, 2 CadDone, 1 FhssChangeChannel, 0 CadDetected
+    SX1276_REG_RxNbBytes              = 0x13, // 7-0 FifoRxBytesNb
+    SX1276_REG_RxHeaderCntValueMsb    = 0x14, // 7-0 ValidHeaderCntMsb(15:8)
+    SX1276_REG_RxHeaderCntValueLsb    = 0x15, // 7-0 ValidHeaderCntLsb(7:0)
+    SX1276_REG_RxPacketCntValueMsb    = 0x16, // 7-0 ValidPacketCntMsb(15:8)
+    SX1276_REG_RxPacketCntValueLsb    = 0x17, // 7-0 ValidPacketCntLsb(7:0)
+    SX1276_REG_ModemStat              = 0x18, // 7-5 RxCodingRate, 4-0 ModemStatus
+    SX1276_REG_PktSnrValue            = 0x19, // 7-0 PacketSnr
+    SX1276_REG_PktRssiValue           = 0x1A, // 7-0 PacketRssi
+    SX1276_REG_RssiValue              = 0x1B, // 7-0 Rssi
+    SX1276_REG_HopChannel             = 0x1C, // 7 PllTimeout, 6 CrcOnPayload, 5-0 FhssPresentChannel
+    SX1276_REG_ModemConfig1           = 0x1D, // 7-4 Bw, 3-1 CodingRate, 0 ImplicitHeaderModeOn
+    SX1276_REG_ModemConfig2           = 0x1E, // 7-4 SpreadingFactor, 3 TxContinuousMode, 2 RxPayloadCrcOn, 1-0 SymbTimeout(9:8)
+    SX1276_REG_SymbTimeoutLsb         = 0x1F, // 7-0 SymbTimeout(7:0)
+    SX1276_REG_PreambleMsb            = 0x20, // 7-0 PreambleLength(15:8)
+    SX1276_REG_PreambleLsb            = 0x21, // 7-0 PreambleLength(7:0)
+    SX1276_REG_PayloadLength          = 0x22, // 7-0 PayloadLength(7:0)
+    SX1276_REG_MaxPayloadLength       = 0x23, // 7-0 PayloadMaxLength(7:0)
+    SX1276_REG_HopPeriod              = 0x24, // 7-0 FreqHoppingPeriod(7:0)
+    SX1276_REG_FifoRxByteAddr         = 0x25, // 7-0 FifoRxByteAddrPtr
+    SX1276_REG_ModemConfig3           = 0x26, // 3 LowDataRateOptimize, 2 AgcAutoOn
+    SX1276_REG_0x27                   = 0x27, // 7-0 PpmCorrection
+    SX1276_REG_FeiMsb                 = 0x28, // 3-0 FreqError(19:16)
+    SX1276_REG_FeiMid                 = 0x29, // 7-0 FreqError(15:8)
+    SX1276_REG_FeiLsb                 = 0x2A, // 7-0 FreqError(7:0)
+    SX1276_REG_RssiWideband           = 0x2C, // 7-0 RssiWideband
+    SX1276_REG_0x2F                   = 0x2F, // 7-0 IfFreq2, See errata note
+    SX1276_REG_0x30                   = 0x30, // 7-0 IfFreq1, See errata note
+    SX1276_REG_DetectOptimize         = 0x31, // 7 AutomaticIFOn, 2-0 DetectionOptimize
+    SX1276_REG_InvertIQ               = 0x33, // 6 InvertIQ RX, 0 InvertIQ TX
+    SX1276_REG_HighBWOptimize1        = 0x36, // 7-0 HighBWOptimize1, See errata note
+    SX1276_REG_DetectionThreshold     = 0x37, // 7-0 DetectionThreshold
+    SX1276_REG_SyncWord               = 0x39, // 7-0 SyncWord
+    SX1276_REG_HighBWOptimize2        = 0x3A, // 7-0 HighBWOptimize2, See errata note
+    SX1276_REG_InvertIQ2              = 0x3B, // 7-0 InvertIQ2
+
+    //-- FSK Registers required for LoRa
+    
+    SX1276_REG_DioMapping1            = 0x40, // 7-6 Dio0Mapping, 5-4 Dio1Mapping, 3-2 Dio2Mapping, 1-0 Dio3Mapping
+    SX1276_REG_DioMapping2            = 0x41, // 7-6 Dio4Mapping, 5-4 Dio5Mapping, 0 MapPreambleDetect
+    SX1276_REG_Version                = 0x42, // 7-0 Version
+    SX1276_REG_Tcxo                   = 0x4B, // 4 TcxoInputOn
+    SX1276_REG_PaDac                  = 0x4D, // 2-0 PaDac
+    SX1276_REG_FormerTemp             = 0x5B, // 7-0 FormerTemp
+
+    //-- Band Specific Registers
+
+    SX1276_REG_AgcRef                 = 0x61, // 5-0 AgcReferenceLevel
+    SX1276_REG_AgcThresh1             = 0x62, // 4-0 AgcStep1,
+    SX1276_REG_AgcThresh2             = 0x63, // 7-4 AgcStep2, 3-0 AgcStep3
+    SX1276_REG_AgcThresh3             = 0x64, // 7-4 AgcStep4, 3-0 AgcStep5
+    SX1276_REG_Pll                    = 0x70, // 7-6 PllBandwidth
+    
 } SX1276_REG_ENUM;
-
-typedef enum {
-    //-- LoRa Registers, applicable to only LoRa mode
-
-    SX1276_REG_LORA_FifoAddrPtr            = 0x0D, // 7-0 FifoAddrPtr
-    SX1276_REG_LORA_FifoTxBaseAddr         = 0x0E, // 7-0 FifoTxBaseAddr
-    SX1276_REG_LORA_FifoRxBaseAddr         = 0x0F, // 7-0 FifoRxBaseAddr
-    SX1276_REG_LORA_FifoRxCurrentAddr      = 0x10, // 7-0 FifoRxCurrentAddr
-    SX1276_REG_LORA_IrqFlagsMask           = 0x11, // 7 RxTimeoutMask, 6 RxDoneMask, 5 PayloadCrcErrorMask, 4 ValidHeaderMask, 3 TxDoneMask, 2 CadDoneMask, 1 FhssChangeChannelMask, 0 CadDetectedMask
-    SX1276_REG_LORA_IrqFlags               = 0x12, // 7 RxTimeout, 6 RxDone, 5 PayloadCrcError, 4 ValidHeader, 3 TxDone, 2 CadDone, 1 FhssChangeChannel, 0 CadDetected
-    SX1276_REG_LORA_RxNbBytes              = 0x13, // 7-0 FifoRxBytesNb
-    SX1276_REG_LORA_RxHeaderCntValueMsb    = 0x14, // 7-0 ValidHeaderCntMsb(15:8)
-    SX1276_REG_LORA_RxHeaderCntValueLsb    = 0x15, // 7-0 ValidHeaderCntLsb(7:0)
-    SX1276_REG_LORA_RxPacketCntValueMsb    = 0x16, // 7-0 ValidPacketCntMsb(15:8)
-    SX1276_REG_LORA_RxPacketCntValueLsb    = 0x17, // 7-0 ValidPacketCntLsb(7:0)
-    SX1276_REG_LORA_ModemStat              = 0x18, // 7-5 RxCodingRate, 4-0 ModemStatus
-    SX1276_REG_LORA_PktSnrValue            = 0x19, // 7-0 PacketSnr
-    SX1276_REG_LORA_PktRssiValue           = 0x1A, // 7-0 PacketRssi
-    SX1276_REG_LORA_RssiValue              = 0x1B, // 7-0 Rssi
-    SX1276_REG_LORA_HopChannel             = 0x1C, // 7 PllTimeout, 6 CrcOnPayload, 5-0 FhssPresentChannel
-    SX1276_REG_LORA_ModemConfig1           = 0x1D, // 7-4 Bw, 3-1 CodingRate, 0 ImplicitHeaderModeOn
-    SX1276_REG_LORA_ModemConfig2           = 0x1E, // 7-4 SpreadingFactor, 3 TxContinuousMode, 2 RxPayloadCrcOn, 1-0 SymbTimeout(9:8)
-    SX1276_REG_LORA_SymbTimeoutLsb         = 0x1F, // 7-0 SymbTimeout(7:0)
-    SX1276_REG_LORA_PreambleMsb            = 0x20, // 7-0 PreambleLength(15:8)
-    SX1276_REG_LORA_PreambleLsb            = 0x21, // 7-0 PreambleLength(7:0)
-    SX1276_REG_LORA_PayloadLength          = 0x22, // 7-0 PayloadLength(7:0)
-    SX1276_REG_LORA_MaxPayloadLength       = 0x23, // 7-0 PayloadMaxLength(7:0)
-    SX1276_REG_LORA_HopPeriod              = 0x24, // 7-0 FreqHoppingPeriod(7:0)
-    SX1276_REG_LORA_FifoRxByteAddr         = 0x25, // 7-0 FifoRxByteAddrPtr
-    SX1276_REG_LORA_ModemConfig3           = 0x26, // 3 LowDataRateOptimize, 2 AgcAutoOn
-    SX1276_REG_LORA_0x27                   = 0x27, // 7-0 PpmCorrection
-    SX1276_REG_LORA_FeiMsb                 = 0x28, // 3-0 FreqError(19:16)
-    SX1276_REG_LORA_FeiMid                 = 0x29, // 7-0 FreqError(15:8)
-    SX1276_REG_LORA_FeiLsb                 = 0x2A, // 7-0 FreqError(7:0)
-    SX1276_REG_LORA_RssiWideband           = 0x2C, // 7-0 RssiWideband
-    SX1276_REG_LORA_0x2F                   = 0x2F, // 7-0 IfFreq2, See errata note
-    SX1276_REG_LORA_0x30                   = 0x30, // 7-0 IfFreq1, See errata note
-    SX1276_REG_LORA_DetectOptimize         = 0x31, // 7 AutomaticIFOn, 2-0 DetectionOptimize
-    SX1276_REG_LORA_InvertIQ               = 0x33, // 6 InvertIQ RX, 0 InvertIQ TX
-    SX1276_REG_LORA_HighBWOptimize1        = 0x36, // 7-0 HighBWOptimize1, See errata note
-    SX1276_REG_LORA_DetectionThreshold     = 0x37, // 7-0 DetectionThreshold
-    SX1276_REG_LORA_SyncWord               = 0x39, // 7-0 SyncWord
-    SX1276_REG_LORA_HighBWOptimize2        = 0x3A, // 7-0 HighBWOptimize2, See errata note
-    SX1276_REG_LORA_InvertIQ2              = 0x3B, // 7-0 InvertIQ2
-} SX1276_REG_LORA_ENUM;
-
-typedef enum {
-    //-- FSK Registers, applicable to only FSK mode
-
-    SX1276_REG_FSK_BitrateMsb              = 0x02, // 7-0 BitRate(15:8)
-    SX1276_REG_FSK_BitrateLsb              = 0x03, // 7-0 BitRate(7:0)
-    SX1276_REG_FSK_FdevMsb                 = 0x04, // 5-0 Fdev(13:8)
-    SX1276_REG_FSK_FdevLsb                 = 0x05, // 7-0 Fdev(7:0)
-    SX1276_REG_FSK_RxConfig                = 0x0D, // 7 RestartRxOnCollision, 6 RestartRxWithoutPllLock, 5 RestartRxWithPllLock, 4 AfcAutoOn, 3 AgcAutoOn, 2-0 RxTrigger
-    SX1276_REG_FSK_RssiConfig              = 0x0E, // 7-3 RssiOffset, 2-0 RssiSmoothing
-    SX1276_REG_FSK_RssiCollision           = 0x0F, // 7-0 RssiCollisionThreshold
-    SX1276_REG_FSK_RssiThresh              = 0x10, // 7-0 RssiThreshold
-    SX1276_REG_FSK_RssiValue               = 0x11, // 7-0 RssiValue
-    SX1276_REG_FSK_RxBw                    = 0x12, // 4-3 RxBwMant, 2-0 RxBwExp
-    SX1276_REG_FSK_AfcBw                   = 0x13, // 4-3 RxBwMantAfc, 2-0 RxBwExpAfc
-    SX1276_REG_FSK_OokPeak                 = 0x14, // 5 BitSyncOn, 4-3 OokThreshType, 2-0 OokPeakThreshStep
-    SX1276_REG_FSK_OokFix                  = 0x15, // 7-0 OokFixedThreshold
-    SX1276_REG_FSK_OokAvg                  = 0x16, // 7-5 OokPeakThreshDec, 3-2 OokAverageOffset, 1-0 OokAverageThreshFilt
-    SX1276_REG_FSK_AfcFei                  = 0x1A, // 4 AgcStart, 1 AfcClear, 0 AfcAutoClearOn
-    SX1276_REG_FSK_AfcMsb                  = 0x1B, // 7-0 AfcValue(15:8)
-    SX1276_REG_FSK_AfcLsb                  = 0x1C, // 7-0 AfcValue(7:0)
-    SX1276_REG_FSK_FeiMsb                  = 0x1D, // 7-0 FeiValue(15:8)
-    SX1276_REG_FSK_FeiLsb                  = 0x1E, // 7-0 FeiValue(7:0)
-    SX1276_REG_FSK_PreambleDetect          = 0x1F, // 7 PreambleDetectorOn, 6-5 PreambleDetectorSize, 4-0 PreambleDetectorTol
-    SX1276_REG_FSK_RxTimeout1              = 0x20, // 7-0 TimeoutRxRssi
-    SX1276_REG_FSK_RxTimeout2              = 0x21, // 7-0 TimeoutRxPreamble
-    SX1276_REG_FSK_RxTimeout3              = 0x22, // 7-0 TimeoutSignalSync
-    SX1276_REG_FSK_RxDelay                 = 0x23, // 7-0 InterPacketRxDelay
-    SX1276_REG_FSK_Osc                     = 0x24, // 3 RcCalStart, 2-0 ClkOut
-    SX1276_REG_FSK_PreambleMsb             = 0x25, // 7-0 PreambleSize(15:8)
-    SX1276_REG_FSK_PreambleLsb             = 0x26, // 7-0 PreambleSize(7:0)
-    SX1276_REG_FSK_SyncConfig              = 0x27, // 7-6 AutoRestartRxMode, 5 Preamble Polarity, 4 SyncOn, 2-0 SyncSize
-    SX1276_REG_FSK_SyncValue1              = 0x28, // SyncValue(63:56)
-    SX1276_REG_FSK_SyncValue2              = 0x29, // SyncValue(55:48)
-    SX1276_REG_FSK_SyncValue3              = 0x2A, // SyncValue(47:40)
-    SX1276_REG_FSK_SyncValue4              = 0x2B, // SyncValue(39:32)
-    SX1276_REG_FSK_SyncValue5              = 0x2C, // SyncValue(31:24)
-    SX1276_REG_FSK_SyncValue6              = 0x2D, // SyncValue(23:16)
-    SX1276_REG_FSK_SyncValue7              = 0x2E, // SyncValue(15:8)
-    SX1276_REG_FSK_SyncValue8              = 0x2F, // SyncValue(7:0)
-    SX1276_REG_FSK_PacketConfig1           = 0x30, // 7 PacketFormat, 6-5 DcFree, 4 CrcOn, 3 CrcAutoClearOff, 2-1 AddressFiltering, 0 CrcWhiteningType
-    SX1276_REG_FSK_PacketConfig2           = 0x31, // 6 DataMode, 5 IoHomeOn, 4 IoHomePowerFrame, 3 BeaconOn, 2-0 PayloadLength(10:8)
-    SX1276_REG_FSK_PayloadLength           = 0x32, // 7-0 PayloadLength(7:0)
-    SX1276_REG_FSK_NodeAdrs                = 0x33, // 7-0 NodeAddress
-    SX1276_REG_FSK_Broadcast Adrs          = 0x34, // 7-0 BroadcastAddress
-    SX1276_REG_FSK_FifoThresh              = 0x35, // 7 TxStartCondition, 5-0 FifoThreshold
-    SX1276_REG_FSK_SeqConfig1              = 0x36, // 7 SequencerStart, 6 SequencerStop, 5 IdleMode, 4-3 FromStart, 2 LowPowerSelection, 1 FromIdle, 0 FromTransmit
-    SX1276_REG_FSK_SeqConfig1              = 0x37, // 7-5 FromReceive, 4-3 FromRxTimeout, 2-0 FromPacketReceived
-    SX1276_REG_FSK_TimerResol              = 0x38, // 3-2 Timer1Resolution, 1-0 Timer2Resolution
-    SX1276_REG_FSK_Timer1Coef              = 0x39, // 7-0 Timer1Coefficient
-    SX1276_REG_FSK_Timer2Coef              = 0x3A, // 7-0 Timer2Coefficient
-    SX1276_REG_FSK_ImageCal                = 0x3B, // 7 AutoImageCalOn, 6 ImageCalStart, 5 ImageCalRunning, 3 TempChange, 2-1 TempThreshold, 0 TempMonitorOff
-    SX1276_REG_FSK_RegTemp                 = 0x3C, // 7-0 TempValue
-    SX1276_REG_FSK_RegLowBat               = 0x3D, // 3 LowBatOn, 2-0 LowBatTrim
-    SX1276_REG_FSK_IrqFlags1               = 0x3E, // 7 ModeReady, 6 RxReady, 5 TxReady, 4 PllLock, 3 Rssi, 2 Timeout, 1 PreambleDetect, 0 SyncAddressMatch
-    SX1276_REG_FSK_IrqFlags2               = 0x3F, // 7 FifoFull, 6 FifoEmpty, 5 FifoLevel, 4 FifoOverrun, 3 PacketSent, 2 PayloadReady, 1 CrcOk, 0 LowBat
-    SX1276_REG_FSK_PllHop                  = 0x44, // 7 FastHopOn
-    SX1276_REG_FSK_BitRateFrac             = 0x5D, // 3-0 BitRateFrac  
-} SX1276_REG_FSK_ENUM;
 
 
 //-------------------------------------------------------
@@ -287,6 +228,10 @@ typedef enum {
     SX1276_MODE_CAD                   = 0x07, // 111 : Channel activity detection (CAD)
 } SX1276_MODE_ENUM;
 
+
+//-------------------------------------------------------
+// Enum Definitions Registers For RF Blocks
+//-------------------------------------------------------
 
 // SX1276_REG_PaConfig = 0x09
 
@@ -389,92 +334,6 @@ typedef enum {
 } SX1276_LNA_BOOST_HF_ENUM;
 
 
-// Mapping of pins DIO0 to DIO5
-// See Table 18 for mapping in LoRa mode
-
-// SX1276_REG_DioMapping1 = 0x40
-
-// 7-6 Dio0Mapping 
-typedef enum {
-    SX1276_DIO0_MAPPING_RX_DONE                 = 0x00,
-    SX1276_DIO0_MAPPING_TX_DONE                 = (1 << 6),
-    SX1276_DIO0_MAPPING_CAD_DONE                = (2 << 6),
-    // from ExpressLRS:
-    // undocumented "hack", looking at Table 18 from datasheet SX127X_REG_DIO_MAPPING_1 = 11 appears to be
-    // unspported by infact it generates an intterupt on both RXdone and TXdone, this saves switching modes.
-    SX1276_DIO0_MAPPING_RX_TX_DONE              = (3 << 6),
-} SX1276_DIO0_MAPPING_ENUM;
-
-// 5-4 Dio1Mapping
-typedef enum {
-    SX1276_DIO1_MAPPING_RX_TIMEOUT              = 0x00,
-    SX1276_DIO1_MAPPING_FHSS_CHANGE_CHANNEL     = (1 << 4),
-    SX1276_DIO1_MAPPING_CAD_DETECTED            = (2 << 4),
-} SX1276_DIO1_MAPPING_ENUM;
-
-// 3-2 Dio2Mapping
-typedef enum {
-    SX1276_DIO2_MAPPING_FHSS_CHANGE_CHANNEL     = 0x00,
-} SX1276_DIO2_MAPPING_ENUM;
-
-// 1-0 Dio3Mapping
-typedef enum {
-    SX1276_DIO3_MAPPING_CAD_DONE                = 0x00,
-    SX1276_DIO3_MAPPING_VALID_HEADER            = 0x01,
-    SX1276_DIO3_MAPPING_PAYLOAD_CRC_ERROR       = 0x02,
-} SX1276_DIO3_MAPPING_ENUM; 
-
-// SX1276_REG_DioMapping2 = 0x41
-
-// 7-6 Dio4Mapping
-typedef enum {
-    SX1276_DIO4_MAPPING_CAD_DETECTED            = 0x00,
-    SX1276_DIO4_MAPPING_PLL_LOCK                = (1 << 6),
-} SX1276_DIO4_MAPPING_ENUM;
-
-// 5-4 Dio5Mapping
-typedef enum {
-    SX1276_DIO5_MAPPING_MODE_READY              = 0x00,
-    SX1276_DIO5_MAPPING_CLKOUT                  = (1 << 4),
-} SX1276_DIO5_MAPPING_ENUM;
-
-// 0 MapPreambleDetect, Allows the mapping of either Rssi Or PreambleDetect to the DIO pins, as summarized on Table 29 and Table 30
-typedef enum {
-    SX1276_MAP_PREAMBLE_DETECT_IRQ_RSSI             = 0x00, // 0 : Rssi interrupt
-    SX1276_MAP_PREAMBLE_DETECT_IRQ_PREAMBLE_DETECT  = 0x01, // 1 : PreambleDetect interrupt
-} SX1276_MAP_PREAMBLE_DETECT_ENUM;
-
-
-// SX1276_REG_Tcxo = 0x4B
-
-// 4 TcxoInputOn, Controls the crystal oscillator
-typedef enum {
-    SX1276_TCXO_INPUT_NORMAL          = 0x00, // 0 : Crystal Oscillator with external Crystal
-    SX1276_TCXO_INPUT_CLIPPED         = (1 << 4), // 1 : External clipped sine TCXO AC-connected to XTA pin
-} SX1276_TCXO_INPUT_ENUM;    
-
-
-// SX1276_REG_PaDac = 0x4D
-
-// 2-0 PaDac, Enables the +20dBm option on PA_BOOST pin
-typedef enum {
-    SX1276_PA_DAC_DEFAULT             = 0x04, // 0x04 : Default value
-    SX1276_PA_DAC_BOOST               = 0x07, // 0x07 : +20dBm on PA_BOOST when OutputPower = 1111
-} SX1276_PA_DAC_ENUM;
-
-
-// SX1276_REG_PllLf = 0x70
-// SX1276_REG_PllHf = 0x70
-
-// 7-6 PllBandwidth, Controls the PLL bandwidth:
-typedef enum {
-    SX1276_PLL_BW_75_KHZ              = 0x00, // 00 : 75 kHz
-    SX1276_PLL_BW_150_KHZ             = (1 << 6), // 01 : 150 kHz
-    SX1276_PLL_BW_225_KHZ             = (2 << 6), // 10 : 225 kHz
-    SX1276_PLL_BW_300_KHZ             = (3 << 6), // 11 : 300 kHz
-} SX1276_PLL_BW_ENUM;
-
-
 //-------------------------------------------------------
 // Enum Definitions Lora Page Registers
 //-------------------------------------------------------
@@ -491,7 +350,7 @@ typedef enum {
     SX1276_IRQ_RX_DONE                = 0x40, // 6 RxDone, Packet reception complete interrupt
     SX1276_IRQ_RX_TIMEOUT             = 0x80, // 7 RxTimeout, Timeout interrupt
     SX1276_IRQ_ALL                    = 0xFF,
-} SX1276_LORA_IRQ_ENUM;
+} SX1276_IRQ_ENUM;
 
 
 // SX1276_REG_ModemStat = 0x18
@@ -504,7 +363,7 @@ typedef enum {
     SX1276_MODEM_STAT_HEADER_INFO_VALID         = 0x08, // 3 : Header info valid
     SX1276_MODEM_STAT_MODEM_CLEAR               = 0x10, // 4 : Modem clear
     SX1276_MODEM_STAT_MASK                      = 0x1F,
-} SX1276_LORA_MODEM_STAT_ENUM;
+} SX1276_MODEM_STAT_ENUM;
 
 
 // SX1276_REG_HopChannel = 0x1C
@@ -647,7 +506,7 @@ typedef enum {
 typedef enum {
     SX1276_LORA_DETECTION_TRESHOLD_SF_6         = 0x0C, // 0x0C : SF6
     SX1276_LORA_DETECTION_TRESHOLD_SF_7_12      = 0x0A, // 0x0A : SF7 to SF12
-} SX1276_LORA_DETECTION_TRESHOLD_ENUM;
+} SX1276_DETECTION_TRESHOLD_ENUM;
 
 
 // SX1276_REG_InvertIQ2 = 0x3B
@@ -659,7 +518,117 @@ typedef enum {
 } SX1276_LORA_IQ2_ENUM;
 
 
+//-------------------------------------------------------
+// Enum Definitions FSK Registers required for LoRa
+//-------------------------------------------------------
+
+// Mapping of pins DIO0 to DIO5
+// See Table 18 for mapping in LoRa mode
+
+// SX1276_REG_DioMapping1 = 0x40
+
+// 7-6 Dio0Mapping 
+typedef enum {
+    SX1276_DIO0_MAPPING_RX_DONE                 = 0x00,
+    SX1276_DIO0_MAPPING_TX_DONE                 = (1 << 6),
+    SX1276_DIO0_MAPPING_CAD_DONE                = (2 << 6),
+    // from ExpressLRS:
+    // undocumented "hack", looking at Table 18 from datasheet SX127X_REG_DIO_MAPPING_1 = 11 appears to be
+    // unspported by infact it generates an intterupt on both RXdone and TXdone, this saves switching modes.
+    SX1276_DIO0_MAPPING_RX_TX_DONE              = (3 << 6),
+} SX1276_DIO0_MAPPING_ENUM;
+
+// 5-4 Dio1Mapping
+typedef enum {
+    SX1276_DIO1_MAPPING_RX_TIMEOUT              = 0x00,
+    SX1276_DIO1_MAPPING_FHSS_CHANGE_CHANNEL     = (1 << 4),
+    SX1276_DIO1_MAPPING_CAD_DETECTED            = (2 << 4),
+} SX1276_DIO1_MAPPING_ENUM;
+
+// 3-2 Dio2Mapping
+typedef enum {
+    SX1276_DIO2_MAPPING_FHSS_CHANGE_CHANNEL     = 0x00,
+} SX1276_DIO2_MAPPING_ENUM;
+
+// 1-0 Dio3Mapping
+typedef enum {
+    SX1276_DIO3_MAPPING_CAD_DONE                = 0x00,
+    SX1276_DIO3_MAPPING_VALID_HEADER            = 0x01,
+    SX1276_DIO3_MAPPING_PAYLOAD_CRC_ERROR       = 0x02,
+} SX1276_DIO3_MAPPING_ENUM; 
+
+
+// SX1276_REG_DioMapping2 = 0x41
+
+// 7-6 Dio4Mapping
+typedef enum {
+    SX1276_DIO4_MAPPING_CAD_DETECTED            = 0x00,
+    SX1276_DIO4_MAPPING_PLL_LOCK                = (1 << 6),
+} SX1276_DIO4_MAPPING_ENUM;
+
+// 5-4 Dio5Mapping
+typedef enum {
+    SX1276_DIO5_MAPPING_MODE_READY              = 0x00,
+    SX1276_DIO5_MAPPING_CLKOUT                  = (1 << 4),
+} SX1276_DIO5_MAPPING_ENUM;
+
+// 0 MapPreambleDetect, Allows the mapping of either Rssi Or PreambleDetect to the DIO pins, as summarized on Table 29 and Table 30
+typedef enum {
+    SX1276_MAP_PREAMBLE_DETECT_IRQ_RSSI             = 0x00, // 0 : Rssi interrupt
+    SX1276_MAP_PREAMBLE_DETECT_IRQ_PREAMBLE_DETECT  = 0x01, // 1 : PreambleDetect interrupt
+} SX1276_MAP_PREAMBLE_DETECT_ENUM;
+
+
+// SX1276_REG_Tcxo = 0x4B
+
+// 4 TcxoInputOn, Controls the crystal oscillator
+typedef enum {
+    SX1276_TCXO_INPUT_NORMAL          = 0x00, // 0 : Crystal Oscillator with external Crystal
+    SX1276_TCXO_INPUT_CLIPPED         = (1 << 4), // 1 : External clipped sine TCXO AC-connected to XTA pin
+} SX1276_TCXO_INPUT_ENUM;    
+
+
+// SX1276_REG_PaDac = 0x4D
+
+// 2-0 PaDac, Enables the +20dBm option on PA_BOOST pin
+typedef enum {
+    SX1276_PA_DAC_DEFAULT             = 0x04, // 0x04 : Default value
+    SX1276_PA_DAC_BOOST               = 0x07, // 0x07 : +20dBm on PA_BOOST when OutputPower = 1111
+} SX1276_PA_DAC_ENUM;
+
+
+//-------------------------------------------------------
+// Enum Definitions Band Specific Registers
+//-------------------------------------------------------
+
+// SX1276_REG_PllLf = 0x70
+// SX1276_REG_PllHf = 0x70
+
+// 7-6 PllBandwidth, Controls the PLL bandwidth:
+typedef enum {
+    SX1276_PLL_BW_75_KHZ              = 0x00, // 00 : 75 kHz
+    SX1276_PLL_BW_150_KHZ             = (1 << 6), // 01 : 150 kHz
+    SX1276_PLL_BW_225_KHZ             = (2 << 6), // 10 : 225 kHz
+    SX1276_PLL_BW_300_KHZ             = (3 << 6), // 11 : 300 kHz
+} SX1276_PLL_BW_ENUM;
+
+
 #endif // SX127X_LIB_H
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
