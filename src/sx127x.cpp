@@ -74,14 +74,14 @@ void Sx127xDriverBase::ReadWriteRegister(uint16_t adr, uint8_t mask, uint8_t dat
 
 void Sx127xDriverBase::WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
-    WriteRegister(SX1276_REG_FifoAddrPtr, offset);
+    WriteRegister(SX1276_REG_LORA_FifoAddrPtr, offset);
     WriteRegister(SX1276_REG_Fifo, data, len);
 }
 
 
 void Sx127xDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
-    WriteRegister(SX1276_REG_FifoAddrPtr, offset);
+    WriteRegister(SX1276_REG_LORA_FifoAddrPtr, offset);
     ReadRegister(SX1276_REG_Fifo, data, len);
 }
 
@@ -90,7 +90,7 @@ void Sx127xDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 
 uint8_t Sx127xDriverBase::GetStatus(void)
 {
-    return ReadRegister(SX1276_REG_ModemStat);
+    return ReadRegister(SX1276_REG_LORA_ModemStat);
 }
 
 
@@ -219,7 +219,7 @@ void Sx127xDriverBase::SetModulationParams(uint8_t SpreadingFactor, uint8_t Band
           WriteRegister(SX1276_REG_LORA_DetectionThreshold, SX1276_LORA_DETECTION_TRESHOLD_SF_6);
     } else {
           // 7 AutomaticIFOn, 2-0 DetectionOptimize
-          ReadWriteRegister(SX1276_LORA_REG_DetectOptimize, 0x07, SX1276_LORA_DETECTION_OPTIMIZE_SF_7_12);
+          ReadWriteRegister(SX1276_REG_LORA_DetectOptimize, 0x07, SX1276_LORA_DETECTION_OPTIMIZE_SF_7_12);
           WriteRegister(SX1276_REG_LORA_DetectionThreshold, SX1276_LORA_DETECTION_TRESHOLD_SF_7_12);
     }
 }
