@@ -340,6 +340,12 @@ void Sx127xDriverBase::GetPacketStatus(int16_t* RssiSync, int8_t* Snr)
 {
     *RssiSync = (int16_t)-157 + ReadRegister(SX1276_REG_PktRssiValue);
     *Snr = (int8_t)ReadRegister(SX1276_REG_PktSnrValue) / 4;
+    
+    // Datasheet 3.5.5, need to subtract SNR (PacketSnr 4) when SNR is negative
+    if (*Snr < 0) {
+        *RssiSync += *Snr;
+    }
+
 }
 
 
