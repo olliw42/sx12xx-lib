@@ -199,6 +199,7 @@ uint8_t buf[3];
 void Sx128xDriverBase::SetPacketParams(uint8_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ)
 {
 uint8_t buf[7];
+
 // param 6 & 7 are not used, send 0
 
     buf[0] = PreambleLength;
@@ -310,7 +311,7 @@ void Sx128xDriverBase::GetPacketStatus(int16_t* RssiSync, int8_t* Snr)
 {
 uint8_t status[5];
 
-// param 3 & 4 & 5 are not used, must read them nevertheless
+    // param 3 & 4 & 5 are not used, must read them nevertheless
 
     ReadCommand(SX1280_CMD_GET_PACKET_STATUS, status, 5);
 
@@ -435,8 +436,7 @@ uint8_t buf[3];
 
 void Sx128xDriverBase::SetPacketParamsFLRC(
     uint8_t AGCPreambleLength, uint8_t SyncWordLength, uint8_t SyncWordMatch,
-    uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength,
-    uint16_t CrcSeed, uint32_t SyncWord, uint8_t CodingRate)
+    uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength, uint16_t CrcSeed)
 {
 uint8_t buf[7];
 
@@ -455,28 +455,56 @@ uint8_t buf[7];
     buf[1] = (uint8_t)CrcSeed;
 
     WriteRegister(SX1280_REG_CRCInitialValue, buf, 2);
+}
 
-    // set sync word 1
+
+// returns false if SyncWord and CodingRate hits errata
+// DS_SX1280-1_V3.2.pdf - 16.4 FLRC Modem: Increased PER in FLRC Packets with Synch Word
+bool Sx128xDriverBase::SetSyncWordFLRC(uint32_t SyncWord, uint8_t CodingRate)
+{
+uint8_t buf[4];
+bool res;
+
     buf[0] = (uint8_t)(SyncWord >> 24);
     buf[1] = (uint8_t)(SyncWord >> 16);
     buf[2] = (uint8_t)(SyncWord >> 8);
     buf[3] = (uint8_t)SyncWord;
 
-    // borrowed from ELRS: https://github.com/ExpressLRS/ExpressLRS/blob/master/src/lib/SX1280Driver/SX1280.cpp#L382
-    // DS_SX1280-1_V3.2.pdf - 16.4 FLRC Modem: Increased PER in FLRC Packets with Synch Word
-    if (((CodingRate == SX1280_FLRC_CR_1_2) || (CodingRate == SX1280_FLRC_CR_3_4)) &&
-        ((buf[0] == 0x8C && buf[1] == 0x38) || (buf[0] == 0x63 && buf[1] == 0x0E)))
-    {
-        uint8_t temp = buf[0];
-        buf[0] = buf[1];
-        buf[1] = temp;
-        // for SX1280_FLRC_CR_3_4 the datasheet also says
-        // "In addition to this the two LSB values XX XX must not be in the range 0x0000 to 0x3EFF"
-        if (CodingRate == SX1280_FLRC_CR_3_4 && buf[3] <= 0x3E)
-            buf[3] |= 0x80; // 0x80 or 0x40 would work
+    res = true;
+
+    // avoid 1000 1100 0011 1000 11
+    if ((CodingRate == SX1280_FLRC_CR_1_2) || (CodingRate == SX1280_FLRC_CR_3_4)) {
+        if ((buf[0] == 0x8C) && (buf[1] == 0x38)) {
+            buf[0] = 0xAC; // 1010 1100
+            buf[1] = 0xA9; // 1010 1001
+            res = false;
+        }
+        if ((buf[0] == 0x63) && (buf[1] == 0x0E)) {
+            buf[0] = 0x6B; // 0110 1011
+            buf[1] = 0x2A; // 0010 1010
+            buf[2] |= 0x80; // 1xxx 0xxx
+            buf[2] &=~ 0x08;
+            res = false;
+        }
+    }
+    // there is no recommendation for SX1280_FLRC_CR_1_0, so we can't do anything about it but report it hit
+    if (CodingRate == SX1280_FLRC_CR_1_0) {
+        res = false;
     }
 
     WriteRegister(SX1280_REG_FLRC_SyncWordAddress1, buf, 4);
+
+    return res;
+}
+
+
+void Sx128xDriverBase::SetSyncWordErrorToleranceFLRC(uint8_t ErrorBits)
+{
+uint8_t tolerance;
+
+    tolerance = ReadRegister(SX1280_REG_FLRC_SyncAddressControl);
+    tolerance = (tolerance & 0xF0) | (ErrorBits & 0x0F);  // preserve upper 4 bits, update lower 4 bits
+    WriteRegister(SX1280_REG_FLRC_SyncAddressControl, tolerance);
 }
 
 
@@ -484,19 +512,10 @@ void Sx128xDriverBase::GetPacketStatusFLRC(int16_t* RssiSync)
 {
 uint8_t status[5];
 
-// param 2 & 3 & 4 & 5 are not used, must read them nevertheless
+    // param 2 & 3 & 4 & 5 are not used, must read them nevertheless
 
     ReadCommand(SX1280_CMD_GET_PACKET_STATUS, status, 5);
 
     *RssiSync = -(int16_t)(status[0] / 2);
-}
-
-void Sx128xDriverBase::SetSyncWordErrorToleranceFLRC(uint8_t ErrorBits)
-{
-uint8_t tolerance;
-
-	tolerance = ReadRegister(SX1280_REG_FLRC_SyncAddressControl);
-	tolerance = (tolerance & 0xF0) | (ErrorBits & 0x0F);  // Preserve upper 4 bits, update lower 4 bits
-	WriteRegister(SX1280_REG_FLRC_SyncAddressControl, tolerance);
 }
 

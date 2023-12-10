@@ -165,6 +165,7 @@ uint8_t buf[2];
     WriteCommand(SX126X_CMD_SET_BUFFER_BASEADDRESS, buf, 2);
 }
 
+
 void Sx126xDriverBase::SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate)
 {
 uint8_t buf[4];
@@ -178,6 +179,7 @@ uint8_t buf[4];
 
    _lora_bandwidth = Bandwidth;
 }
+
 
 void Sx126xDriverBase::SetPacketParams(uint8_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ)
 {
@@ -532,14 +534,14 @@ void Sx126xDriverBase::CalibrateImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz
 }
 
 
-// GFSK 
+// GFSK
 
 void Sx126xDriverBase::SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t Bandwidth, uint32_t Fdev_hz)
 {
 uint8_t buf[8];
 
     uint32_t br = (uint32_t)(32 * SX126X_FREQ_XTAL_HZ) / br_bps;
-    
+
     buf[0] = (uint8_t)((br >> 16) & 0xFF);
     buf[1] = (uint8_t)((br >> 8) & 0xFF);
     buf[2] = (uint8_t)(br & 0xFF);

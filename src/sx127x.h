@@ -63,7 +63,7 @@ class Sx127xDriverBase
     void ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len);
 
     // common methods
-    
+
     uint8_t GetStatus(void);
     void SetSleep(void);
     void SetStandby(void);
@@ -173,7 +173,7 @@ typedef enum {
     SX1276_REG_InvertIQ2              = 0x3B, // 7-0 InvertIQ2
 
     //-- FSK Registers required for LoRa
-    
+
     SX1276_REG_DioMapping1            = 0x40, // 7-6 Dio0Mapping, 5-4 Dio1Mapping, 3-2 Dio2Mapping, 1-0 Dio3Mapping
     SX1276_REG_DioMapping2            = 0x41, // 7-6 Dio4Mapping, 5-4 Dio5Mapping, 0 MapPreambleDetect
     SX1276_REG_Version                = 0x42, // 7-0 Version
@@ -188,7 +188,7 @@ typedef enum {
     SX1276_REG_AgcThresh2             = 0x63, // 7-4 AgcStep2, 3-0 AgcStep3
     SX1276_REG_AgcThresh3             = 0x64, // 7-4 AgcStep4, 3-0 AgcStep5
     SX1276_REG_Pll                    = 0x70, // 7-6 PllBandwidth
-    
+
 } SX1276_REG_ENUM;
 
 
@@ -527,7 +527,7 @@ typedef enum {
 
 // SX1276_REG_DioMapping1 = 0x40
 
-// 7-6 Dio0Mapping 
+// 7-6 Dio0Mapping
 typedef enum {
     SX1276_DIO0_MAPPING_RX_DONE                 = 0x00,
     SX1276_DIO0_MAPPING_TX_DONE                 = (1 << 6),
@@ -555,7 +555,7 @@ typedef enum {
     SX1276_DIO3_MAPPING_CAD_DONE                = 0x00,
     SX1276_DIO3_MAPPING_VALID_HEADER            = 0x01,
     SX1276_DIO3_MAPPING_PAYLOAD_CRC_ERROR       = 0x02,
-} SX1276_DIO3_MAPPING_ENUM; 
+} SX1276_DIO3_MAPPING_ENUM;
 
 
 // SX1276_REG_DioMapping2 = 0x41
@@ -585,7 +585,7 @@ typedef enum {
 typedef enum {
     SX1276_TCXO_INPUT_NORMAL          = 0x00, // 0 : Crystal Oscillator with external Crystal
     SX1276_TCXO_INPUT_CLIPPED         = (1 << 4), // 1 : External clipped sine TCXO AC-connected to XTA pin
-} SX1276_TCXO_INPUT_ENUM;    
+} SX1276_TCXO_INPUT_ENUM;
 
 
 // SX1276_REG_PaDac = 0x4D

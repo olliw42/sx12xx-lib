@@ -38,7 +38,7 @@
 class Sx126xDriverBase
 {
   public:
-      Sx126xDriverBase() {} // constructor
+    Sx126xDriverBase() {} // constructor
 
     // this you will have to fill in the derived class
 
@@ -93,10 +93,12 @@ class Sx126xDriverBase
     uint16_t GetAndClearIrqStatus(uint16_t IrqMask);
 
     // Tx methods
+
     void SetTxParams(uint8_t Power, uint8_t RampTime);
     void SetTx(uint32_t tmo_periodbase); // max 24 bit
 
     // Rx methods
+
     void SetRx(uint32_t tmo_periodbase); // max 24 bit
     void GetPacketStatus(int16_t* RssiSync, int8_t* Snr);
     void GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer);
@@ -565,8 +567,8 @@ typedef enum {
 } SX126X_GFSK_ADDRESS_FILTERING_ENUM;
 
 typedef enum {
-    SX126X_GFSK_PKT_FIX_LEN                                     = 0x00,  
-    SX126X_GFSK_PKT_VAR_LEN                                     = 0x01,  
+    SX126X_GFSK_PKT_FIX_LEN                                     = 0x00,
+    SX126X_GFSK_PKT_VAR_LEN                                     = 0x01,
 } SX126X_GFSK_PKT_LEN_ENUM;
 
 typedef enum {

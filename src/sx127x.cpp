@@ -8,6 +8,7 @@
 
 #include "sx127x.h"
 
+
 // constructor
 
 Sx127xDriverBase::Sx127xDriverBase()
@@ -214,13 +215,13 @@ void Sx127xDriverBase::SetModulationParams(uint8_t SpreadingFactor, uint8_t Band
 
     // special treatment for SF6, see datasheet, p.27
     if (SpreadingFactor == SX1276_LORA_SF6) {
-          // 7 AutomaticIFOn, 2-0 DetectionOptimize
-          ReadWriteRegister(SX1276_REG_DetectOptimize, 0x07, SX1276_LORA_DETECTION_OPTIMIZE_SF_6);
-          WriteRegister(SX1276_REG_DetectionThreshold, SX1276_LORA_DETECTION_TRESHOLD_SF_6);
+        // 7 AutomaticIFOn, 2-0 DetectionOptimize
+        ReadWriteRegister(SX1276_REG_DetectOptimize, 0x07, SX1276_LORA_DETECTION_OPTIMIZE_SF_6);
+        WriteRegister(SX1276_REG_DetectionThreshold, SX1276_LORA_DETECTION_TRESHOLD_SF_6);
     } else {
-          // 7 AutomaticIFOn, 2-0 DetectionOptimize
-          ReadWriteRegister(SX1276_REG_DetectOptimize, 0x07, SX1276_LORA_DETECTION_OPTIMIZE_SF_7_12);
-          WriteRegister(SX1276_REG_DetectionThreshold, SX1276_LORA_DETECTION_TRESHOLD_SF_7_12);
+        // 7 AutomaticIFOn, 2-0 DetectionOptimize
+        ReadWriteRegister(SX1276_REG_DetectOptimize, 0x07, SX1276_LORA_DETECTION_OPTIMIZE_SF_7_12);
+        WriteRegister(SX1276_REG_DetectionThreshold, SX1276_LORA_DETECTION_TRESHOLD_SF_7_12);
     }
 }
 
@@ -340,12 +341,11 @@ void Sx127xDriverBase::GetPacketStatus(int16_t* RssiSync, int8_t* Snr)
 {
     *RssiSync = (int16_t)-157 + ReadRegister(SX1276_REG_PktRssiValue);
     *Snr = (int8_t)ReadRegister(SX1276_REG_PktSnrValue) / 4;
-    
+
     // Datasheet 3.5.5, need to subtract SNR (PacketSnr / 4) when SNR is negative
     if (*Snr < 0) {
         *RssiSync += *Snr;
     }
-
 }
 
 
