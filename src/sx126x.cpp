@@ -18,7 +18,7 @@ void Sx126xDriverBase::SpiRead(uint8_t* datain, uint8_t len)
 uint8_t dummy = 0; // NOP
 
     while (len) {
-        SpiTransferByte(&dummy, datain);
+        SpiTransfer(dummy, datain);
         datain++;
         len--;
     }
@@ -30,14 +30,14 @@ void Sx126xDriverBase::SpiWrite(uint8_t* dataout, uint8_t len)
 uint8_t dummy;
 
     while (len) {
-        SpiTransferByte(dataout, &dummy);
+        SpiTransfer(*dataout, &dummy);
         dataout++;
         len--;
     }
 }
 
 
-// low level
+// low level methods
 
 void Sx126xDriverBase::WriteCommand(uint8_t opcode, uint8_t* data, uint8_t len)
 {
@@ -114,7 +114,7 @@ void Sx126xDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 }
 
 
-// common
+// common methods
 
 uint8_t Sx126xDriverBase::GetStatus(void)
 {
@@ -264,7 +264,7 @@ uint16_t Sx126xDriverBase::GetAndClearIrqStatus(uint16_t IrqMask)
 }
 
 
-// Tx
+// Tx methods
 
 void Sx126xDriverBase::SetTxParams(uint8_t Power, uint8_t RampTime)
 {
@@ -310,7 +310,7 @@ uint8_t buf[3];
 }
 
 
-// Rx
+// Rx methods
 
 void Sx126xDriverBase::SetRx(uint32_t tmo_periodbase)
 {
@@ -368,7 +368,7 @@ void Sx126xDriverBase::ClearRxEvent(void)
     }
 }
 
-// auxiliary
+// auxiliary methods
 
 void Sx126xDriverBase::SetRegulatorMode(uint8_t RegModeParam)
 {
@@ -534,7 +534,7 @@ void Sx126xDriverBase::CalibrateImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz
 }
 
 
-// GFSK
+// GFSK methods
 
 void Sx126xDriverBase::SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t Bandwidth, uint32_t Fdev_hz)
 {

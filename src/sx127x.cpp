@@ -25,7 +25,7 @@ void Sx127xDriverBase::SpiRead(uint8_t* datain, uint8_t len)
 uint8_t dummy = 0; // NOP
 
     while (len) {
-        SpiTransferByte(&dummy, datain);
+        SpiTransfer(dummy, datain);
         datain++;
         len--;
     }
@@ -37,7 +37,7 @@ void Sx127xDriverBase::SpiWrite(uint8_t* dataout, uint8_t len)
 uint8_t dummy;
 
     while (len) {
-        SpiTransferByte(dataout, &dummy);
+        SpiTransfer(*dataout, &dummy);
         dataout++;
         len--;
     }

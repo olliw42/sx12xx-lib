@@ -20,7 +20,7 @@ void Sx128xDriverBase::SpiRead(uint8_t* datain, uint8_t len)
 uint8_t dummy = 0; // NOP
 
     while (len) {
-        SpiTransferByte(&dummy, datain);
+        SpiTransfer(dummy, datain);
         datain++;
         len--;
     }
@@ -32,14 +32,14 @@ void Sx128xDriverBase::SpiWrite(uint8_t* dataout, uint8_t len)
 uint8_t dummy;
 
     while (len) {
-        SpiTransferByte(dataout, &dummy);
+        SpiTransfer(*dataout, &dummy);
         dataout++;
         len--;
     }
 }
 
 
-// low level
+// low level methods
 
 void Sx128xDriverBase::WriteCommand(uint8_t opcode, uint8_t* data, uint8_t len)
 {
@@ -116,7 +116,7 @@ void Sx128xDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 }
 
 
-// common
+// common methods
 
 uint8_t Sx128xDriverBase::GetStatus(void)
 {
@@ -264,7 +264,7 @@ uint16_t Sx128xDriverBase::GetAndClearIrqStatus(uint16_t IrqMask)
 }
 
 
-// Tx
+// Tx methods
 
 void Sx128xDriverBase::SetTxParams(uint8_t Power, uint8_t RampTime)
 {
@@ -292,7 +292,7 @@ uint8_t buf[3];
 }
 
 
-// Rx
+// Rx methods
 
 void Sx128xDriverBase::SetRx(uint8_t PeriodBase, uint16_t PeriodBaseCount)
 {
@@ -337,7 +337,7 @@ uint8_t status[2];
 }
 
 
-// auxiliary
+// auxiliary methods
 
 void Sx128xDriverBase::SetRegulatorMode(uint8_t RegModeParam)
 {
@@ -420,7 +420,7 @@ uint32_t fei;
 }
 
 
-// FLRC
+// FLRC methods
 
 void Sx128xDriverBase::SetModulationParamsFLRC(uint8_t Bandwidth, uint8_t CodingRate, uint8_t Bt)
 {
