@@ -103,7 +103,7 @@ class Sx126xDriverBase
     void SetRx(uint32_t tmo_periodbase); // max 24 bit
     void GetPacketStatus(int16_t* RssiSync, int8_t* Snr);
     void GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer);
-    void ClearRxEvent(void); // clear any event, if any
+    void ClearRxEvent(void); // for workaround 15.3.2, clear any event, if any
 
     // auxiliary methods
 
@@ -116,6 +116,7 @@ class Sx126xDriverBase
     void SetPaConfig(uint8_t deviceSel, uint8_t paDutyCycle, uint8_t hpMax, uint8_t paLut);
     void SetPaConfig_22dbm(void);
     void SetRxGain(uint8_t RxGain);
+    void SetTxClampConfig(void); // for workaround 15.2.2, better sensitivity
     void SetOverCurrentProtection(uint8_t OverCurrentProtection);
     void CalibrateImage(uint8_t Freq1, uint8_t Freq2);
     void CalibrateImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz);
@@ -151,7 +152,6 @@ class Sx126xDriverBase
 typedef enum {
     // SX126X SPI commands
     // operational modes commands
-    SX126X_CMD_NOP                        = 0x00,
     SX126X_CMD_SET_SLEEP                  = 0x84,
     SX126X_CMD_SET_STANDBY                = 0x80,
     SX126X_CMD_SET_FS                     = 0xC1,
@@ -224,24 +224,27 @@ typedef enum {
     SX126X_REG_SYNC_WORD_7                = 0x06C7, // FSK
     SX126X_REG_NODE_ADDRESS               = 0x06CD, // FSK
     SX126X_REG_BROADCAST_ADDRESS          = 0x06CE, // FSK
+    SX126X_REG_IQ_POLARITY_SETUP          = 0x0736, // 2024.10.24: moved to here, changed name
     SX126X_REG_LORA_SYNC_WORD_MSB         = 0x0740, // LORA
     SX126X_REG_LORA_SYNC_WORD_LSB         = 0x0741, // LORA
     SX126X_REG_RANDOM_NUMBER_0            = 0x0819, // Random number generator
     SX126X_REG_RANDOM_NUMBER_1            = 0x081A,
     SX126X_REG_RANDOM_NUMBER_2            = 0x081B,
     SX126X_REG_RANDOM_NUMBER_3            = 0x081C,
+    SX126X_REG_TX_MODULATION              = 0x0889, // 2024.10.24: moved to here
     SX126X_REG_RX_GAIN                    = 0x08AC, // boosted gain RX; Rx power saving : 0x94; Rx Boosted gain : 0x96
+    SX126X_REG_TX_CLAMP_CONFIG            = 0x08D8, // 2024.10.24: moved to here
     SX126X_REG_OCP_CONFIGURATION          = 0x08E7, // over current protection
     SX126X_REG_XTA_TRIM                   = 0x0911,
     SX126X_REG_XTB_TRIM                   = 0x0912,
 
     // undocumented registers
     SX126X_REG_SYNCH_TIMEOUT              = 0x0706, // undocumented, get from semtech example
-    SX126X_REG_SENSITIVITY_CONFIG         = 0x0889, // SX1268 datasheet v1.1, section 15.1
-    SX126X_REG_TX_CLAMP_CONFIG            = 0x08D8, // SX1268 datasheet v1.1, section 15.2
+//    SX126X_REG_SENSITIVITY_CONFIG         = 0x0889, // SX1268 datasheet v1.1, section 15.1
+//    SX126X_REG_TX_CLAMP_CONFIG            = 0x08D8, // SX1268 datasheet v1.1, section 15.2
     SX126X_REG_RTC_STOP                   = 0x0920, // SX1268 datasheet v1.1, section 15.3
     SX126X_REG_RTC_EVENT                  = 0x0944, // SX1268 datasheet v1.1, section 15.3
-    SX126X_REG_IQ_CONFIG                  = 0x0736, // SX1268 datasheet v1.1, section 15.4
+//    SX126X_REG_IQ_CONFIG                  = 0x0736, // SX1268 datasheet v1.1, section 15.4
     SX126X_REG_RX_GAIN_RETENTION_0        = 0x029F, // SX1268 datasheet v1.1, section 9.6
     SX126X_REG_RX_GAIN_RETENTION_1        = 0x02A0, // SX1268 datasheet v1.1, section 9.6
     SX126X_REG_RX_GAIN_RETENTION_2        = 0x02A1, // SX1268 datasheet v1.1, section 9.6

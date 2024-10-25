@@ -194,17 +194,21 @@ uint8_t buf[6];
 
     WriteCommand(SX126X_CMD_SET_PACKET_PARAMS, buf, 6);
 
-    // 15.4 Optimizing the Inverted IQ Operation, datasheet p. 103-104
+    // 15.4 Optimizing the Inverted IQ Operation, datasheet p. 106
     // 15.4.1 Description
     // When exchanging LoRa packets with inverted IQ polarity
     // some packet losses may be observed for longer packets.
-    buf[0] = ReadRegister(SX126X_REG_IQ_CONFIG);
+    // 15.4.2 Workaround
+    // Bit 2 at address 0x0736 must be set to:
+    //   0 when using inverted IQ polarity (see the SetPacketParam(...) command)
+    //   1 when using standard IQ polarity
+    buf[0] = ReadRegister(SX126X_REG_IQ_POLARITY_SETUP);
     if (InvertIQ) {
         buf[0] &= ~0x04;
     } else {
         buf[0] |= 0x04;
     }
-    WriteRegister(SX126X_REG_IQ_CONFIG, buf[0]);
+    WriteRegister(SX126X_REG_IQ_POLARITY_SETUP, buf[0]);
 
     _header_type = HeaderType;
 }
@@ -281,7 +285,7 @@ void Sx126xDriverBase::SetTx(uint32_t tmo_periodbase)
 {
 uint8_t buf[3];
 
-    // 15.1 Modulation Quality with 500 kHz LoRa Bandwidth
+    // 15.1 Modulation Quality with 500 kHz LoRa Bandwidth, datasheet p. 105
     // 15.1.1 Description
     // Some sensitivity degradation may be observed on any LoRa device, when receiving signals transmitted by the SX1261/2
     // with a LoRa BW of 500 kHz.
@@ -289,13 +293,14 @@ uint8_t buf[3];
     // Before any packet transmission, bit #2 at address 0x0889 shall be set to:
     //   0 if the LoRa BW = 500 kHz
     //   1 for any other LoRa BW
-    buf[0] = ReadRegister(SX126X_REG_SENSITIVITY_CONFIG);
+    //   1 for any (G)FSK configuration
+    buf[0] = ReadRegister(SX126X_REG_TX_MODULATION);
     if (_lora_bandwidth == SX126X_LORA_BW_500) {
         buf[0] &= 0xFB;
     } else {
         buf[0] |= 0x04;
     }
-    WriteRegister(SX126X_REG_SENSITIVITY_CONFIG, buf[0]);
+    WriteRegister(SX126X_REG_TX_MODULATION, buf[0]);
 
     // 24 bits time out with base of 15.625us
     // TimeOut duration (us) = 15.625 * timeOut
@@ -353,11 +358,15 @@ uint8_t status[2];
 
 void Sx126xDriverBase::ClearRxEvent(void)
 {
-    // 15.3 Implicit Header Mode Timeout Behavior, datasheet p. 103
+    // 15.3 Implicit Header Mode Timeout Behavior, datasheet p. 106
     // 15.3.1 Description
     // When receiving LoRa packets in Rx mode with Timeout active, and no header (Implicit Mode), the timer responsible for
     // generating the Timeout (based on the RTC timer) is not stopped on RxDone event. Therefore, it may trigger an unexpected
-    // timeout in any subsequent mode where the RTC isn’t re-invoked, and therefore reset and re-programmed.
+    // timeout in any subsequent mode where the RTC isn't re-invoked, and therefore reset and re-programmed.
+    // 15.3.2 Workaround
+    // It is advised to add the following commands after ANY Rx with Timeout active sequence, which stop the RTC and clear the
+    // timeout event, if any. The register at address 0x0902 will be used to stop the counter, while the register at address 0x0944
+    // will clear the potential event.
     if (_header_type == SX126X_LORA_HEADER_IMPLICIT) {
         uint8_t buf = ReadRegister(SX126X_REG_RTC_STOP);
         WriteRegister(SX126X_REG_RTC_STOP, 0x00); // stop the timer
@@ -456,14 +465,14 @@ uint8_t exp  = 0;
 uint8_t reg  = 0;
 
     while (mant > 31) {
-        mant = ( mant + 3 ) >> 2;
+        mant = (mant + 3) >> 2;
         exp++;
     }
     reg = mant << (2 * exp + 1);
 
     WriteCommand(SX126X_CMD_SET_LORA_SYMB_NUM_TIMEOUT, reg);
 
-    if (tmo_symbnum != 0) {
+    if (tmo_symbnum > 0) {
         reg = exp + (mant << 3);
         WriteRegister(SX126X_REG_SYNCH_TIMEOUT, reg);
     }
@@ -473,6 +482,25 @@ uint8_t reg  = 0;
 void Sx126xDriverBase::SetRxGain(uint8_t RxGain)
 {
     WriteRegister(SX126X_REG_RX_GAIN, RxGain);
+}
+
+
+void Sx126xDriverBase::SetTxClampConfig(void)
+{
+    // 15.2 Better Resistance of the SX1262 Tx to Antenna Mismatch, datasheet p. 105
+    // 15.2.1 Description
+    // The SX1261/2 platform embeds a Power Amplifier (PA) clamping mechanism, backing-off the power when over-voltage
+    // conditions are detected internally. This method is put in place to protect the internal devices and ensure long-term
+    // reliability of the chip. Considering a high-power operation of the SX1262 (supporting +22dBm on-chip), these "clamping"
+    // devices are overly protective, causing the chip to back-down its output power when even a reasonable mismatch is
+    // detected at the PA output. The observation is typically 5 to 6 dB less output power than the expected.
+    // 15.2.2 Workaround
+    // On the SX1262, during the chip initialization, the register TxClampConfig should be modified to optimize the PA clamping
+    // threshold. Bits 4-1 must be set to "1111" (default value "0100").
+    // This register modification must be done after a Power On Reset, or a wake-up from cold Start.
+    uint8_t data = ReadRegister(SX126X_REG_TX_CLAMP_CONFIG);
+    data |= 0x1E;
+    WriteRegister(SX126X_REG_TX_CLAMP_CONFIG, data);
 }
 
 
@@ -524,7 +552,7 @@ uint8_t buf[2];
 // compared to table 9-2, p. 58:
 // for 779-787: Freq1 is obtained as 0xC2 but is 0xC1 in the table
 // else:        Freq2 is obtained one too low
-// => we add +1 to Freq2, to reporduce table for most times
+// => we add +1 to Freq2, to reproduce table for most times
 void Sx126xDriverBase::CalibrateImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz)
 {
     uint8_t Freq1 = Freq1_mhz / 4;
