@@ -139,6 +139,8 @@ void Sx126xDriverBase::SetStandby(uint8_t StandbyConfig)
 void Sx126xDriverBase::SetPacketType(uint8_t PacketType)
 {
     WriteCommand(SX126X_CMD_SET_PACKET_TYPE, PacketType);
+
+    _packet_type = PacketType;
 }
 
 
@@ -177,7 +179,22 @@ uint8_t buf[4];
 
    WriteCommand(SX126X_CMD_SET_MODULATION_PARAMS, buf, 4);
 
-   _lora_bandwidth = Bandwidth;
+   // 15.1 Modulation Quality with 500 kHz LoRa Bandwidth, datasheet p. 105
+   // 15.1.1 Description
+   // Some sensitivity degradation may be observed on any LoRa device, when receiving signals transmitted by the SX1261/2
+   // with a LoRa BW of 500 kHz.
+   // 15.1.2 Workaround
+   // Before any packet transmission, bit #2 at address 0x0889 shall be set to:
+   //   0 if the LoRa BW = 500 kHz
+   //   1 for any other LoRa BW
+   //   1 for any (G)FSK configuration
+   buf[0] = ReadRegister(SX126X_REG_TX_MODULATION);
+   if (Bandwidth == SX126X_LORA_BW_500) {
+       buf[0] &= 0xFB;
+   } else {
+       buf[0] |= 0x04;
+   }
+   WriteRegister(SX126X_REG_TX_MODULATION, buf[0]);
 }
 
 
@@ -285,23 +302,6 @@ void Sx126xDriverBase::SetTx(uint32_t tmo_periodbase)
 {
 uint8_t buf[3];
 
-    // 15.1 Modulation Quality with 500 kHz LoRa Bandwidth, datasheet p. 105
-    // 15.1.1 Description
-    // Some sensitivity degradation may be observed on any LoRa device, when receiving signals transmitted by the SX1261/2
-    // with a LoRa BW of 500 kHz.
-    // 15.1.2 Workaround
-    // Before any packet transmission, bit #2 at address 0x0889 shall be set to:
-    //   0 if the LoRa BW = 500 kHz
-    //   1 for any other LoRa BW
-    //   1 for any (G)FSK configuration
-    buf[0] = ReadRegister(SX126X_REG_TX_MODULATION);
-    if (_lora_bandwidth == SX126X_LORA_BW_500) {
-        buf[0] &= 0xFB;
-    } else {
-        buf[0] |= 0x04;
-    }
-    WriteRegister(SX126X_REG_TX_MODULATION, buf[0]);
-
     // 24 bits time out with base of 15.625us
     // TimeOut duration (us) = 15.625 * timeOut
     if (tmo_periodbase > 0xFFFFFF) tmo_periodbase = 0xFFFFFF;
@@ -367,15 +367,16 @@ void Sx126xDriverBase::ClearRxEvent(void)
     // It is advised to add the following commands after ANY Rx with Timeout active sequence, which stop the RTC and clear the
     // timeout event, if any. The register at address 0x0902 will be used to stop the counter, while the register at address 0x0944
     // will clear the potential event.
-    if (_header_type == SX126X_LORA_HEADER_IMPLICIT) {
-        uint8_t buf = ReadRegister(SX126X_REG_RTC_STOP);
-        WriteRegister(SX126X_REG_RTC_STOP, 0x00); // stop the timer
-        uint8_t data = ReadRegister(SX126X_REG_RTC_EVENT);
+    if (_packet_type == SX126X_PACKET_TYPE_LORA && _header_type == SX126X_LORA_HEADER_IMPLICIT) {
+//??        uint8_t buf = ReadRegister(SX126X_REG_RTC_CONTROL);
+        WriteRegister(SX126X_REG_RTC_CONTROL, 0x00); // stop the timer
+        uint8_t data = ReadRegister(SX126X_REG_EVENT_MASK);
         data |= 0x02;
-        WriteRegister(SX126X_REG_RTC_EVENT, data);
-        WriteRegister(SX126X_REG_RTC_STOP, buf);  // restart the timer
+        WriteRegister(SX126X_REG_EVENT_MASK, data);
+//??        WriteRegister(SX126X_REG_RTC_CONTROL, buf); // restart the timer
     }
 }
+
 
 // auxiliary methods
 
@@ -585,6 +586,19 @@ uint8_t buf[8];
     buf[7] = (uint8_t)(Fdev & 0xFF);
 
     WriteCommand(SX126X_CMD_SET_MODULATION_PARAMS, buf, 8);
+
+    // 15.1 Modulation Quality with 500 kHz LoRa Bandwidth, datasheet p. 105
+    // 15.1.1 Description
+    // Some sensitivity degradation may be observed on any LoRa device, when receiving signals transmitted by the SX1261/2
+    // with a LoRa BW of 500 kHz.
+    // 15.1.2 Workaround
+    // Before any packet transmission, bit #2 at address 0x0889 shall be set to:
+    //   0 if the LoRa BW = 500 kHz
+    //   1 for any other LoRa BW
+    //   1 for any (G)FSK configuration
+    buf[0] = ReadRegister(SX126X_REG_TX_MODULATION);
+    buf[0] |= 0x04;
+    WriteRegister(SX126X_REG_TX_MODULATION, buf[0]);
 }
 
 

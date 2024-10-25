@@ -139,8 +139,8 @@ class Sx126xDriverBase
   private:
     uint8_t _status; // all spi transfers yield the status, so we can just get it
 
-    uint8_t _header_type; // keep HeaderType, is required in SetRx()
-    uint8_t _lora_bandwidth; // keep lora bandwidth, is required in SetTx()
+    uint8_t _header_type; // keep HeaderType, is required in ClearRxEvent()
+    uint8_t _packet_type; // keep PacketType, is required in ClearRxEvent()
 };
 
 
@@ -190,7 +190,7 @@ typedef enum {
     SX126X_CMD_SET_PACKET_PARAMS          = 0x8C,
     SX126X_CMD_SET_CAD_PARAMS             = 0x88,
     SX126X_CMD_SET_BUFFER_BASEADDRESS     = 0x8F,
-    SX126X_CMD_SET_LORA_SYMB_NUM_TIMEOUT  = 0x0A,
+    SX126X_CMD_SET_LORA_SYMB_NUM_TIMEOUT  = 0xA0, // changed 2024.10.24, was 0x0A
 
     // status commands
     SX126X_CMD_GET_STATUS                 = 0xC0,
@@ -235,15 +235,18 @@ typedef enum {
     SX126X_REG_RX_GAIN                    = 0x08AC, // boosted gain RX; Rx power saving : 0x94; Rx Boosted gain : 0x96
     SX126X_REG_TX_CLAMP_CONFIG            = 0x08D8, // 2024.10.24: moved to here
     SX126X_REG_OCP_CONFIGURATION          = 0x08E7, // over current protection
+    SX126X_REG_RTC_CONTROL                = 0x0902, // 2024.10.24, was 0x920, changed name
     SX126X_REG_XTA_TRIM                   = 0x0911,
     SX126X_REG_XTB_TRIM                   = 0x0912,
+    SX126X_REG_DIO3_OUT_VOLTAGE_CONTROL   = 0x0920, // 2024.10.24: added
+    SX126X_REG_EVENT_MASK                 = 0x0944, // 2024.10.24: changed name
 
     // undocumented registers
     SX126X_REG_SYNCH_TIMEOUT              = 0x0706, // undocumented, get from semtech example
 //    SX126X_REG_SENSITIVITY_CONFIG         = 0x0889, // SX1268 datasheet v1.1, section 15.1
 //    SX126X_REG_TX_CLAMP_CONFIG            = 0x08D8, // SX1268 datasheet v1.1, section 15.2
-    SX126X_REG_RTC_STOP                   = 0x0920, // SX1268 datasheet v1.1, section 15.3
-    SX126X_REG_RTC_EVENT                  = 0x0944, // SX1268 datasheet v1.1, section 15.3
+//    SX126X_REG_RTC_STOP                   = 0x0920, // SX1268 datasheet v1.1, section 15.3
+//    SX126X_REG_RTC_EVENT                  = 0x0944, // SX1268 datasheet v1.1, section 15.3
 //    SX126X_REG_IQ_CONFIG                  = 0x0736, // SX1268 datasheet v1.1, section 15.4
     SX126X_REG_RX_GAIN_RETENTION_0        = 0x029F, // SX1268 datasheet v1.1, section 9.6
     SX126X_REG_RX_GAIN_RETENTION_1        = 0x02A0, // SX1268 datasheet v1.1, section 9.6
