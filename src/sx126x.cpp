@@ -534,8 +534,6 @@ uint8_t buf[4];
     buf[3] = SX126X_PA_CONFIG_22_DBM_PA_LUT;
 
     WriteCommand(SX126X_CMD_SET_PA_CONFIG, buf, 4);
-
-    
 }
 
 
