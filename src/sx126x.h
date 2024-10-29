@@ -115,6 +115,7 @@ class Sx126xDriverBase
     void SetFs(void);
     void SetPaConfig(uint8_t deviceSel, uint8_t paDutyCycle, uint8_t hpMax, uint8_t paLut);
     void SetPaConfig_22dbm(void);
+    void SetPaConfig_Min(void);
     void SetRxGain(uint8_t RxGain);
     void SetTxClampConfig(void); // for workaround 15.2.2, better sensitivity
     void SetOverCurrentProtection(uint8_t OverCurrentProtection);
@@ -481,10 +482,18 @@ typedef enum {
 // cmd 0x95 SetPaConfig(uint8_t deviceSel, uint8_t paDutyCycle, uint8_t hpMax, uint8_t paLut)
 typedef enum {
     SX126X_PA_CONFIG_DEVICE_SEL_SX1262    = 0x00, // select SX1262
-    SX126X_PA_CONFIG_22_DBM_PA_DUTY_CYCLE = 0x04, // table 13-21 p. 77
-    SX126X_PA_CONFIG_22_DBM_HP_MAX        = 0x07,
     SX126X_PA_CONFIG_22_DBM_PA_LUT        = 0x01,
 } SX126X_PA_CONFIG_ENUM;
+
+typedef enum {
+    SX126X_PA_CONFIG_22_DBM_PA_DUTY_CYCLE_MAX   = 0x04, // table 13-21 p. 77
+    SX126X_PA_CONFIG_22_DBM_PA_DUTY_CYCLE_MIN   = 0x01,
+} SX126X_PA_CONFIG_DUTY_CYCLE_ENUM;
+
+typedef enum {
+    SX126X_PA_CONFIG_22_DBM_HP_MAX        = 0x07,
+    SX126X_PA_CONFIG_22_DBM_HP_MIN        = 0x01,
+} SX126X_PA_CONFIG_HP_ENUM;
 
 
 //-------------------------------------------------------
