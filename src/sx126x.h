@@ -115,7 +115,7 @@ class Sx126xDriverBase
     void SetFs(void);
     void SetPaConfig(uint8_t deviceSel, uint8_t paDutyCycle, uint8_t hpMax, uint8_t paLut);
     void SetPaConfig_22dbm(void);
-    void SetPaConfig_Min(void);
+    void SetPaConfig_10dbm(void);
     void SetRxGain(uint8_t RxGain);
     void SetTxClampConfig(void); // for workaround 15.2.2, better sensitivity
     void SetOverCurrentProtection(uint8_t OverCurrentProtection);

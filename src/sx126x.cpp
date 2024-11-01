@@ -537,7 +537,7 @@ uint8_t buf[4];
 }
 
 
-void Sx126xDriverBase::SetPaConfig_Min(void)
+void Sx126xDriverBase::SetPaConfig_10dbm(void)
 {
 uint8_t buf[4];
 
