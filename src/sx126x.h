@@ -489,13 +489,13 @@ typedef enum {
 
 typedef enum {
     SX126X_PA_CONFIG_PA_DUTY_CYCLE_SX1262_10DBM   = 0x01, // experimentally determined for 10 dBm on SX1262
-    SX126X_PA_CONFIG_PA_DUTY_CYCLE_SX1262_22DBM   = 0x04, // paDutyCycle should not higher than 0x04 for SX1262, for 22 dBm on SX1262
+    SX126X_PA_CONFIG_PA_DUTY_CYCLE_SX1262_22DBM   = 0x04, // paDutyCycle should not be higher than 0x04 for SX1262, for 22 dBm on SX1262
 } SX126X_PA_CONFIG_PA_DUTY_CYCLE_ENUM;
 
 typedef enum {
     SX126X_PA_CONFIG_HP_MIN              = 0x00, // min allowed
     SX126X_PA_CONFIG_HP_SX1262_10DBM     = 0x01, // experimentally determined for 10 dBm on SX1262
-    SX126X_PA_CONFIG_HP_MAX              = 0x07, // max allowed, 22 dBm on SX1262
+    SX126X_PA_CONFIG_HP_MAX              = 0x07, // max allowed, for 22 dBm on SX1262
 } SX126X_PA_CONFIG_HP_ENUM;
 
 typedef enum {
