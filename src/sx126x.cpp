@@ -528,10 +528,23 @@ void Sx126xDriverBase::SetPaConfig_22dbm(void)
 {
 uint8_t buf[4];
 
-    buf[0] = SX126X_PA_CONFIG_22_DBM_PA_DUTY_CYCLE;
-    buf[1] = SX126X_PA_CONFIG_22_DBM_HP_MAX;
+    buf[0] = SX126X_PA_CONFIG_PA_DUTY_CYCLE_MAX;
+    buf[1] = SX126X_PA_CONFIG_HP;
     buf[2] = SX126X_PA_CONFIG_DEVICE_SEL_SX1262;
-    buf[3] = SX126X_PA_CONFIG_22_DBM_PA_LUT;
+    buf[3] = SX126X_PA_CONFIG_PA_LUT;
+
+    WriteCommand(SX126X_CMD_SET_PA_CONFIG, buf, 4);
+}
+
+
+void Sx126xDriverBase::SetPaConfig_10dbm(void)
+{
+uint8_t buf[4];
+
+    buf[0] = SX126X_PA_CONFIG_PA_DUTY_CYCLE_MIN;
+    buf[1] = SX126X_PA_CONFIG_HP_MIN;
+    buf[2] = SX126X_PA_CONFIG_DEVICE_SEL_SX1262;
+    buf[3] = SX126X_PA_CONFIG_PA_LUT;
 
     WriteCommand(SX126X_CMD_SET_PA_CONFIG, buf, 4);
 }
