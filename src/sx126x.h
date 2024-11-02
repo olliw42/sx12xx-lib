@@ -478,22 +478,25 @@ typedef enum {
 // PA config enum definition
 //-------------------------------------------------------
 
-// set power to max 22 dbm
 // cmd 0x95 SetPaConfig(uint8_t deviceSel, uint8_t paDutyCycle, uint8_t hpMax, uint8_t paLut)
 typedef enum {
-    SX126X_PA_CONFIG_DEVICE_SEL_SX1262    = 0x00, // select SX1262
-    SX126X_PA_CONFIG_22_DBM_PA_LUT        = 0x01,
-} SX126X_PA_CONFIG_ENUM;
+    SX126X_PA_CONFIG_DEVICE_SEL_SX1262   = 0x00,
+    SX126X_PA_CONFIG_DEVICE_SEL_SX1261   = 0x01,
+} SX126X_PA_CONFIG_DEVICE_SEL_ENUM;
 
 typedef enum {
-    SX126X_PA_CONFIG_22_DBM_PA_DUTY_CYCLE_MAX   = 0x04, // table 13-21 p. 77
-    SX126X_PA_CONFIG_22_DBM_PA_DUTY_CYCLE_MIN   = 0x01,
+    SX126X_PA_CONFIG_PA_DUTY_CYCLE_MIN   = 0x02, // table 13-21 p. 77
+    SX126X_PA_CONFIG_PA_DUTY_CYCLE_MAX   = 0x04, 
 } SX126X_PA_CONFIG_DUTY_CYCLE_ENUM;
 
 typedef enum {
-    SX126X_PA_CONFIG_22_DBM_HP_MAX        = 0x07,
-    SX126X_PA_CONFIG_22_DBM_HP_MIN        = 0x01,
+    SX126X_PA_CONFIG_HP_MIN              = 0x00,
+    SX126X_PA_CONFIG_HP                  = 0x07,
 } SX126X_PA_CONFIG_HP_ENUM;
+
+typedef enum {
+    SX126X_PA_CONFIG_PA_LUT              = 0x01,
+} SX126X_PA_CONFIG_LUT_ENUM;
 
 
 //-------------------------------------------------------
