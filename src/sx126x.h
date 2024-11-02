@@ -479,24 +479,28 @@ typedef enum {
 //-------------------------------------------------------
 
 // cmd 0x95 SetPaConfig(uint8_t deviceSel, uint8_t paDutyCycle, uint8_t hpMax, uint8_t paLut)
+// hpMax has no effect for the SX1261
+// see also table 13-21 p. 77
+// settings for 10 dBm on SX1262 were experimentally determined
 typedef enum {
     SX126X_PA_CONFIG_DEVICE_SEL_SX1262   = 0x00,
     SX126X_PA_CONFIG_DEVICE_SEL_SX1261   = 0x01,
 } SX126X_PA_CONFIG_DEVICE_SEL_ENUM;
 
 typedef enum {
-    SX126X_PA_CONFIG_PA_DUTY_CYCLE_MIN   = 0x01, // table 13-21 p. 77, for 10 dBm
-    SX126X_PA_CONFIG_PA_DUTY_CYCLE_MAX   = 0x04, // for 22 dBm
-} SX126X_PA_CONFIG_DUTY_CYCLE_ENUM;
+    SX126X_PA_CONFIG_PA_DUTY_CYCLE_SX1262_10DBM   = 0x01, // experimentally determined for 10 dBm on SX1262
+    SX126X_PA_CONFIG_PA_DUTY_CYCLE_SX1262_22DBM   = 0x04, // paDutyCycle should not higher than 0x04 for SX1262, for 22 dBm on SX1262
+} SX126X_PA_CONFIG_PA_DUTY_CYCLE_ENUM;
 
 typedef enum {
-    SX126X_PA_CONFIG_HP_MIN              = 0x01, // for 10 dBm
-    SX126X_PA_CONFIG_HP                  = 0x07, // for 22 dBm
+    SX126X_PA_CONFIG_HP_MIN              = 0x00, // min allowed
+    SX126X_PA_CONFIG_HP_SX1262_10DBM     = 0x01, // experimentally determined for 10 dBm on SX1262
+    SX126X_PA_CONFIG_HP_MAX              = 0x07, // max allowed, 22 dBm on SX1262
 } SX126X_PA_CONFIG_HP_ENUM;
 
 typedef enum {
-    SX126X_PA_CONFIG_PA_LUT              = 0x01,
-} SX126X_PA_CONFIG_LUT_ENUM;
+    SX126X_PA_CONFIG_PA_LUT              = 0x01, // reserved and always 0x01
+} SX126X_PA_CONFIG_PA_LUT_ENUM;
 
 
 //-------------------------------------------------------
@@ -531,6 +535,7 @@ typedef enum {
     SX126X_OCP_CONFIGURATION_60_MA        = 0x18, // table 12-1, p. 67
     SX126X_OCP_CONFIGURATION_140_MA       = 0x38,
 } SX126X_OCP_CONFIG_ENUM;
+
 
 //-------------------------------------------------------
 // Enum Definitions GFSK
