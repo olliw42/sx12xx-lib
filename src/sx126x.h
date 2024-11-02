@@ -485,13 +485,13 @@ typedef enum {
 } SX126X_PA_CONFIG_DEVICE_SEL_ENUM;
 
 typedef enum {
-    SX126X_PA_CONFIG_PA_DUTY_CYCLE_MIN   = 0x02, // table 13-21 p. 77
-    SX126X_PA_CONFIG_PA_DUTY_CYCLE_MAX   = 0x04, 
+    SX126X_PA_CONFIG_PA_DUTY_CYCLE_MIN   = 0x01, // table 13-21 p. 77, for 10 dBm
+    SX126X_PA_CONFIG_PA_DUTY_CYCLE_MAX   = 0x04, // for 22 dBm
 } SX126X_PA_CONFIG_DUTY_CYCLE_ENUM;
 
 typedef enum {
-    SX126X_PA_CONFIG_HP_MIN              = 0x00,
-    SX126X_PA_CONFIG_HP                  = 0x07,
+    SX126X_PA_CONFIG_HP_MIN              = 0x01, // for 10 dBm
+    SX126X_PA_CONFIG_HP                  = 0x07, // for 22 dBm
 } SX126X_PA_CONFIG_HP_ENUM;
 
 typedef enum {
