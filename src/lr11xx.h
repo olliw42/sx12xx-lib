@@ -105,8 +105,7 @@ class Lr11xxDriverBase
     void GetVersion(uint8_t* HwVersion, uint8_t* UseCase, uint8_t* FwMajor, uint8_t* FwMinor);
 
   private:
-    uint8_t _stat1; // all spi transfers yield the status, so we can just get it
-    uint8_t _stat2;
+    uint16_t _status; // status is now two bytes
 };
 
 
