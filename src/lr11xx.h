@@ -66,7 +66,7 @@ class Lr11xxDriverBase
 
     // common methods
 
-    void GetStatus(uint8_t* Stat1, uint8_t* Stat2, uint32_t* IrqStatus);  // TODO - handling?
+    void GetStatus(uint8_t* Status1, uint8_t* Status2, uint32_t* IrqStatus);  // TODO - handling?
     void SetStandby(uint8_t StandbyConfig);
     void SetPacketType(uint8_t PacketType);
     void SetRfFrequency(uint32_t RfFrequency);
