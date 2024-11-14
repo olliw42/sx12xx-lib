@@ -40,7 +40,8 @@ void Lr11xxDriverBase::WriteCommand(uint16_t opcode, uint8_t* data, uint8_t len)
 {
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer(opcode, &_status);
+    SpiTransfer((uint8_t)(opcode >> 8), &_status1);
+    SpiTransfer((uint8_t)(opcode & 0xFF), &_status2); 
     if (len > 0) SpiWrite(data, len);
     SpiDeselect();
     WaitOnBusy(); // use busy instead of hardcoded delay
@@ -51,7 +52,8 @@ void Lr11xxDriverBase::ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len)
 {
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer(opcode, &_status);
+    SpiTransfer((uint8_t)(opcode >> 8), &_status1);
+    SpiTransfer((uint8_t)(opcode & 0xFF), &_status2); 
     WaitOnBusy(); // replaces NOP
     SpiRead(data, len);
     SpiDeselect();
@@ -63,7 +65,8 @@ void Lr11xxDriverBase::WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer(LR11XX_CMD_WRITE_BUFFER_8, &_status);
+    SpiTransfer((uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 >> 8), &_status1);
+    SpiTransfer((uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 & 0xFF), &_status2); 
     SpiWrite(offset);
     SpiWrite(data, len);
     SpiDeselect();
@@ -75,7 +78,8 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer(LR11XX_CMD_READ_BUFFER_8, &_status);
+    SpiTransfer((uint8_t)(LR11XX_CMD_READ_BUFFER_8 >> 8), &_status1);
+    SpiTransfer((uint8_t)(LR11XX_CMD_READ_BUFFER_8 & 0xFF), &_status2);
     SpiWrite(offset);
     WaitOnBusy(); // replaces NOP
     SpiRead(data, len);
@@ -92,8 +96,8 @@ void Lr11xxDriverBase::GetStatus(uint8_t* Status1, uint8_t* Status2, uint32_t* I
 
     ReadCommand(LR11XX_CMD_GET_STATUS, status, 4);
 
-    *Status1 = (_status >> 8) & 0xFF;
-    *Status2 = _status & 0xFF;
+    *Status1 = _status1;
+    *Status2 = _status2;
 
     *IrqStatus = (status[0] << 24) | (status[1] << 16) | (status[2] << 8)  | (status[3]);
 }
@@ -226,3 +230,162 @@ uint32_t irq_status;
     return irq_status;
 }
 
+
+// Tx methods
+
+void Lr11xxDriverBase::SetPaConfig(uint8_t PaSel, uint8_t RegPaSupply, uint8_t PaDutyCycle, uint8_t PaHPsel)
+{
+uint8_t buf[4];
+
+    buf[0] = PaSel;
+    buf[1] = RegPaSupply;
+    buf[2] = PaDutyCycle;
+    buf[3] = PaHPsel;
+
+    WriteCommand(LR11XX_CMD_SET_PA_CONFIG, buf, 4);
+}
+
+
+void Lr11xxDriverBase::SetTxParams(uint8_t Power, uint8_t RampTime)
+{
+uint8_t buf[2];
+
+    buf[0] = Power;
+    buf[1] = RampTime;
+
+    WriteCommand(LR11XX_CMD_SET_TX_PARAMS, buf, 2);
+}
+
+
+void Lr11xxDriverBase::SetTx(uint32_t TxTimeout)
+{
+uint8_t buf[3];
+
+    // 24 bits timeout with base of 30.5 uS
+    // TimeOut duration (us) = 30.5 * timeOut
+    // Max timeout is 512 seconds
+
+    buf[0] = (uint8_t)((TxTimeout & 0xFF0000) >> 16);
+    buf[1] = (uint8_t)((TxTimeout & 0x00FF00) >> 8);
+    buf[2] = (uint8_t) (TxTimeout & 0x0000FF);
+    
+    WriteCommand(LR11XX_CMD_SET_TX, buf, 3);
+}
+
+
+// Rx methods
+
+void Lr11xxDriverBase::SetRx(uint32_t RxTimeout)
+{
+uint8_t buf[3];
+
+    // Same units as SetTx
+
+    buf[0] = (uint8_t)((RxTimeout & 0xFF0000) >> 16);
+    buf[1] = (uint8_t)((RxTimeout & 0x00FF00) >> 8);
+    buf[2] = (uint8_t) (RxTimeout & 0x0000FF);
+    
+    WriteCommand(LR11XX_CMD_SET_RX, buf, 3);
+}
+
+
+void Lr11xxDriverBase::GetPacketStatus(int16_t* RssiSync, int8_t* Snr)
+{
+uint8_t status[4];
+
+    ReadCommand(LR11XX_CMD_GET_PACKET_STATUS, status, 4);
+
+    // position 0 is status1, again
+    // position 3 is SignalRssiPkt, RSSI of the despreaded LoRa signal
+
+    *RssiSync = -(int16_t)(status[1] / 2);
+    *Snr = (int8_t)status[2] / 4; // user manual says (((int8_t)rbuffer[1])+ 2) >> 2 ??
+}
+
+
+void Lr11xxDriverBase::GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer)
+{
+uint8_t status[3];
+
+    // position 0 is status1, again
+
+    ReadCommand(LR11XX_CMD_GET_RX_BUFFER_STATUS, status, 3);
+
+    *rxPayloadLength = status[1];
+    *rxStartBufferPointer = status[2];
+}
+
+
+// auxiliary methods
+
+void Lr11xxDriverBase::SetRegMode(uint8_t RegModeParam)
+{
+uint8_t buf[1];
+
+    buf[0] = RegModeParam;
+    
+    WriteCommand(LR11XX_CMD_SET_REG_MODE, buf, 1);
+}
+
+
+void Lr11xxDriverBase::SetRxTxFallbackMode(uint8_t FallbackMode)
+{
+uint8_t buf[1];
+
+    buf[0] = FallbackMode;
+    
+    WriteCommand(LR11XX_CMD_SET_RXTX_FALLBACK_MODE, buf, 1);
+}
+
+
+void Lr11xxDriverBase::SetFs(void)
+{
+    WriteCommand(LR11XX_CMD_SET_FS);
+}
+
+
+void Lr11xxDriverBase::SetRxBoosted(uint8_t RxBoosted)
+{
+uint8_t buf[1];
+
+    buf[0] = RxBoosted;
+    
+    WriteCommand(LR11XX_CMD_SET_RX_BOOSTED, buf, 1);
+}
+
+
+void Lr11xxDriverBase::CalibImage(uint8_t Freq1, uint8_t Freq2)
+{
+uint8_t buf[2];
+
+    buf[0] = Freq1;
+    buf[1] = Freq2;
+    
+    WriteCommand(LR11XX_CMD_CALIB_IMAGE, buf, 2);
+}
+
+void Lr11xxDriverBase::CalibImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz)
+{
+    // as recommended per the user manual
+    uint8_t Freq1 = (Freq1_mhz - 1) / 4;
+    uint8_t Freq2 = (Freq2_mhz + 1) / 4;
+
+    CalibImage(Freq1, Freq2);
+}
+
+
+// other methodsa
+
+void Lr11xxDriverBase::GetVersion(uint8_t* HwVersion, uint8_t* UseCase, uint8_t* FwMajor, uint8_t* FwMinor)
+{
+uint8_t version[5];
+
+    // position 0 is status1, again
+
+    ReadCommand(LR11XX_CMD_GET_VERSION, version, 5);
+
+    *HwVersion = version[1];
+    *UseCase = version[2];
+    *FwMajor = version[3];
+    *FwMinor = version[4];
+}

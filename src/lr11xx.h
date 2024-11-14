@@ -98,14 +98,16 @@ class Lr11xxDriverBase
     void SetRxTxFallbackMode(uint8_t FallbackMode); // replaces SetAutoFs
     void SetFs(void);
     void SetRxBoosted(uint8_t RxBoosted); // similar to SetLnaGainMode
-    void CalibImage(uint8_t Freq1, uint8_t Freq2); // low frequency only, takes freq / 4
+    void CalibImage(uint8_t Freq1, uint8_t Freq2); // low frequency only, takes freq in MHz / 4
+    void CalibImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz);  // helper, takes freq in MHz
 
     // other methods
 
     void GetVersion(uint8_t* HwVersion, uint8_t* UseCase, uint8_t* FwMajor, uint8_t* FwMinor);
 
   private:
-    uint16_t _status; // status is now two bytes
+    uint8_t _status1; // status is now two bytes
+    uint8_t _status2;
 };
 
 
