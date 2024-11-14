@@ -71,9 +71,9 @@ class Lr11xxDriverBase
     void SetPacketType(uint8_t PacketType);
     void SetRfFrequency(uint32_t RfFrequency);
     void SetDioAsRfSwitch(uint8_t RfSwEnable, uint8_t RfSwStbyCfg, uint8_t RfSwRxCfg, uint8_t RfSwTxCfg, uint8_t TxHPCfg, uint8_t RfSwTxHfCfg);
-    void SetTcxoMode(uint8_t OutputVoltage, uint32_t delay_us);
+    void SetTcxoMode(uint8_t OutputVoltage, uint32_t Delay);  // delay is 24 bits only, in 30.52 uS steps
     // void SetBufferBaseAddress(uint8_t txBaseAdress, uint8_t rxBaseAdress); // no opcode in user manual?
-    void SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate); // implied to be LoRa
+    void SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate, uint8_t LowDataRateOptimize); // implied to be LoRa
     void SetPacketParams(uint16_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ); // implied to be LoRa
 
     void SetDioIrqParams(uint32_t Irq1ToEnable, uint32_t Irq2ToEnable); // TODO - which IRQs needed? Table 4-2
@@ -294,7 +294,7 @@ typedef enum {
     LR11XX_RF_SW_TX_HF_CONFIG_DIO10       = 0x10,
 } LR11XX_RF_SW_TX_HF_CONFIG_ENUM;
 
-// cmd 0x0117 void SetTcxoMode(uint8_t OutputVoltage, uint32_t delay_us)
+// cmd 0x0117 void SetTcxoMode(uint8_t OutputVoltage, uint32_t Delay)
 typedef enum {                                   
     LR11XX_TCXO_OUTPUT_1_6                = 0x00, // // table 6-3, page 48, 1.6V
     LR11XX_TCXO_OUTPUT_1_7                = 0x01, // 1.7V
@@ -306,7 +306,7 @@ typedef enum {
     LR11XX_TCXO_OUTPUT_3_3                = 0x07, // 3.3V
 } LR11XX_TCXO_OUTPUT_ENUM;
 
-// cmd 0x020F void SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate)
+// cmd 0x020F void SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate, uint8_t LowDataRateOptimize)
 typedef enum {
     LR11XX_LORA_SF5                       = 0x05, // table 8-4, page 67
     LR11XX_LORA_SF6                       = 0x06,
@@ -337,6 +337,11 @@ typedef enum {
     LR11XX_LORA_CR_LI_4_6                 = 0x06, // 2.4 only?
     LR11XX_LORA_CR_LI_4_8                 = 0x07, // 2.4 only?
 } LR11XX_LORA_CR_ENUM;
+
+typedef enum {
+    LR11XX_LORA_LDR_OFF                   = 0x00, // table 8-4, page 67
+    LR11XX_LORA_LDR_ON                    = 0x01,
+} LR11XX_LORA_LDR_ENUM;
 
 // cmd 0x0210 void SetPacketParams(uint16_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ)
 typedef enum {

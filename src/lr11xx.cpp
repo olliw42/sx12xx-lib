@@ -123,13 +123,106 @@ uint8_t buf[4];
     WriteCommand(LR11XX_CMD_SET_RF_FREQUENCY, buf, 4);
 }
 
-void SetDioAsRfSwitch(uint8_t RfSwEnable, uint8_t RfSwStbyCfg, uint8_t RfSwRxCfg, uint8_t RfSwTxCfg, uint8_t TxHPCfg, uint8_t RfSwTxHfCfg);
-void SetTcxoMode(uint8_t OutputVoltage, uint32_t delay_us);
-// void SetBufferBaseAddress(uint8_t txBaseAdress, uint8_t rxBaseAdress); // no opcode in user manual?
-void SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate); // implied to be LoRa
-void SetPacketParams(uint16_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ); // implied to be LoRa
 
-void SetDioIrqParams(uint32_t Irq1ToEnable, uint32_t Irq2ToEnable); // TODO - which IRQs needed? Table 4-2
-void ClearIrq(uint32_t IrqToClear); // IrqToClear mask is identical to IrqToEnable assignment
-uint32_t GetAndClearIrqStatus(uint32_t IrqToClear);  // No more GetIrqStatus, use GetStatus
+void Lr11xxDriverBase::SetDioAsRfSwitch(uint8_t RfSwEnable, uint8_t RfSwStbyCfg, uint8_t RfSwRxCfg, uint8_t RfSwTxCfg, uint8_t TxHPCfg, uint8_t RfSwTxHfCfg)
+{
+uint8_t buf[8];
+
+    buf[0] = RfSwEnable;
+    buf[1] = RfSwStbyCfg;
+    buf[2] = RfSwRxCfg;
+    buf[3] = RfSwTxCfg;
+    buf[4] = TxHPCfg;
+    buf[5] = RfSwTxHfCfg;
+    buf[6] = 0;  // reserved for future use
+    buf[7] = 0;  // reserved for future use
+
+    WriteCommand(LR11XX_CMD_SET_DIO_AS_RF_SWITCH, buf, 8);
+}
+
+
+void Lr11xxDriverBase::SetTcxoMode(uint8_t OutputVoltage, uint32_t Delay)
+{
+uint8_t buf[4];
+
+    buf[0] = OutputVoltage;
+    buf[0] = (uint8_t)((Delay & 0xFF0000) >> 16);
+    buf[1] = (uint8_t)((Delay & 0x00FF00) >> 8);
+    buf[2] = (uint8_t)(Delay & 0x0000FF);
+
+    WriteCommand(LR11XX_CMD_SET_TCXO_MODE, buf, 4);
+}
+
+
+void Lr11xxDriverBase::SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate, uint8_t LowDataRateOptimize)
+{
+uint8_t buf[4];
+
+    buf[0] = SpreadingFactor;
+    buf[0] = Bandwidth;
+    buf[1] = CodingRate;
+    buf[2] = LowDataRateOptimize;
+
+    WriteCommand(LR11XX_CMD_SET_MODULATION_PARAMS, buf, 4);
+}
+
+
+void Lr11xxDriverBase::SetPacketParams(uint16_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ)
+{
+uint8_t buf[6];
+
+    buf[0] = (uint8_t)((PreambleLength & 0xFF00) >> 8);
+    buf[1] = (uint8_t)(PreambleLength & 0x00FF);
+    buf[2] = HeaderType;
+    buf[3] = PayloadLength;
+    buf[4] = Crc;
+    buf[5] = InvertIQ;
+
+    WriteCommand(LR11XX_CMD_SET_PACKET_PARAMS, buf, 6);
+}
+
+
+void Lr11xxDriverBase::SetDioIrqParams(uint32_t Irq1ToEnable, uint32_t Irq2ToEnable)
+{
+uint8_t buf[8];
+
+    buf[0] = (uint8_t)((Irq1ToEnable & 0xFF000000) >> 24);
+    buf[1] = (uint8_t)((Irq1ToEnable & 0x00FF0000) >> 16);
+    buf[2] = (uint8_t)((Irq1ToEnable & 0x0000FF00) >> 8);
+    buf[3] = (uint8_t)(Irq1ToEnable & 0x000000FF);
+    buf[4] = (uint8_t)((Irq2ToEnable & 0xFF000000) >> 24);
+    buf[5] = (uint8_t)((Irq2ToEnable & 0x00FF0000) >> 16);
+    buf[6] = (uint8_t)((Irq2ToEnable & 0x0000FF00) >> 8);
+    buf[7] = (uint8_t)(Irq2ToEnable & 0x000000FF);
+
+    WriteCommand(LR11XX_CMD_SET_DIO_IRQ_PARAMS, buf, 8);
+}
+
+
+void Lr11xxDriverBase::ClearIrq(uint32_t IrqToClear)
+{
+uint8_t buf[4];
+
+    buf[0] = (uint8_t)((IrqToClear & 0xFF000000) >> 24);
+    buf[1] = (uint8_t)((IrqToClear & 0x00FF0000) >> 16);
+    buf[2] = (uint8_t)((IrqToClear & 0x0000FF00) >> 8);
+    buf[3] = (uint8_t)(IrqToClear & 0x000000FF);
+
+    WriteCommand(LR11XX_CMD_CLEAR_IRQ, buf, 4);
+}
+
+
+uint32_t Lr11xxDriverBase::GetAndClearIrqStatus(uint32_t IrqToClear)
+{
+uint8_t status[4];
+uint32_t irq_status;
+
+    ReadCommand(LR11XX_CMD_GET_STATUS, status, 4);
+
+    irq_status = (status[0] << 24) | (status[1] << 16) | (status[2] << 8)  | (status[3]);
+
+    ClearIrq(IrqToClear);
+
+    return irq_status;
+}
 
