@@ -102,6 +102,7 @@ class Lr11xxDriverBase
     void SetRxBoosted(uint8_t RxBoosted); // similar to SetLnaGainMode
     void CalibImage(uint8_t Freq1, uint8_t Freq2); // low frequency only, takes freq in MHz / 4
     void CalibImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz);  // helper, takes freq in MHz
+    void ClearErrors(void);
 
     // other methods
 

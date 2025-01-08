@@ -373,6 +373,11 @@ void Lr11xxDriverBase::CalibImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz)
     CalibImage(Freq1, Freq2);
 }
 
+void Lr11xxDriverBase::ClearErrors(void)
+{
+    WriteCommand(LR11XX_CMD_CLEAR_ERRORS);
+}
+
 
 // other methodsa
 
