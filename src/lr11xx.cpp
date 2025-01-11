@@ -87,6 +87,7 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
     SpiDeselect(); 
     WaitOnBusy();
     SpiSelect();
+    SpiRead(&_status1, 1);  // every response has stat1, again
     SpiRead(data, len);
     SpiDeselect();
     WaitOnBusy(); // use busy instead of hardcoded delay
