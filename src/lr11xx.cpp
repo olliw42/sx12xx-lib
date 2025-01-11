@@ -53,8 +53,10 @@ void Lr11xxDriverBase::ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len)
     WaitOnBusy();
     SpiSelect();
     SpiTransfer((uint8_t)(opcode >> 8), &_status1);
-    SpiTransfer((uint8_t)(opcode & 0xFF), &_status2); 
-    WaitOnBusy(); // replaces NOP
+    SpiTransfer((uint8_t)(opcode & 0xFF), &_status2);
+    SpiDeselect(); 
+    WaitOnBusy();
+    SpiSelect();
     SpiRead(data, len);
     SpiDeselect();
     WaitOnBusy();
@@ -81,7 +83,9 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
     SpiTransfer((uint8_t)(LR11XX_CMD_READ_BUFFER_8 >> 8), &_status1);
     SpiTransfer((uint8_t)(LR11XX_CMD_READ_BUFFER_8 & 0xFF), &_status2);
     SpiWrite(offset);
-    WaitOnBusy(); // replaces NOP
+    SpiDeselect(); 
+    WaitOnBusy();
+    SpiSelect();
     SpiRead(data, len);
     SpiDeselect();
     WaitOnBusy(); // use busy instead of hardcoded delay
@@ -379,7 +383,7 @@ void Lr11xxDriverBase::ClearErrors(void)
 }
 
 
-// other methodsa
+// other methods
 
 void Lr11xxDriverBase::GetVersion(uint8_t* HwVersion, uint8_t* UseCase, uint8_t* FwMajor, uint8_t* FwMinor)
 {
