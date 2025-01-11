@@ -69,7 +69,7 @@ void Lr11xxDriverBase::WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len)
     SpiSelect();
     SpiTransfer((uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 >> 8), &_status1);
     SpiTransfer((uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 & 0xFF), &_status2); 
-    SpiWrite(offset);
+    //SpiWrite(offset);
     SpiWrite(data, len);
     SpiDeselect();
     WaitOnBusy();
@@ -83,6 +83,7 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
     SpiTransfer((uint8_t)(LR11XX_CMD_READ_BUFFER_8 >> 8), &_status1);
     SpiTransfer((uint8_t)(LR11XX_CMD_READ_BUFFER_8 & 0xFF), &_status2);
     SpiWrite(offset);
+    SpiWrite(len);
     SpiDeselect(); 
     WaitOnBusy();
     SpiSelect();
