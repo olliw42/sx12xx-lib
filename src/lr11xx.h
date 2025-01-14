@@ -385,6 +385,7 @@ typedef enum {
     LR11XX_IRQ_FSK_LEN_ERROR              = 0x01000000, // bit 24
     LR11XX_IRQ_FSK_ADDR_ERROR             = 0x02000000, // bit 25
     LR11XX_IRQ_LORA_RX_TIMESTAMP          = 0x08000000, // bit 27
+    LR11XX_IRQ_ALL                        = 0xFFFFFFFF,
 } LR11XX_IRQ_ENUM;
 
 // cmd 0x020A void SetTx(uint32_t TxTimeout)
