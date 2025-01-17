@@ -352,8 +352,8 @@ typedef enum {
 typedef enum {
     LR11XX_LORA_HEADER_EXPLICIT           = 0x00, // table 8-5, page 68
     LR11XX_LORA_HEADER_IMPLICIT           = 0x01,
-    LR11XX_LORA_HEADER_DISABLE            = LR11XX_LORA_HEADER_IMPLICIT, // compatiblility?
     LR11XX_LORA_HEADER_ENABLE             = LR11XX_LORA_HEADER_EXPLICIT, // compatiblility?
+    LR11XX_LORA_HEADER_DISABLE            = LR11XX_LORA_HEADER_IMPLICIT, // compatiblility?
 } LR11XX_LORA_HEADER_ENUM;
 
 typedef enum {

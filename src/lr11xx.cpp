@@ -7,6 +7,7 @@
 //*******************************************************
 
 #include "lr11xx.h"
+#include <Arduino.h>
 
 // spi
 
@@ -40,11 +41,14 @@ void Lr11xxDriverBase::WriteCommand(uint16_t opcode, uint8_t* data, uint8_t len)
 {
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)(opcode >> 8), &_status1);
-    SpiTransfer((uint8_t)(opcode & 0xFF), &_status2); 
+    SpiTransfer((uint8_t)((opcode & 0xFF00) >> 8), &_status1);
+    SpiTransfer((uint8_t)(opcode & 0x00FF), &_status2); 
     if (len > 0) SpiWrite(data, len);
     SpiDeselect();
     WaitOnBusy(); // use busy instead of hardcoded delay
+    Serial.println();
+    Serial.print("Status: ");
+    Serial.println((_status1 & 0b00001110) >> 1);
 }
 
 
@@ -52,14 +56,17 @@ void Lr11xxDriverBase::ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len)
 {
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)(opcode >> 8), &_status1);
-    SpiTransfer((uint8_t)(opcode & 0xFF), &_status2);
+    SpiTransfer((uint8_t)((opcode & 0xFF00) >> 8), &_status1);
+    SpiTransfer((uint8_t)(opcode & 0x00FF), &_status2);
     SpiDeselect(); 
     WaitOnBusy();
     SpiSelect();
     SpiRead(data, len);
     SpiDeselect();
     WaitOnBusy();
+    Serial.println();
+    Serial.print("Status: ");
+    Serial.println((_status1 & 0b00001110) >> 1);
 }
 
 
@@ -67,12 +74,15 @@ void Lr11xxDriverBase::WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 >> 8), &_status1);
-    SpiTransfer((uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 & 0xFF), &_status2); 
+    SpiTransfer((uint8_t)((LR11XX_CMD_WRITE_BUFFER_8 & 0xFF00) >> 8), &_status1);
+    SpiTransfer((uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 & 0x00FF), &_status2); 
     //SpiWrite(offset);
     SpiWrite(data, len);
     SpiDeselect();
     WaitOnBusy();
+    Serial.println();
+    Serial.print("Status: ");
+    Serial.println((_status1 & 0b00001110) >> 1);
 }
 
 
@@ -80,8 +90,8 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)(LR11XX_CMD_READ_BUFFER_8 >> 8), &_status1);
-    SpiTransfer((uint8_t)(LR11XX_CMD_READ_BUFFER_8 & 0xFF), &_status2);
+    SpiTransfer((uint8_t)((LR11XX_CMD_READ_BUFFER_8 & 0xFF00) >> 8), &_status1);
+    SpiTransfer((uint8_t)(LR11XX_CMD_READ_BUFFER_8 & 0x00FF), &_status2);
     SpiWrite(offset);
     SpiWrite(len);
     SpiDeselect(); 
@@ -91,6 +101,9 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
     SpiRead(data, len);
     SpiDeselect();
     WaitOnBusy(); // use busy instead of hardcoded delay
+    Serial.println();
+    Serial.print("Status: ");
+    Serial.println((_status1 & 0b00001110) >> 1);
 }
 
 
