@@ -5,9 +5,10 @@
 //*******************************************************
 // LR11XX standard interface
 //*******************************************************
+// contributed by JLP
+//*******************************************************
 
 #include "lr11xx.h"
-#include <Arduino.h>
 
 // spi
 
@@ -45,7 +46,6 @@ void Lr11xxDriverBase::WriteCommand(uint16_t opcode, uint8_t* data, uint8_t len)
     SpiTransfer((uint8_t)(opcode & 0x00FF), &_status2); 
     if (len > 0) SpiWrite(data, len);
     SpiDeselect();
-    //WaitOnBusy(); // not needed?  any subsequent command will call this
 }
 
 
@@ -65,7 +65,7 @@ void Lr11xxDriverBase::ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len)
 }
 
 
-void Lr11xxDriverBase::WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len)
+void Lr11xxDriverBase::WriteBuffer(uint8_t* data, uint8_t len)
 {
     WaitOnBusy();
     SpiSelect();
@@ -87,7 +87,7 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
     SpiDeselect(); 
     WaitOnBusy();
     SpiSelect();
-    SpiRead(&_status1, 1);  // every response has stat1, again
+    SpiRead(&_status1, 1);  // every response has status1, again
     SpiRead(data, len);
     SpiDeselect();
 }
@@ -97,7 +97,7 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 
 void Lr11xxDriverBase::GetStatus(uint8_t* Status1, uint8_t* Status2, uint32_t* IrqStatus)
 {
-    uint8_t status[4];
+uint8_t status[4];
 
     ReadCommand(LR11XX_CMD_GET_STATUS, status, 4);
 

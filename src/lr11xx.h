@@ -5,6 +5,8 @@
 //*******************************************************
 // LR11xx library
 //*******************************************************
+// contributed by JLP
+//*******************************************************
 
 // Semtech User Manual: https://semtech.my.salesforce.com/sfc/p/E0000000JelG/a/RQ000005h0I1/uRUCgjGWaHW2B2wFchdm_w96ucy3g12TruwkrJkeBEE
 
@@ -58,7 +60,7 @@ class Lr11xxDriverBase
 
     void WriteCommand(uint16_t opcode, uint8_t* data, uint8_t len);
     void ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len);
-    void WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len);  // No concept of offset, so should remove in future
+    void WriteBuffer(uint8_t* data, uint8_t len);
     void ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len);
 
     void WriteCommand(uint16_t opcode) { WriteCommand(opcode, nullptr, 0); }
@@ -94,9 +96,9 @@ class Lr11xxDriverBase
     // auxiliary methods
 
     void SetRegMode(uint8_t RegModeParam);
-    void SetRxTxFallbackMode(uint8_t FallbackMode); // replaces SetAutoFs
+    void SetRxTxFallbackMode(uint8_t FallbackMode); // replaces SetAutoFs found in sx126x / sx128x
     void SetFs(void);
-    void SetRxBoosted(uint8_t RxBoosted); // similar to SetLnaGainMode
+    void SetRxBoosted(uint8_t RxBoosted); // similar to SetRxGain in sx126x and SetLnaGainMode in sx128x
     void CalibImage(uint8_t Freq1, uint8_t Freq2); // low frequency only, takes freq in MHz / 4
     void CalibImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz);  // helper, takes freq in MHz
     void ClearErrors(void);
