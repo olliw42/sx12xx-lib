@@ -55,11 +55,10 @@ class Lr11xxDriverBase
     void SpiWrite(uint8_t dataout) { SpiWrite(&dataout, 1); }
 
     // low level methods, usually no need to use them
-    // TODO - needs validation
 
     void WriteCommand(uint16_t opcode, uint8_t* data, uint8_t len);
     void ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len);
-    void WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len);
+    void WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len);  // No concept of offset, so should remove in future
     void ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len);
 
     void WriteCommand(uint16_t opcode) { WriteCommand(opcode, nullptr, 0); }
@@ -68,17 +67,15 @@ class Lr11xxDriverBase
 
     // common methods
 
-    void GetStatus(uint8_t* Status1, uint8_t* Status2, uint32_t* IrqStatus);  // TODO - handling?
+    void GetStatus(uint8_t* Status1, uint8_t* Status2, uint32_t* IrqStatus);
     void SetStandby(uint8_t StandbyConfig);
     void SetPacketType(uint8_t PacketType);
     void SetRfFrequency(uint32_t RfFrequency);
     void SetDioAsRfSwitch(uint8_t RfSwEnable, uint8_t RfSwStbyCfg, uint8_t RfSwRxCfg, uint8_t RfSwTxCfg, uint8_t TxHPCfg, uint8_t RfSwTxHfCfg);
     void SetTcxoMode(uint8_t OutputVoltage, uint32_t Delay);  // delay is 24 bits only, in 30.52 uS steps
-    // void SetBufferBaseAddress(uint8_t txBaseAdress, uint8_t rxBaseAdress); // no opcode in user manual?
     void SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate, uint8_t LowDataRateOptimize); // implied to be LoRa
     void SetPacketParams(uint16_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ); // implied to be LoRa
-
-    void SetDioIrqParams(uint32_t Irq1ToEnable, uint32_t Irq2ToEnable); // TODO - which IRQs needed? Table 4-2
+    void SetDioIrqParams(uint32_t Irq1ToEnable, uint32_t Irq2ToEnable);
     void ClearIrq(uint32_t IrqToClear); // IrqToClear mask is identical to IrqToEnable assignment
     uint32_t GetAndClearIrqStatus(uint32_t IrqToClear);  // No more GetIrqStatus, use GetStatus
 
