@@ -46,9 +46,9 @@ void Lr11xxDriverBase::WriteCommand(uint16_t opcode, uint8_t* data, uint8_t len)
     if (len > 0) SpiWrite(data, len);
     SpiDeselect();
     //WaitOnBusy(); // not needed?  any subsequent command will call this
-    Serial.println();
-    Serial.print("Status: ");
-    Serial.println((_status1 & 0b00001110) >> 1);
+    //Serial.println();
+    //Serial.print("Status: ");
+    //Serial.println((_status1 & 0b00001110) >> 1);
 }
 
 
@@ -66,9 +66,9 @@ void Lr11xxDriverBase::ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len)
     SpiRead(data, len);
     SpiDeselect();
     //WaitOnBusy();
-    Serial.println();
-    Serial.print("Status: ");
-    Serial.println((_status1 & 0b00001110) >> 1);
+    //Serial.println();
+    //Serial.print("Status: ");
+    //Serial.println((_status1 & 0b00001110) >> 1);
 }
 
 
@@ -82,9 +82,9 @@ void Lr11xxDriverBase::WriteBuffer(uint8_t offset, uint8_t* data, uint8_t len)
     SpiWrite(data, len);
     SpiDeselect();
     //WaitOnBusy();
-    Serial.println();
-    Serial.print("Status: ");
-    Serial.println((_status1 & 0b00001110) >> 1);
+    //Serial.println();
+    //Serial.print("Status: ");
+    //Serial.println((_status1 & 0b00001110) >> 1);
 }
 
 
@@ -103,9 +103,9 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
     SpiRead(data, len);
     SpiDeselect();
     //WaitOnBusy(); // use busy instead of hardcoded delay
-    Serial.println();
-    Serial.print("Status: ");
-    Serial.println((_status1 & 0b00001110) >> 1);
+    //Serial.println();
+    //Serial.print("Status: ");
+    //Serial.println((_status1 & 0b00001110) >> 1);
 }
 
 
@@ -171,9 +171,9 @@ void Lr11xxDriverBase::SetTcxoMode(uint8_t OutputVoltage, uint32_t Delay)
 uint8_t buf[4];
 
     buf[0] = OutputVoltage;
-    buf[0] = (uint8_t)((Delay & 0xFF0000) >> 16);
-    buf[1] = (uint8_t)((Delay & 0x00FF00) >> 8);
-    buf[2] = (uint8_t)(Delay & 0x0000FF);
+    buf[1] = (uint8_t)((Delay & 0xFF0000) >> 16);
+    buf[2] = (uint8_t)((Delay & 0x00FF00) >> 8);
+    buf[3] = (uint8_t)(Delay & 0x0000FF);
 
     WriteCommand(LR11XX_CMD_SET_TCXO_MODE, buf, 4);
 }
@@ -184,9 +184,9 @@ void Lr11xxDriverBase::SetModulationParams(uint8_t SpreadingFactor, uint8_t Band
 uint8_t buf[4];
 
     buf[0] = SpreadingFactor;
-    buf[0] = Bandwidth;
-    buf[1] = CodingRate;
-    buf[2] = LowDataRateOptimize;
+    buf[1] = Bandwidth;
+    buf[2] = CodingRate;
+    buf[3] = LowDataRateOptimize;
 
     WriteCommand(LR11XX_CMD_SET_MODULATION_PARAMS, buf, 4);
 }
