@@ -391,6 +391,68 @@ void Lr11xxDriverBase::ClearErrors(void)
 }
 
 
+// GFSK methods
+
+void Lr11xxDriverBase::SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t Bandwidth, uint32_t Fdev_hz)
+{
+uint8_t buf[10];
+
+    buf[0] = (uint8_t)((br_bps & 0xFF000000) >> 24);
+    buf[1] = (uint8_t)((br_bps & 0x00FF0000) >> 16);
+    buf[2] = (uint8_t)((br_bps & 0x0000FF00) >> 8);
+    buf[3] = (uint8_t)(br_bps & 0x000000FF);
+
+    buf[4] = PulseShape;
+    buf[5] = Bandwidth;
+
+    buf[6] = (uint8_t)((Fdev_hz & 0xFF000000) >> 24);
+    buf[7] = (uint8_t)((Fdev_hz & 0x00FF0000) >> 16);
+    buf[8] = (uint8_t)((Fdev_hz & 0x0000FF00) >> 8);
+    buf[9] = (uint8_t)(Fdev_hz & 0x000000FF);
+
+    WriteCommand(LR11XX_CMD_SET_MODULATION_PARAMS, buf, 10);
+}
+
+
+void Lr11xxDriverBase::SetPacketParamsGFSK(uint16_t PreambleLength, uint8_t PreambleDetectorLength, uint8_t SyncWordLength, uint8_t AddrComp, uint8_t PacketType, uint8_t PayloadLength, uint8_t CRCType, uint8_t Whitening)
+{
+uint8_t buf[9];
+
+    buf[0] = (uint8_t)((PreambleLength & 0xFF00) >> 8);
+    buf[1] = (uint8_t)(PreambleLength & 0x00FF);
+    buf[2] = PreambleDetectorLength;
+    buf[3] = SyncWordLength;
+    buf[4] = AddrComp;
+    buf[5] = PacketType;
+    buf[6] = PayloadLength;
+    buf[7] = CRCType;
+    buf[8] = Whitening;
+
+    WriteCommand(LR11XX_CMD_SET_PACKET_PARAMS, buf, 9);
+}
+
+void Lr11xxDriverBase::SetSyncWordGFSK(uint16_t SyncWord)
+{
+uint8_t buf[8] = {0};  // sync word can be 64 bits
+
+    buf[0] = (uint8_t)((SyncWord & 0xFF00) >> 8);
+    buf[1] = (uint8_t)(SyncWord & 0x00FF);
+
+    WriteCommand(LR11XX_CMD_SET_GFSK_SYNC_WORD, buf, 8);
+}
+
+void Lr11xxDriverBase::GetPacketStatusGFSK(int16_t* RssiSync)
+{
+uint8_t status[5];
+
+    // position 0 is status1, again
+
+    ReadCommand(LR11XX_CMD_GET_PACKET_STATUS, status, 3);
+
+    *RssiSync = -(int16_t)(status[1] / 2);
+}
+
+
 // other methods
 
 void Lr11xxDriverBase::GetVersion(uint8_t* HwVersion, uint8_t* UseCase, uint8_t* FwMajor, uint8_t* FwMinor)

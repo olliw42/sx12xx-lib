@@ -105,9 +105,18 @@ class Lr11xxDriverBase
     void CalibImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz);  // helper, takes freq in MHz
     void ClearErrors(void);
 
+    // GFSK methods
+
+    void SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t Bandwidth, uint32_t Fdev_hz);
+    void SetPacketParamsGFSK(uint16_t PreambleLength, uint8_t PreambleDetectorLength, uint8_t SyncWordLength, uint8_t AddrComp, uint8_t PacketType, uint8_t PayloadLength, uint8_t CRCType, uint8_t Whitening);
+    void SetSyncWordGFSK(uint16_t SyncWord);
+    void GetPacketStatusGFSK(int16_t* RssiSync);
+    
     // other methods
 
     void GetVersion(uint8_t* HwVersion, uint8_t* UseCase, uint8_t* FwMajor, uint8_t* FwMinor);
+
+
 
   private:
     uint8_t _status1; // status is now two bytes
@@ -503,6 +512,81 @@ typedef enum {
     LR11XX_CAL_IMG_902_MHZ_1             = 0xE1,
     LR11XX_CAL_IMG_902_MHZ_2             = 0xE9,
 } LR11XX_CALIBRATE_IMAGE_ENUM;
+
+//-------------------------------------------------------
+// Enum Definitions GFSK
+//-------------------------------------------------------
+
+// cmd 0x020F SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t Bandwidth, uint32_t Fdev_hz)
+typedef enum {
+    LR11XX_GFSK_PULSESHAPE_OFF           = 0x00,
+    LR11XX_GFSK_PULSESHAPE_BT_03         = 0x08,
+    LR11XX_GFSK_PULSESHAPE_BT_05         = 0x09,
+    LR11XX_GFSK_PULSESHAPE_BT_07         = 0x0A,
+    LR11XX_GFSK_PULSESHAPE_BT_1          = 0x0B,
+    LR11XX_GFSK_PULSESHAPE_BPSK_BT_07    = 0x0B,
+} LR11XX_GFSK_PULSESHAPE_ENUM;
+
+typedef enum {
+    LR11XX_GFSK_BW_4800             = 0x1F,
+    LR11XX_GFSK_BW_5800             = 0x17,
+    LR11XX_GFSK_BW_7300             = 0x0F,
+    LR11XX_GFSK_BW_9700             = 0x1E,
+    LR11XX_GFSK_BW_11700            = 0x16,
+    LR11XX_GFSK_BW_14600            = 0x0E,
+    LR11XX_GFSK_BW_19500            = 0x1D,
+    LR11XX_GFSK_BW_23400            = 0x15,
+    LR11XX_GFSK_BW_29300            = 0x0D,
+    LR11XX_GFSK_BW_39000            = 0x1C,
+    LR11XX_GFSK_BW_46900            = 0x14,
+    LR11XX_GFSK_BW_58600            = 0x0C,
+    LR11XX_GFSK_BW_78200            = 0x1B,
+    LR11XX_GFSK_BW_93800            = 0x13,
+    LR11XX_GFSK_BW_117300           = 0x0B,
+    LR11XX_GFSK_BW_156200           = 0x1A,
+    LR11XX_GFSK_BW_187200           = 0x12,
+    LR11XX_GFSK_BW_234300           = 0x0A,
+    LR11XX_GFSK_BW_312000           = 0x19,
+    LR11XX_GFSK_BW_373600           = 0x11,
+    LR11XX_GFSK_BW_467000           = 0x09,
+} LR11XX_GFSK_BANDWIDTH_ENUM;
+ 
+ 
+// cmd 0x0210 SetPacketParamsGFSK(uint16_t PreambleLength, uint8_t PreambleDetectorLength, uint8_t SyncWordLength, uint8_t AddrComp, 
+//            uint8_t PacketType, uint8_t PayloadLength, uint8_t CRCType, uint8_t Whitening);
+typedef enum {
+    LR11XX_GFSK_PREAMBLE_DETECTOR_OFF                           = 0x00,
+    LR11XX_GFSK_PREAMBLE_DETECTOR_LENGTH_8BITS                  = 0x04,
+    LR11XX_GFSK_PREAMBLE_DETECTOR_LENGTH_16BITS                 = 0x05,
+    LR11XX_GFSK_PREAMBLE_DETECTOR_LENGTH_24BITS                 = 0x06,
+    LR11XX_GFSK_PREAMBLE_DETECTOR_LENGTH_32BITS                 = 0x07,
+} LR11XX_GFSK_PREAMBLE_DETECTOR_LENGTH_ENUM;
+
+typedef enum {
+    LR11XX_GFSK_ADDRESS_FILTERING_DISABLE                       = 0x00,
+    LR11XX_GFSK_ADDRESS_FILTERING_NODE_ADDRESS                  = 0x01,
+    LR11XX_GFSK_ADDRESS_FILTERING_NODE_AND_BROADCAST_ADDRESSES  = 0x02,
+} LR11XX_GFSK_ADDRESS_FILTERING_ENUM;
+
+typedef enum {
+    LR11XX_GFSK_PKT_FIX_LEN                                     = 0x00,
+    LR11XX_GFSK_PKT_VAR_LEN                                     = 0x01,
+    LR11XX_GFSK_PKT_VAR_LEN_SX128X_COMPAT                       = 0x02,
+} LR11XX_GFSK_PKT_LEN_ENUM;
+
+typedef enum {
+    LR11XX_GFSK_CRC_OFF                                         = 0x01,
+    LR11XX_GFSK_CRC_1_BYTE                                      = 0x00,
+    LR11XX_GFSK_CRC_2_BYTES                                     = 0x02,
+    LR11XX_GFSK_CRC_1_BYTE_INV                                  = 0x04,
+    LR11XX_GFSK_CRC_2_BYTES_INV                                 = 0x06,
+} LR11XX_GFSK_CRC_TYPES_ENUM;
+
+typedef enum {
+    LR11XX_GFSK_WHITENING_OFF                                   = 0x00,
+    LR11XX_GFSK_WHITENING_ENABLE                                = 0x01,
+    LR11XX_GFSK_WHITENING_ENABLE_SX128X_COMPAT                  = 0x03,
+} LR11XX_GFSK_WHITENING_TYPES_ENUM;
 
 
 #endif // LR11XX_LIB_H
