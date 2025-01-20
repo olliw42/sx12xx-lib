@@ -79,7 +79,7 @@ class Lr11xxDriverBase
     void SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate, uint8_t LowDataRateOptimize); // implied to be LoRa
     void SetPacketParams(uint16_t PreambleLength, uint8_t HeaderType, uint8_t PayloadLength, uint8_t Crc, uint8_t InvertIQ); // implied to be LoRa
     void SetDioIrqParams(uint32_t Irq1ToEnable, uint32_t Irq2ToEnable);
-    uint32_t GetIrqStatus();
+    uint32_t GetIrqStatus(void);
     void ClearIrq(uint32_t IrqToClear); // IrqToClear mask is identical to IrqToEnable assignment
     uint32_t GetAndClearIrqStatus(uint32_t IrqToClear);  // No more GetIrqStatus, use GetStatus
 
@@ -104,6 +104,7 @@ class Lr11xxDriverBase
     void CalibImage(uint8_t Freq1, uint8_t Freq2); // low frequency only, takes freq in MHz / 4
     void CalibImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz);  // helper, takes freq in MHz
     void ClearErrors(void);
+    void EnableSx127xCompatibility(void);
 
     // GFSK methods
 

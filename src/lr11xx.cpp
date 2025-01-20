@@ -390,6 +390,28 @@ void Lr11xxDriverBase::ClearErrors(void)
     WriteCommand(LR11XX_CMD_CLEAR_ERRORS);
 }
 
+void Lr11xxDriverBase::EnableSx127xCompatibility(void)
+{
+    // makes SF6 compatible with SX127x chipsets, user manual 8.3.1
+uint8_t buf[12];
+
+    buf[0] = 0x00;
+    buf[1] = 0xF2;
+    buf[2] = 0x04;
+    buf[3] = 0x14;
+    buf[4] = 0x00; 
+    buf[5] = 0b10000100;
+    buf[6] = 0x00;
+    buf[7] = 0x00;
+    buf[8] = 0x00;
+    buf[9] = 0b00000100;
+    buf[10] = 0x00;
+    buf[11] = 0x00;
+
+    WriteCommand(LR11XX_CMD_WRITE_REG_MEM_MASK_32, buf, 12);
+
+}
+
 
 // GFSK methods
 
