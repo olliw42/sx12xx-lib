@@ -97,9 +97,7 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 
 void Lr11xxDriverBase::GetStatus(uint8_t* Status1, uint8_t* Status2)
 {
-uint8_t status[4];
-
-    ReadCommand(LR11XX_CMD_GET_STATUS, status, 4);
+    WriteCommand(LR11XX_CMD_GET_STATUS);  // don't need a response, so don't need to use ReadCommand 
 
     *Status1 = _status1;
     *Status2 = _status2;
