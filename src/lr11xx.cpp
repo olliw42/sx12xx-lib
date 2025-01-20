@@ -95,7 +95,7 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 
 // common methods
 
-void Lr11xxDriverBase::GetStatus(uint8_t* Status1, uint8_t* Status2, uint32_t* IrqStatus)
+void Lr11xxDriverBase::GetStatus(uint8_t* Status1, uint8_t* Status2)
 {
 uint8_t status[4];
 
@@ -103,8 +103,12 @@ uint8_t status[4];
 
     *Status1 = _status1;
     *Status2 = _status2;
+}
 
-    *IrqStatus = (status[0] << 24) | (status[1] << 16) | (status[2] << 8)  | (status[3]);
+void Lr11xxDriverBase::GetLastStatus(uint8_t* Status1, uint8_t* Status2)
+{
+    *Status1 = _status1;
+    *Status2 = _status2;
 }
 
 
@@ -133,7 +137,7 @@ uint8_t buf[4];
 }
 
 
-void Lr11xxDriverBase::SetDioAsRfSwitch(uint8_t RfSwEnable, uint8_t RfSwStbyCfg, uint8_t RfSwRxCfg, uint8_t RfSwTxCfg, uint8_t TxHPCfg, uint8_t RfSwTxHfCfg)
+void Lr11xxDriverBase::SetDioAsRfSwitch(uint8_t RfSwEnable, uint8_t RfSwStbyCfg, uint8_t RfSwRxCfg, uint8_t RfSwTxCfg, uint8_t TxHPCfg, uint8_t RfSwTxHfCfg, uint8_t RfSwGnssCfg, uint8_t RfSwWifiCfg)
 {
 uint8_t buf[8];
 
@@ -143,8 +147,8 @@ uint8_t buf[8];
     buf[3] = RfSwTxCfg;
     buf[4] = TxHPCfg;
     buf[5] = RfSwTxHfCfg;
-    buf[6] = 0;  // reserved for future use
-    buf[7] = 0;  // reserved for future use
+    buf[6] = RfSwGnssCfg;  // per user manual 1.0, removed in latest firmware?
+    buf[7] = RfSwWifiCfg;  // per user manual 1.0, removed in latest firmware?
 
     WriteCommand(LR11XX_CMD_SET_DIO_AS_RF_SWITCH, buf, 8);
 }
@@ -208,6 +212,16 @@ uint8_t buf[8];
 }
 
 
+uint32_t Lr11xxDriverBase::GetIrqStatus()
+{
+uint8_t status[4];
+
+    ReadCommand(LR11XX_CMD_GET_STATUS, status, 4);
+
+    return (uint32_t)((status[0] << 24) | (status[1] << 16) | (status[2] << 8)  | (status[3]));
+}
+
+
 void Lr11xxDriverBase::ClearIrq(uint32_t IrqToClear)
 {
 uint8_t buf[4];
@@ -223,12 +237,7 @@ uint8_t buf[4];
 
 uint32_t Lr11xxDriverBase::GetAndClearIrqStatus(uint32_t IrqToClear)
 {
-uint8_t status[4];
-uint32_t irq_status;
-
-    ReadCommand(LR11XX_CMD_GET_STATUS, status, 4);
-
-    irq_status = (status[0] << 24) | (status[1] << 16) | (status[2] << 8)  | (status[3]);
+    uint32_t irq_status = GetIrqStatus();
 
     ClearIrq(IrqToClear);
 
