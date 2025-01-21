@@ -409,7 +409,6 @@ uint8_t buf[12];
     buf[11] = 0x00;
 
     WriteCommand(LR11XX_CMD_WRITE_REG_MEM_MASK_32, buf, 12);
-
 }
 
 
