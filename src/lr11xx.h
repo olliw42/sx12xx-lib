@@ -430,8 +430,9 @@ typedef enum {
 
 typedef enum {
     LR11XX_PA_CONFIG_22_DBM_PA_DUTY_CYCLE = 0x04, // table 9-4, page 102
+    LR11XX_PA_CONFIG_14_DBM_PA_DUTY_CYCLE = 0x07, // table 9-4, page 102
     LR11XX_PA_CONFIG_22_DBM_HP_MAX        = 0x07, // comes from sx126x, user manual is vague
-} LR11XX_PA_PA_CONFIG_ENUM;
+} LR11XX_PA_CONFIG_ENUM;
 
 // cmd 0x0211 void SetTxParams(uint8_t Power, uint8_t RampTime)
 typedef enum {
