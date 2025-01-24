@@ -421,7 +421,7 @@ typedef enum {
     LR11XX_PA_SELECT_LP_PA                = 0x00, // table 9-4, page 102
     LR11XX_PA_SELECT_HP_PA                = 0x01, 
     LR11XX_PA_SELECT_HF_PA                = 0x02,
-} LR11XX_PA_SELECT_ENUM;
+} LR11XX_PA_SEL_ENUM;
 
 typedef enum {
     LR11XX_REG_PA_SUPPLY_INTERNAL         = 0x00, // table 9-4, page 102
@@ -435,7 +435,7 @@ typedef enum {
 
 typedef enum {
     LR11XX_PA_CONFIG_22_DBM_HP_MAX        = 0x07, // this setting only affects the high power PA
-} LR11XX_PA_HP_PA_SIZE_ENUM;
+} LR11XX_PA_HP_SEL_ENUM;
 
 // cmd 0x0211 void SetTxParams(uint8_t Power, uint8_t RampTime)
 typedef enum {
