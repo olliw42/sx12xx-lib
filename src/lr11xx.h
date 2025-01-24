@@ -439,22 +439,22 @@ typedef enum {
 
 // cmd 0x0211 void SetTxParams(uint8_t Power, uint8_t RampTime)
 typedef enum {
-    LR11XX_RAMPTIME_16_US                  = 0x00, // table 9-7, page 103
-    LR11XX_RAMPTIME_32_US                  = 0x01,
-    LR11XX_RAMPTIME_48_US                  = 0x02, // recommended by user manual
-    LR11XX_RAMPTIME_64_US                  = 0x03,
-    LR11XX_RAMPTIME_80_US                  = 0x04,
-    LR11XX_RAMPTIME_96_US                  = 0x05,
-    LR11XX_RAMPTIME_112_US                 = 0x06,
-    LR11XX_RAMPTIME_128_US                 = 0x07,
-    LR11XX_RAMPTIME_144_US                 = 0x08,
-    LR11XX_RAMPTIME_160_US                 = 0x09,
-    LR11XX_RAMPTIME_176_US                 = 0x0A,
-    LR11XX_RAMPTIME_192_US                 = 0x0B,
-    LR11XX_RAMPTIME_208_US                 = 0x0C,
-    LR11XX_RAMPTIME_240_US                 = 0x0D,
-    LR11XX_RAMPTIME_272_US                 = 0x0E,
-    LR11XX_RAMPTIME_304_US                 = 0x0F,
+    LR11XX_RAMPTIME_16_US                 = 0x00, // table 9-7, page 103
+    LR11XX_RAMPTIME_32_US                 = 0x01,
+    LR11XX_RAMPTIME_48_US                 = 0x02, // recommended by user manual
+    LR11XX_RAMPTIME_64_US                 = 0x03,
+    LR11XX_RAMPTIME_80_US                 = 0x04,
+    LR11XX_RAMPTIME_96_US                 = 0x05,
+    LR11XX_RAMPTIME_112_US                = 0x06,
+    LR11XX_RAMPTIME_128_US                = 0x07,
+    LR11XX_RAMPTIME_144_US                = 0x08,
+    LR11XX_RAMPTIME_160_US                = 0x09,
+    LR11XX_RAMPTIME_176_US                = 0x0A,
+    LR11XX_RAMPTIME_192_US                = 0x0B,
+    LR11XX_RAMPTIME_208_US                = 0x0C,
+    LR11XX_RAMPTIME_240_US                = 0x0D,
+    LR11XX_RAMPTIME_272_US                = 0x0E,
+    LR11XX_RAMPTIME_304_US                = 0x0F,
 } LR11XX_RAMPTIME_ENUM;
 
 // added for convenience
