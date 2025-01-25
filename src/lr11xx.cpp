@@ -245,14 +245,14 @@ uint32_t Lr11xxDriverBase::GetAndClearIrqStatus(uint32_t IrqToClear)
 
 // Tx methods
 
-void Lr11xxDriverBase::SetPaConfig(uint8_t PaSel, uint8_t RegPaSupply, uint8_t PaDutyCycle, uint8_t PaHPsel)
+void Lr11xxDriverBase::SetPaConfig(uint8_t PaSel, uint8_t RegPaSupply, uint8_t PaDutyCycle, uint8_t PaHPSel)
 {
 uint8_t buf[4];
 
     buf[0] = PaSel;
     buf[1] = RegPaSupply;
     buf[2] = PaDutyCycle;
-    buf[3] = PaHPsel;
+    buf[3] = PaHPSel;
 
     WriteCommand(LR11XX_CMD_SET_PA_CONFIG, buf, 4);
 }

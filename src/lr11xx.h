@@ -85,7 +85,7 @@ class Lr11xxDriverBase
 
     // Tx methods
     
-    void SetPaConfig(uint8_t PaSel, uint8_t RegPaSupply, uint8_t PaDutyCycle, uint8_t PaHPsel); // needed before SetTxParams 9.5.1
+    void SetPaConfig(uint8_t PaSel, uint8_t RegPaSupply, uint8_t PaDutyCycle, uint8_t PaHPSel); // needed before SetTxParams 9.5.1
     void SetTxParams(uint8_t Power, uint8_t RampTime);
     void SetTx(uint32_t TxTimeout); // 24 bits only, similar to sx126x
 
@@ -416,41 +416,45 @@ typedef enum {
 // Enum Definitions Tx
 //-------------------------------------------------------
 
-// cmd 0x0215 void SetPaConfig(uint8_t PaSel, uint8_t RegPaSupply, uint8_t PaDutyCycle, uint8_t PaHPsel)
+// cmd 0x0215 void SetPaConfig(uint8_t PaSel, uint8_t RegPaSupply, uint8_t PaDutyCycle, uint8_t PaHPSel)
 typedef enum {
     LR11XX_PA_SELECT_LP_PA                = 0x00, // table 9-4, page 102
     LR11XX_PA_SELECT_HP_PA                = 0x01, 
     LR11XX_PA_SELECT_HF_PA                = 0x02,
-} LR11XX_PA_SELECT_ENUM;
+} LR11XX_PA_SEL_ENUM;
 
 typedef enum {
-    LR11XX_REG_PA_SUPPLY_INTERNAL          = 0x00, // table 9-4, page 102
-    LR11XX_REG_PA_SUPPLY_VBAT              = 0x01, 
+    LR11XX_REG_PA_SUPPLY_INTERNAL         = 0x00, // table 9-4, page 102
+    LR11XX_REG_PA_SUPPLY_VBAT             = 0x01, 
 } LR11XX_REG_PA_SUPPLY_ENUM;
 
 typedef enum {
-    LR11XX_PA_CONFIG_22_DBM_PA_DUTY_CYCLE = 0x04, // table 9-4, page 102
-    LR11XX_PA_CONFIG_22_DBM_HP_MAX        = 0x07, // comes from sx126x, user manual is vague
-} LR11XX_PA_PA_CONFIG_ENUM;
+    LR11XX_PA_DUTY_CYCLE_22_DBM           = 0x04, // to be used with high power PA
+    LR11XX_PA_DUTY_CYCLE_14_DBM           = 0x07, // to be used with low power PA
+} LR11XX_PA_DUTY_CYCLE_ENUM;
+
+typedef enum {
+    LR11XX_PA_HP_SEL_22_DBM               = 0x07, // this setting only affects the high power PA
+} LR11XX_PA_HP_SEL_ENUM;
 
 // cmd 0x0211 void SetTxParams(uint8_t Power, uint8_t RampTime)
 typedef enum {
-    LR11XX_RAMPTIME_16_US                  = 0x00, // table 9-7, page 103
-    LR11XX_RAMPTIME_32_US                  = 0x01,
-    LR11XX_RAMPTIME_48_US                  = 0x02, // recommended by user manual
-    LR11XX_RAMPTIME_64_US                  = 0x03,
-    LR11XX_RAMPTIME_80_US                  = 0x04,
-    LR11XX_RAMPTIME_96_US                  = 0x05,
-    LR11XX_RAMPTIME_112_US                 = 0x06,
-    LR11XX_RAMPTIME_128_US                 = 0x07,
-    LR11XX_RAMPTIME_144_US                 = 0x08,
-    LR11XX_RAMPTIME_160_US                 = 0x09,
-    LR11XX_RAMPTIME_176_US                 = 0x0A,
-    LR11XX_RAMPTIME_192_US                 = 0x0B,
-    LR11XX_RAMPTIME_208_US                 = 0x0C,
-    LR11XX_RAMPTIME_240_US                 = 0x0D,
-    LR11XX_RAMPTIME_272_US                 = 0x0E,
-    LR11XX_RAMPTIME_304_US                 = 0x0F,
+    LR11XX_RAMPTIME_16_US                 = 0x00, // table 9-7, page 103
+    LR11XX_RAMPTIME_32_US                 = 0x01,
+    LR11XX_RAMPTIME_48_US                 = 0x02, // recommended by user manual
+    LR11XX_RAMPTIME_64_US                 = 0x03,
+    LR11XX_RAMPTIME_80_US                 = 0x04,
+    LR11XX_RAMPTIME_96_US                 = 0x05,
+    LR11XX_RAMPTIME_112_US                = 0x06,
+    LR11XX_RAMPTIME_128_US                = 0x07,
+    LR11XX_RAMPTIME_144_US                = 0x08,
+    LR11XX_RAMPTIME_160_US                = 0x09,
+    LR11XX_RAMPTIME_176_US                = 0x0A,
+    LR11XX_RAMPTIME_192_US                = 0x0B,
+    LR11XX_RAMPTIME_208_US                = 0x0C,
+    LR11XX_RAMPTIME_240_US                = 0x0D,
+    LR11XX_RAMPTIME_272_US                = 0x0E,
+    LR11XX_RAMPTIME_304_US                = 0x0F,
 } LR11XX_RAMPTIME_ENUM;
 
 // added for convenience
