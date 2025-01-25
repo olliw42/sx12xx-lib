@@ -85,7 +85,7 @@ class Lr11xxDriverBase
 
     // Tx methods
     
-    void SetPaConfig(uint8_t PaSel, uint8_t RegPaSupply, uint8_t PaDutyCycle, uint8_t PaHPsel); // needed before SetTxParams 9.5.1
+    void SetPaConfig(uint8_t PaSel, uint8_t RegPaSupply, uint8_t PaDutyCycle, uint8_t PaHPSel); // needed before SetTxParams 9.5.1
     void SetTxParams(uint8_t Power, uint8_t RampTime);
     void SetTx(uint32_t TxTimeout); // 24 bits only, similar to sx126x
 
@@ -416,7 +416,7 @@ typedef enum {
 // Enum Definitions Tx
 //-------------------------------------------------------
 
-// cmd 0x0215 void SetPaConfig(uint8_t PaSel, uint8_t RegPaSupply, uint8_t PaDutyCycle, uint8_t PaHPsel)
+// cmd 0x0215 void SetPaConfig(uint8_t PaSel, uint8_t RegPaSupply, uint8_t PaDutyCycle, uint8_t PaHPSel)
 typedef enum {
     LR11XX_PA_SELECT_LP_PA                = 0x00, // table 9-4, page 102
     LR11XX_PA_SELECT_HP_PA                = 0x01, 
@@ -429,12 +429,12 @@ typedef enum {
 } LR11XX_REG_PA_SUPPLY_ENUM;
 
 typedef enum {
-    LR11XX_PA_CONFIG_22_DBM_PA_DUTY_CYCLE = 0x04, // to be used with high power PA
-    LR11XX_PA_CONFIG_14_DBM_PA_DUTY_CYCLE = 0x07, // to be used with low power PA
+    LR11XX_PA_DUTY_CYCLE_22_DBM           = 0x04, // to be used with high power PA
+    LR11XX_PA_DUTY_CYCLE_14_DBM           = 0x07, // to be used with low power PA
 } LR11XX_PA_DUTY_CYCLE_ENUM;
 
 typedef enum {
-    LR11XX_PA_CONFIG_22_DBM_HP_MAX        = 0x07, // this setting only affects the high power PA
+    LR11XX_PA_HP_SEL_22_DBM               = 0x07, // this setting only affects the high power PA
 } LR11XX_PA_HP_SEL_ENUM;
 
 // cmd 0x0211 void SetTxParams(uint8_t Power, uint8_t RampTime)
