@@ -19,6 +19,7 @@
 #define LR11XX_FREQ_XTAL_HZ               32000000
 
 #define LR11XX_FREQ_MHZ_TO_REG(f_mhz)     (uint32_t)((double)f_mhz*1.0E6)
+#define LR11XX_FREQ_GHZ_TO_REG(f_ghz)     (uint32_t)((double)f_ghz*1.0E9)
 
 #ifndef ALIGNED
 #define ALIGNED  __attribute__((aligned(4)))
