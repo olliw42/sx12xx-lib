@@ -340,9 +340,9 @@ typedef enum {
     LR11XX_LORA_BW_125                    = 0x04,
     LR11XX_LORA_BW_250                    = 0x05,
     LR11XX_LORA_BW_500                    = 0x06,
-    LR11XX_LORA_BW_203                    = 0x0D, // 2.4 only
-    LR11XX_LORA_BW_406                    = 0x0E, // 2.4 only
-    LR11XX_LORA_BW_812                    = 0x0F, // 2.4 only
+    LR11XX_LORA_BW_200                    = 0x0D, // 2.4 only
+    LR11XX_LORA_BW_400                    = 0x0E, // 2.4 only
+    LR11XX_LORA_BW_800                    = 0x0F, // 2.4 only
 } LR11XX_LORA_BW_ENUM;
 
 typedef enum {
