@@ -9,6 +9,7 @@
 //*******************************************************
 
 #include "lr11xx.h"
+#include <string.h>  // for memcpy
 
 // spi
 
@@ -40,56 +41,105 @@ uint8_t dummy;
 
 void Lr11xxDriverBase::WriteCommand(uint16_t opcode, uint8_t* data, uint8_t len)
 {
+ALIGNED uint8_t txData[WORD_PAD(len + 2)] = {0};
+ALIGNED uint8_t rxData[WORD_PAD(len + 2)];
+
+    txData[0] = (uint8_t)((opcode & 0xFF00) >> 8);  // opcode high byte
+    txData[1] = (uint8_t)(opcode & 0x00FF);         // opcode low byte
+
+    memcpy(&txData[2], data, len);  // copy opcode + data
+
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)((opcode & 0xFF00) >> 8), &_status1);
-    SpiTransfer((uint8_t)(opcode & 0x00FF), &_status2); 
-    if (len > 0) SpiWrite(data, len);
+    SpiTransfer(txData, rxData, (len + 2));
     SpiDeselect();
+
+    _status1 = rxData[0];
+    _status2 = rxData[1];
+}
+
+
+void Lr11xxDriverBase::ReadStatus(uint8_t* data)
+{
+ALIGNED uint8_t txData[8] = {0};
+ALIGNED uint8_t rxData[8];
+
+    txData[0] = (uint8_t)((LR11XX_CMD_GET_STATUS & 0xFF00) >> 8);  // opcode high byte
+    txData[1] = (uint8_t)(LR11XX_CMD_GET_STATUS & 0x00FF);         // opcode low byte
+        
+    WaitOnBusy();
+    SpiSelect();
+    SpiTransfer(txData, rxData, 6);
+    SpiDeselect();
+
+    _status1 = rxData[0];
+    _status2 = rxData[1];
+
+    memcpy(data, &rxData[2], 4);
 }
 
 
 void Lr11xxDriverBase::ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len)
 {
+ALIGNED uint8_t txData[4] = {0};
+ALIGNED uint8_t rxData[4];
+ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
+
+    txData[0] = (uint8_t)((opcode & 0xFF00) >> 8);  // opcode high byte
+    txData[1] = (uint8_t)(opcode & 0x00FF);         // opcode low byte
+
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)((opcode & 0xFF00) >> 8), &_status1);
-    SpiTransfer((uint8_t)(opcode & 0x00FF), &_status2);
-    if (opcode != LR11XX_CMD_GET_STATUS) {  // not needed for get status
-        SpiDeselect(); 
-        WaitOnBusy();
-        SpiSelect();
-    }
-    SpiRead(data, len);
+    SpiTransfer(txData, rxData, 4);
+    SpiDeselect(); 
+    WaitOnBusy();
+    SpiSelect();
+    SpiRead(buffer, len + 1);
     SpiDeselect();
+
+    _status1 = rxData[0];
+    _status2 = rxData[1];
+    memcpy(data, &buffer[1], len); // Copy the rest into the data buffer
 }
 
 
 void Lr11xxDriverBase::WriteBuffer(uint8_t* data, uint8_t len)
 {
+ALIGNED uint8_t buf[WORD_PAD(len + 2)] = {0};
+
+    buf[0] = (uint8_t)((LR11XX_CMD_WRITE_BUFFER_8 & 0xFF00) >> 8);
+    buf[1] = (uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 & 0x00FF);
+
+    memcpy(&buf[2], data, len);
+
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)((LR11XX_CMD_WRITE_BUFFER_8 & 0xFF00) >> 8), &_status1);
-    SpiTransfer((uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 & 0x00FF), &_status2); 
-    SpiWrite(data, len);
+    SpiWrite(buf, len + 2);  // Write everything in one call
     SpiDeselect();
 }
 
 
 void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
+ALIGNED uint8_t command[4];
+ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
+
+    command[0] = (uint8_t)((LR11XX_CMD_READ_BUFFER_8 & 0xFF00) >> 8);
+    command[1] = (uint8_t)(LR11XX_CMD_READ_BUFFER_8 & 0x00FF);
+    command[2] = offset;
+    command[3] = len;
+
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)((LR11XX_CMD_READ_BUFFER_8 & 0xFF00) >> 8), &_status1);
-    SpiTransfer((uint8_t)(LR11XX_CMD_READ_BUFFER_8 & 0x00FF), &_status2);
-    SpiWrite(offset);
-    SpiWrite(len);
+    SpiWrite(command, 4);
     SpiDeselect(); 
     WaitOnBusy();
     SpiSelect();
-    SpiRead(&_status1, 1);  // every response has status1, again
-    SpiRead(data, len);
+    SpiRead(buffer, len + 1); // Perform a single SPI read
     SpiDeselect();
+
+    _status1 = buffer[0];     // Extract status1 from the first byte
+    memcpy(data, &buffer[1], len); // Copy the rest into the data buffer
 }
 
 
@@ -214,7 +264,7 @@ uint32_t Lr11xxDriverBase::GetIrqStatus()
 {
 uint8_t status[4];
 
-    ReadCommand(LR11XX_CMD_GET_STATUS, status, 4);
+    ReadStatus(status);
 
     return (uint32_t)((status[0] << 24) | (status[1] << 16) | (status[2] << 8)  | (status[3]));
 }
