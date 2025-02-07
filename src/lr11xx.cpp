@@ -141,13 +141,13 @@ ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
     SpiDeselect(); 
     WaitOnBusy();
     SpiSelect();
-    SpiRead(buffer, len + 1); // Perform a single SPI read
+    SpiRead(buffer, len + 1); // could do transfer again, but need another buffer
     SpiDeselect();
 
     _status1 = rxData[0];
     _status2 = rxData[1];
 
-    memcpy(data, &buffer[1], len); // Copy the rest into the data buffer
+    memcpy(data, &buffer[1], len);
 }
 
 
