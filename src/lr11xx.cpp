@@ -51,7 +51,7 @@ ALIGNED uint8_t rxData[WORD_PAD(len + 2)];
 
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer(txData, rxData, (len + 2));
+    SpiTransfer(txData, rxData, len + 2);
     SpiDeselect();
 
     _status1 = rxData[0];
@@ -69,7 +69,7 @@ ALIGNED uint8_t rxData[8];
         
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer(txData, rxData, 6);
+    SpiTransfer(txData, rxData, 6);  // two byte opcode + four byte irq status
     SpiDeselect();
 
     _status1 = rxData[0];
@@ -99,46 +99,54 @@ ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
 
     _status1 = rxData[0];
     _status2 = rxData[1];
-    memcpy(data, &buffer[1], len); // Copy the rest into the data buffer
+
+    memcpy(data, &buffer[1], len);
 }
 
 
 void Lr11xxDriverBase::WriteBuffer(uint8_t* data, uint8_t len)
 {
-ALIGNED uint8_t buf[WORD_PAD(len + 2)] = {0};
+ALIGNED uint8_t txData[WORD_PAD(len + 2)] = {0};
+ALIGNED uint8_t rxData[WORD_PAD(len + 2)];
 
-    buf[0] = (uint8_t)((LR11XX_CMD_WRITE_BUFFER_8 & 0xFF00) >> 8);
-    buf[1] = (uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 & 0x00FF);
+    txData[0] = (uint8_t)((LR11XX_CMD_WRITE_BUFFER_8 & 0xFF00) >> 8);
+    txData[1] = (uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 & 0x00FF);
 
-    memcpy(&buf[2], data, len);
+    memcpy(&txData[2], data, len);
 
     WaitOnBusy();
     SpiSelect();
-    SpiWrite(buf, len + 2);  // Write everything in one call
+    SpiTransfer(txData, rxData, len + 2);
     SpiDeselect();
+
+    _status1 = rxData[0];
+    _status2 = rxData[1];
 }
 
 
 void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
-ALIGNED uint8_t command[4];
+ALIGNED uint8_t txData[4] = {0};
+ALIGNED uint8_t rxData[4];
 ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
 
-    command[0] = (uint8_t)((LR11XX_CMD_READ_BUFFER_8 & 0xFF00) >> 8);
-    command[1] = (uint8_t)(LR11XX_CMD_READ_BUFFER_8 & 0x00FF);
-    command[2] = offset;
-    command[3] = len;
+    txData[0] = (uint8_t)((LR11XX_CMD_READ_BUFFER_8 & 0xFF00) >> 8);
+    txData[1] = (uint8_t)(LR11XX_CMD_READ_BUFFER_8 & 0x00FF);
+    txData[2] = offset;
+    txData[3] = len;
 
     WaitOnBusy();
     SpiSelect();
-    SpiWrite(command, 4);
+    SpiTransfer(txData, rxData, 4);
     SpiDeselect(); 
     WaitOnBusy();
     SpiSelect();
     SpiRead(buffer, len + 1); // Perform a single SPI read
     SpiDeselect();
 
-    _status1 = buffer[0];     // Extract status1 from the first byte
+    _status1 = rxData[0];
+    _status2 = rxData[1];
+
     memcpy(data, &buffer[1], len); // Copy the rest into the data buffer
 }
 
