@@ -59,7 +59,7 @@ ALIGNED uint8_t rxData[WORD_PAD(len + 2)];
 }
 
 
-void Lr11xxDriverBase::ReadStatus(uint8_t* data)
+void Lr11xxDriverBase::ReadStatus(uint8_t* data)  // status is unique, so provide a special function
 {
 ALIGNED uint8_t txData[8] = {0};
 ALIGNED uint8_t rxData[8];
@@ -81,7 +81,7 @@ ALIGNED uint8_t rxData[8];
 
 void Lr11xxDriverBase::ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len)
 {
-ALIGNED uint8_t txData[4] = {0};
+ALIGNED uint8_t txData[4] = {0};  // minimum of four bytes
 ALIGNED uint8_t rxData[4];
 ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
 
@@ -90,11 +90,11 @@ ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
 
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer(txData, rxData, 4);
+    SpiTransfer(txData, rxData, 2);
     SpiDeselect(); 
     WaitOnBusy();
     SpiSelect();
-    SpiRead(buffer, len + 1);
+    SpiRead(buffer, len + 1);  // could do transfer again, but need another buffer
     SpiDeselect();
 
     _status1 = rxData[0];
@@ -126,7 +126,7 @@ ALIGNED uint8_t rxData[WORD_PAD(len + 2)];
 
 void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
-ALIGNED uint8_t txData[4] = {0};
+ALIGNED uint8_t txData[4] = {0};  // minimum of four bytes
 ALIGNED uint8_t rxData[4];
 ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
 
@@ -141,7 +141,7 @@ ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
     SpiDeselect(); 
     WaitOnBusy();
     SpiSelect();
-    SpiRead(buffer, len + 1); // could do transfer again, but need another buffer
+    SpiRead(buffer, len + 1);  // could do transfer again, but need another buffer
     SpiDeselect();
 
     _status1 = rxData[0];
@@ -155,8 +155,8 @@ ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
 
 void Lr11xxDriverBase::GetStatus(uint8_t* Status1, uint8_t* Status2)
 {
-    WriteCommand(LR11XX_CMD_GET_STATUS);  // don't need a response, so don't need to use ReadCommand 
-
+    ReadStatus(nullptr);
+    
     *Status1 = _status1;
     *Status2 = _status2;
 }
