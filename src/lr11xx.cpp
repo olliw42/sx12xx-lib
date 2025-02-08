@@ -83,7 +83,7 @@ void Lr11xxDriverBase::ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len)
 {
 ALIGNED uint8_t txData[4] = {0};  // minimum of four bytes
 ALIGNED uint8_t rxData[4];
-ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
+ALIGNED uint8_t buffer[WORD_PAD(len)];
 
     txData[0] = (uint8_t)((opcode & 0xFF00) >> 8);  // opcode high byte
     txData[1] = (uint8_t)(opcode & 0x00FF);         // opcode low byte
@@ -94,13 +94,13 @@ ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
     SpiDeselect(); 
     WaitOnBusy();
     SpiSelect();
-    SpiRead(buffer, len + 1);  // could do transfer again, but need another buffer
+    SpiRead(buffer, len);  // could do transfer again, but need another buffer
     SpiDeselect();
 
     _status1 = rxData[0];
     _status2 = rxData[1];
 
-    memcpy(data, &buffer[1], len);
+    memcpy(data, &buffer[0], len);
 }
 
 
@@ -526,7 +526,7 @@ uint8_t status[5];
 
     // position 0 is status1, again
 
-    ReadCommand(LR11XX_CMD_GET_PACKET_STATUS, status, 3);
+    ReadCommand(LR11XX_CMD_GET_PACKET_STATUS, status, 5);
 
     *RssiSync = -(int16_t)(status[1] / 2);
 }
