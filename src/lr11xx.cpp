@@ -9,6 +9,7 @@
 //*******************************************************
 
 #include "lr11xx.h"
+#include <string.h>  // for memcpy
 
 // spi
 
@@ -40,56 +41,113 @@ uint8_t dummy;
 
 void Lr11xxDriverBase::WriteCommand(uint16_t opcode, uint8_t* data, uint8_t len)
 {
+ALIGNED uint8_t txData[WORD_PAD(len + 2)] = {0};
+ALIGNED uint8_t rxData[WORD_PAD(len + 2)];
+
+    txData[0] = (uint8_t)((opcode & 0xFF00) >> 8);  // opcode high byte
+    txData[1] = (uint8_t)(opcode & 0x00FF);         // opcode low byte
+
+    memcpy(&txData[2], data, len);  // copy opcode + data
+
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)((opcode & 0xFF00) >> 8), &_status1);
-    SpiTransfer((uint8_t)(opcode & 0x00FF), &_status2); 
-    if (len > 0) SpiWrite(data, len);
+    SpiTransfer(txData, rxData, len + 2);
     SpiDeselect();
+
+    _status1 = rxData[0];
+    _status2 = rxData[1];
+}
+
+
+void Lr11xxDriverBase::ReadStatus(uint8_t* data)  // status is unique, so provide a special function
+{
+ALIGNED uint8_t txData[8] = {0};
+ALIGNED uint8_t rxData[8];
+
+    txData[0] = (uint8_t)((LR11XX_CMD_GET_STATUS & 0xFF00) >> 8);  // opcode high byte
+    txData[1] = (uint8_t)(LR11XX_CMD_GET_STATUS & 0x00FF);         // opcode low byte
+        
+    WaitOnBusy();
+    SpiSelect();
+    SpiTransfer(txData, rxData, 6);  // two byte opcode + four byte irq status
+    SpiDeselect();
+
+    _status1 = rxData[0];
+    _status2 = rxData[1];
+
+    memcpy(data, &rxData[2], 4);
 }
 
 
 void Lr11xxDriverBase::ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len)
 {
+ALIGNED uint8_t txData[4] = {0};  // minimum of four bytes
+ALIGNED uint8_t rxData[4];
+ALIGNED uint8_t buffer[WORD_PAD(len)];
+
+    txData[0] = (uint8_t)((opcode & 0xFF00) >> 8);  // opcode high byte
+    txData[1] = (uint8_t)(opcode & 0x00FF);         // opcode low byte
+
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)((opcode & 0xFF00) >> 8), &_status1);
-    SpiTransfer((uint8_t)(opcode & 0x00FF), &_status2);
-    if (opcode != LR11XX_CMD_GET_STATUS) {  // not needed for get status
-        SpiDeselect(); 
-        WaitOnBusy();
-        SpiSelect();
-    }
-    SpiRead(data, len);
+    SpiTransfer(txData, rxData, 2);
+    SpiDeselect(); 
+    WaitOnBusy();
+    SpiSelect();
+    SpiRead(buffer, len);  // could do transfer again, but need another buffer
     SpiDeselect();
+
+    _status1 = rxData[0];
+    _status2 = rxData[1];
+
+    memcpy(data, &buffer[0], len);
 }
 
 
 void Lr11xxDriverBase::WriteBuffer(uint8_t* data, uint8_t len)
 {
+ALIGNED uint8_t txData[WORD_PAD(len + 2)] = {0};
+ALIGNED uint8_t rxData[WORD_PAD(len + 2)];
+
+    txData[0] = (uint8_t)((LR11XX_CMD_WRITE_BUFFER_8 & 0xFF00) >> 8);
+    txData[1] = (uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 & 0x00FF);
+
+    memcpy(&txData[2], data, len);
+
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)((LR11XX_CMD_WRITE_BUFFER_8 & 0xFF00) >> 8), &_status1);
-    SpiTransfer((uint8_t)(LR11XX_CMD_WRITE_BUFFER_8 & 0x00FF), &_status2); 
-    SpiWrite(data, len);
+    SpiTransfer(txData, rxData, len + 2);
     SpiDeselect();
+
+    _status1 = rxData[0];
+    _status2 = rxData[1];
 }
 
 
 void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 {
+ALIGNED uint8_t txData[4] = {0};  // minimum of four bytes
+ALIGNED uint8_t rxData[4];
+ALIGNED uint8_t buffer[WORD_PAD(len + 1)];
+
+    txData[0] = (uint8_t)((LR11XX_CMD_READ_BUFFER_8 & 0xFF00) >> 8);
+    txData[1] = (uint8_t)(LR11XX_CMD_READ_BUFFER_8 & 0x00FF);
+    txData[2] = offset;
+    txData[3] = len;
+
     WaitOnBusy();
     SpiSelect();
-    SpiTransfer((uint8_t)((LR11XX_CMD_READ_BUFFER_8 & 0xFF00) >> 8), &_status1);
-    SpiTransfer((uint8_t)(LR11XX_CMD_READ_BUFFER_8 & 0x00FF), &_status2);
-    SpiWrite(offset);
-    SpiWrite(len);
+    SpiTransfer(txData, rxData, 4);
     SpiDeselect(); 
     WaitOnBusy();
     SpiSelect();
-    SpiRead(&_status1, 1);  // every response has status1, again
-    SpiRead(data, len);
+    SpiRead(buffer, len + 1);  // could do transfer again, but need another buffer
     SpiDeselect();
+
+    _status1 = rxData[0];
+    _status2 = rxData[1];
+
+    memcpy(data, &buffer[1], len);
 }
 
 
@@ -97,8 +155,8 @@ void Lr11xxDriverBase::ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len)
 
 void Lr11xxDriverBase::GetStatus(uint8_t* Status1, uint8_t* Status2)
 {
-    WriteCommand(LR11XX_CMD_GET_STATUS);  // don't need a response, so don't need to use ReadCommand 
-
+    ReadStatus(nullptr);
+    
     *Status1 = _status1;
     *Status2 = _status2;
 }
@@ -214,7 +272,7 @@ uint32_t Lr11xxDriverBase::GetIrqStatus()
 {
 uint8_t status[4];
 
-    ReadCommand(LR11XX_CMD_GET_STATUS, status, 4);
+    ReadStatus(status);
 
     return (uint32_t)((status[0] << 24) | (status[1] << 16) | (status[2] << 8)  | (status[3]));
 }
@@ -468,7 +526,7 @@ uint8_t status[5];
 
     // position 0 is status1, again
 
-    ReadCommand(LR11XX_CMD_GET_PACKET_STATUS, status, 3);
+    ReadCommand(LR11XX_CMD_GET_PACKET_STATUS, status, 5);
 
     *RssiSync = -(int16_t)(status[1] / 2);
 }

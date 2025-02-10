@@ -24,6 +24,7 @@
 #define ALIGNED  __attribute__((aligned(4)))
 #endif
 
+#define WORD_PAD(size) (((size)+3) & ~3)
 
 //-------------------------------------------------------
 // Base Class
@@ -59,6 +60,7 @@ class Lr11xxDriverBase
     // low level methods, usually no need to use them
 
     void WriteCommand(uint16_t opcode, uint8_t* data, uint8_t len);
+    void ReadStatus(uint8_t* data);
     void ReadCommand(uint16_t opcode, uint8_t* data, uint8_t len);
     void WriteBuffer(uint8_t* data, uint8_t len);
     void ReadBuffer(uint8_t offset, uint8_t* data, uint8_t len);
