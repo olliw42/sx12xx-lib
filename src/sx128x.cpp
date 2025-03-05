@@ -315,6 +315,13 @@ uint8_t status[5];
 
     ReadCommand(SX1280_CMD_GET_PACKET_STATUS, status, 5);
 
+    // note: experiments show that rssi can roll over for very strong RF signals
+    // that is, it wants to go below 0, but can't since the range is just 255 (weak) ... 0 (strong)
+    // we account for that by this theory:
+    // let's assume that for the sx128x the rssi won't be smaller than e.g. -120
+    // so we count anything above 240 as strong and not weak
+    if (status[0] > 240) status[0] = 0;
+
     *RssiSync = -(int16_t)(status[0] / 2);
     *Snr = (int8_t)status[1] / 4;
     if (*Snr < 0) {
