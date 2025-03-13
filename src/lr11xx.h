@@ -19,6 +19,7 @@
 #define LR11XX_FREQ_XTAL_HZ               32000000
 
 #define LR11XX_FREQ_MHZ_TO_REG(f_mhz)     (uint32_t)((double)f_mhz*1.0E6)
+#define LR11XX_FREQ_GHZ_TO_REG(f_ghz)     (uint32_t)((double)f_ghz*1.0E9)
 
 #ifndef ALIGNED
 #define ALIGNED  __attribute__((aligned(4)))
@@ -339,9 +340,9 @@ typedef enum {
     LR11XX_LORA_BW_125                    = 0x04,
     LR11XX_LORA_BW_250                    = 0x05,
     LR11XX_LORA_BW_500                    = 0x06,
-    LR11XX_LORA_BW_203                    = 0x0D, // 2.4 only
-    LR11XX_LORA_BW_406                    = 0x0E, // 2.4 only
-    LR11XX_LORA_BW_812                    = 0x0F, // 2.4 only
+    LR11XX_LORA_BW_200                    = 0x0D, // 2.4 only
+    LR11XX_LORA_BW_400                    = 0x0E, // 2.4 only
+    LR11XX_LORA_BW_800                    = 0x0F, // 2.4 only
 } LR11XX_LORA_BW_ENUM;
 
 typedef enum {
