@@ -139,13 +139,26 @@ void Sx127xDriverBase::SetLnaParams(uint8_t LnaGain, uint8_t LnaBoostHf)
 }
 
 
-void Sx127xDriverBase::OptimizeSensitivity(uint8_t Bandwidth)
+void Sx127xDriverBase::OptimizeSensitivityHighFrequency(uint8_t Bandwidth)
 {
     // see errata SX1276_77_8_ErrataNote_1.1_STD.pdf, 2.1, page 4
 
     if (Bandwidth == SX1276_LORA_BW_500) {
         WriteRegister(SX1276_REG_HighBWOptimize1, 0x02); // reg 0x36
         WriteRegister(SX1276_REG_HighBWOptimize2, 0x64); // reg 0x3A
+    } else {
+        WriteRegister(SX1276_REG_HighBWOptimize1, 0x03); // 0x36
+    }
+}
+
+
+void Sx127xDriverBase::OptimizeSensitivityLowFrequency(uint8_t Bandwidth)
+{
+    // see errata SX1276_77_8_ErrataNote_1.1_STD.pdf, 2.1, page 4
+
+    if (Bandwidth == SX1276_LORA_BW_500) {
+        WriteRegister(SX1276_REG_HighBWOptimize1, 0x02); // reg 0x36
+        WriteRegister(SX1276_REG_HighBWOptimize2, 0x7F); // reg 0x3A
     } else {
         WriteRegister(SX1276_REG_HighBWOptimize1, 0x03); // 0x36
     }
@@ -337,9 +350,21 @@ void Sx127xDriverBase::SetRxTimeout(uint16_t tmo_symbols)
 }
 
 
-void Sx127xDriverBase::GetPacketStatus(int16_t* RssiSync, int8_t* Snr)
+void Sx127xDriverBase::GetPacketStatusHighFrequency(int16_t* RssiSync, int8_t* Snr)
 {
     *RssiSync = (int16_t)-157 + ReadRegister(SX1276_REG_PktRssiValue);
+    *Snr = (int8_t)ReadRegister(SX1276_REG_PktSnrValue) / 4;
+
+    // Datasheet 3.5.5, need to subtract SNR (PacketSnr / 4) when SNR is negative
+    if (*Snr < 0) {
+        *RssiSync += *Snr;
+    }
+}
+
+
+void Sx127xDriverBase::GetPacketStatusLowFrequency(int16_t* RssiSync, int8_t* Snr)
+{
+    *RssiSync = (int16_t)-164 + ReadRegister(SX1276_REG_PktRssiValue);
     *Snr = (int8_t)ReadRegister(SX1276_REG_PktSnrValue) / 4;
 
     // Datasheet 3.5.5, need to subtract SNR (PacketSnr / 4) when SNR is negative
