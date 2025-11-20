@@ -71,7 +71,7 @@ class Sx127xDriverBase
     void SetOperationMode(uint8_t PacketType, uint8_t LowFrequencyMode);
     void SetRfFrequency(uint32_t RfFrequency); // 23 bits only
     void SetLnaParams(uint8_t LnaGain, uint8_t LnaBoostHf);
-    void OptimizeSensitivity(uint8_t Bandwidth);
+    void OptimizeSensitivity(uint8_t Bandwidth, uint8_t LowFrequencyMode);
     void OptimizeReceiverResponse(uint8_t Bandwidth);
     void SetBufferBaseAddress(uint8_t txBaseAdress, uint8_t rxBaseAdress);
     void SetModulationParams(uint8_t SpreadingFactor, uint8_t Bandwidth, uint8_t CodingRate);
@@ -92,7 +92,7 @@ class Sx127xDriverBase
     void SetRxSingle(void);
     void SetRxContinuous(void);
     void SetRxTimeout(uint16_t tmo_symbols);
-    void GetPacketStatus(int16_t* RssiSync, int8_t* Snr);
+    void GetPacketStatus(int16_t* RssiSync, int8_t* Snr, uint8_t LowFrequencyMode);
     void GetRxBufferStatus(uint8_t* rxPayloadLength, uint8_t* rxStartBufferPointer);
 
     // auxiliary methods
