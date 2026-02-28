@@ -128,7 +128,8 @@ class Sx128xDriverBase
     void SetModulationParamsFLRC(uint8_t Bandwidth, uint8_t CodingRate, uint8_t Bt);
     void SetPacketParamsFLRC(
         uint8_t AGCPreambleLength, uint8_t SyncWordLength, uint8_t SyncWordMatch,
-        uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength, uint16_t CrcSeed);
+        uint8_t PacketType, uint8_t PayloadLength, uint8_t CrcLength);
+    void SetCrcSeedFLRC(uint16_t CrcSeed);
     bool SetSyncWordFLRC(uint32_t SyncWord, uint8_t CodingRate);
     void SetSyncWordErrorToleranceFLRC(uint8_t ErrorBits);
     void GetPacketStatusFLRC(int16_t* RssiSync);
