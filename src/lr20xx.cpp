@@ -620,7 +620,7 @@ uint8_t buf[8];
     *Crc = ((buf[2] & 0x10) << 1);
     *CR = (buf[2] & 0x0F);
     *PktLen = buf[3];
-    *Snr = (int8_t)buf[4];
+    *Snr = (int8_t)buf[4] / 4; // snr_pkt is in 1/4 dB
     *Rssi = (int16_t)(((uint16_t)buf[5] << 1) + (((uint16_t)buf[7] & 0x02) >> 1));
     *RssiSignal = (int16_t)(((uint16_t)buf[6] << 1) + ((uint16_t)buf[7] & 0x01));
     *Detector = (buf[7] & 0x3D) >> 2;
@@ -632,7 +632,7 @@ uint8_t buf[8];
 
     ReadCommand(LR20XX_CMD_GET_LORA_PACKET_STATUS, buf, 8);
 
-    *Snr = (int8_t)buf[4];
+    *Snr = (int8_t)buf[4] / 4; // snr_pkt is in 1/4 dB
     *Rssi = (int16_t)(((uint16_t)buf[5] << 1) + (((uint16_t)buf[7] & 0x02) >> 1));
     *RssiSignal = (int16_t)(((uint16_t)buf[6] << 1) + ((uint16_t)buf[7] & 0x01));
 }
