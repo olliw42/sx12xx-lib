@@ -83,18 +83,14 @@ void Lr20xxDriverBase::ReadRadioRxFifo(uint8_t* data, uint8_t len)
     SpiDeselect();
 }
 
-void Lr20xxDriverBase::WriteRegMem32(uint32_t addr, uint32_t* data, uint8_t len)
-{
-    while(1){}
-}
-
 void Lr20xxDriverBase::WriteRegMemMask32(uint32_t addr, uint32_t mask, uint32_t data)
 {
+uint8_t buf[11];
+
     WaitOnBusy();
     SpiSelect();
     SpiTransfer((uint8_t)((LR20XX_CMD_WRITE_REG_MEM_MASK_32 & 0xFF00) >> 8), &_status1);
     SpiTransfer((uint8_t)(LR20XX_CMD_WRITE_REG_MEM_MASK_32 & 0x00FF), &_status2);
-    uint8_t buf[11];
     buf[0] = addr >> 16;
     buf[1] = addr >> 8;
     buf[2] = addr;
@@ -110,9 +106,53 @@ void Lr20xxDriverBase::WriteRegMemMask32(uint32_t addr, uint32_t mask, uint32_t 
     SpiDeselect();
 }
 
-void Lr20xxDriverBase::ReadRegMem32(uint32_t addr, uint32_t* data, uint8_t len)
+void Lr20xxDriverBase::WriteRegMem32(uint32_t addr, uint32_t* data, uint8_t len) // len is number of uint32_t, must not exceed 32
 {
-    while(1){}
+uint8_t buf[4];
+
+    WaitOnBusy();
+    SpiSelect();
+    SpiTransfer((uint8_t)((LR20XX_CMD_WRITE_REG_MEM_32 & 0xFF00) >> 8), &_status1);
+    SpiTransfer((uint8_t)(LR20XX_CMD_WRITE_REG_MEM_32 & 0x00FF), &_status2);
+    buf[0] = addr >> 16;
+    buf[1] = addr >> 8;
+    buf[2] = addr;
+    SpiWrite(buf, 3);
+    for (uint8_t i = 0; i < len; i++) {
+        buf[0] = data[i] >> 24;
+        buf[1] = data[i] >> 16;
+        buf[2] = data[i] >> 8;
+        buf[3] = data[i];
+        SpiWrite(buf, 4);
+    }
+    SpiDeselect();
+}
+
+void Lr20xxDriverBase::ReadRegMem32(uint32_t addr, uint32_t* data, uint8_t len) // len is number of uint32_t, must not exceed 32
+{
+uint8_t buf[4];
+
+    WaitOnBusy();
+    SpiSelect();
+    SpiTransfer((uint8_t)((LR20XX_CMD_READ_REG_MEM_32 & 0xFF00) >> 8), &_status1);
+    SpiTransfer((uint8_t)(LR20XX_CMD_READ_REG_MEM_32 & 0x00FF), &_status2);
+    buf[0] = addr >> 16;
+    buf[1] = addr >> 8;
+    buf[2] = addr;
+    buf[3] = len;
+    SpiWrite(buf, 4);
+    SpiDeselect();
+
+    WaitOnBusy();
+    SpiSelect();
+    SpiRead(buf, 2); // the first two bytes of the response are the latest status
+    _status1 = buf[0];
+    _status2 = buf[1];
+    for (uint8_t i = 0; i < len; i++) {
+        SpiRead(buf, 4);
+        data[i] = ((uint32_t)buf[0] << 24) + ((uint32_t)buf[1] << 16) + ((uint32_t)buf[2] << 8) + buf[3];
+    }
+    SpiDeselect();
 }
 
 
@@ -858,3 +898,144 @@ void Lr20xxDriverBase::EnableSx127xCompatibility(void)
         LR20XX_WORKAROUND_LORA_SX1276_COMPAT_REG_MASK,
         LR20XX_WORKAROUND_LORA_SX1276_COMPAT_REG_VAL);
 }
+
+
+// Firmware Patch RAM (PRAM) methods, chapter 22.3
+
+// The PRAM is LR2021 specific, is lost on reset and cold start, but survives sleep with retention.
+// Load it as the first step after the reset: reset -> WaitOnBusy() -> LoadPram() -> SetRegMode()/...
+
+#define LR20XX_PRAM_CHECK_ADDR            0x800FF8    // holds LR20XX_PRAM_CHECK_VALUE when PRAM is loaded
+#define LR20XX_PRAM_CHECK_VALUE           0x600DB002  // looks like pram_lr2021[0]
+#define LR20XX_PRAM_VERSION_ADDR          0x800FFC
+#define LR20XX_PRAM_ADDR                  0x801000    // start address of the PRAM
+#define LR20XX_PRAM_CHUNK_SIZE            32          // maximal number of uint32_t written per Write/ReadRegMem32() call
+
+// LR2021 pram image, copy from Semtech's LR20xx driver.
+// Clear BSD License, (c) Semtech 2025.
+// https://github.com/Lora-net/usp/tree/branch/v1.1.2-feature-202604/smtc_rac_lib/radio_drivers/lr20xx_driver/inc
+
+#define LR20XX_PRAM_LR2021_LEN            560 // number of uint32_t in the LR2021 pram image
+
+static const uint32_t pram_lr2021[LR20XX_PRAM_LR2021_LEN] = {
+    0x600DB002, 0x00031304, 0x0010104C, 0x00101018, 0x00000000, 0x00000000, 0x40C3C0F1, 0x00088000,
+    0x0000212A, 0x0FF82184, 0x212BB986, 0x40C30000, 0x09680080, 0x1800D981, 0xB90D0041, 0x008040C3,
+    0x794077F8, 0x7FE0C0D1, 0x78E0720C, 0x45CBC2E4, 0x77F80080, 0x10011D00, 0x41C358BF, 0x18C00010,
+    0x008046CB, 0xE81A0968, 0x0F80212B, 0x02900000, 0x70148600, 0x41C3F2AC, 0x00088000, 0x0040202A,
+    0x0FF82084, 0x202BB886, 0xD9810040, 0x40A1B90D, 0x1E007960, 0xF09C1041, 0x852F0B0E, 0x0307208A,
+    0x0146208A, 0x001041C3, 0x0BE2134C, 0x1E00856F, 0x41C31001, 0x120C0010, 0x856F0BD2, 0x41C3D83D,
+    0x11D80010, 0x856F0BC6, 0x41C3D835, 0x13940010, 0x856F0BBA, 0x0786208A, 0x001041C3, 0x0BAE13B4,
+    0x208A856F, 0x41C30846, 0x14580010, 0x856F0B9E, 0x41C3D848, 0x143C0010, 0x856F0B92, 0x41C3D847,
+    0x14240010, 0x856F0B86, 0x41C3D845, 0x15840010, 0x856F0B7A, 0x41C3D8E0, 0x15580010, 0x856F0B6E,
+    0x41C3D8DC, 0x16080010, 0x856F0B62, 0x0304208A, 0x001041C3, 0x0B5615D0, 0x208A856F, 0x41C302C4,
+    0x16680010, 0x856F0B46, 0x04C4208A, 0x001041C3, 0x0B3A1640, 0x208A856F, 0x41C30484, 0x13740010,
+    0x856F0B2A, 0x0186208A, 0x001041C3, 0x0B1E1470, 0xD882856F, 0x001041C3, 0x0B121690, 0x208A856F,
+    0x41C30504, 0x184C0010, 0x856F0B02, 0x0087208A, 0x001041C3, 0x0AF617F0, 0x208A856F, 0x41C30CC6,
+    0x18040010, 0x856F0AE6, 0x0DC6208A, 0x001041C3, 0x0ADA15AC, 0xD8F6856F, 0x001040C3, 0x80401000,
+    0x40C38021, 0x0FF80080, 0xA021A040, 0x0000090A, 0x00000CF6, 0xC6C4720C, 0x47CBC2E6, 0x020000F4,
+    0xB98DD9F0, 0x87C07960, 0x87004508, 0x120126AD, 0x10710E0D, 0x020120AD, 0x0095080D, 0x10940E0D,
+    0x00510809, 0x000008D2, 0xC6C640A1, 0x1CFCC2E6, 0xC1A1B6C8, 0x008044CB, 0x84800968, 0x46484768,
+    0x43184528, 0x40C3EC0F, 0x77F80080, 0xEC0B8080, 0x41A14063, 0x7C6042C1, 0x208C43E1, 0xC0408FC3,
+    0x238CF443, 0xF227B7C2, 0xB2C1238C, 0x238CF229, 0xF22DB682, 0x30310B63, 0x16004063, 0x00807080,
+    0x7514600B, 0xC040700C, 0x710CF22F, 0x11340D5B, 0x40C1C040, 0x45CB5839, 0x60500080, 0x734C712C,
+    0x5981A520, 0x10011D00, 0x084EE89F, 0x720C0000, 0x40A1F01A, 0x0C4641C1, 0x42E10020, 0x40A1F014,
+    0x09EE41C1, 0x42E10020, 0x40A1F00E, 0x0A4A41C1, 0x42E10020, 0x44CBF008, 0x24E00000, 0x42C141A1,
+    0x43E17C60, 0xC000C040, 0x7487780F, 0x341B1404, 0x78E0C6C6, 0x42C3C2E2, 0x002400F2, 0x008040C3,
+    0x88000773, 0x00710811, 0x250582A0, 0x00F01F80, 0xF0270000, 0x00F441C3, 0x81000200, 0x001C2084,
+    0x8004208C, 0x43C3F405, 0xCCCC0044, 0x43C3F004, 0xCCCC002C, 0x008044CB, 0xA460004C, 0x80001144,
+    0x2D0070D3, 0x25040000, 0xFF0F1F80, 0xF788FFFF, 0x797DB894, 0xB897B896, 0xF003A420, 0xA200B897,
+    0x70001600, 0x014400F4, 0xC6C25852, 0x1600C2E2, 0x0080708D, 0x42C30773, 0xFDC00000, 0x16007A40,
+    0x00807081, 0x75300773, 0xFFE20F6C, 0x40A14508, 0x78E0C6C2, 0x003E0817, 0x40C34408, 0x09680080,
+    0xB8028800, 0x204F7885, 0x788F004C, 0x000044CB, 0x7C00FEB0, 0x008041C3, 0x89200773, 0x42C3E987,
+    0x002400F2, 0xB9AD8220, 0x41C3A220, 0x101C0001, 0x78E07900, 0x40C3C0F1, 0x13B00001, 0x40C37840,
+    0x002400F2, 0xB98D8020, 0x7FE0C0D1, 0x0000A020, 0x70811600, 0x02A10080, 0x0837690A, 0x713400B5,
+    0x00F341C3, 0x81000C14, 0x02822150, 0x0180206C, 0x0F012085, 0x8105A100, 0x07F02084, 0x000F2085,
+    0x8200A105, 0x01C0206C, 0x7FE0B880, 0x7DE0A200, 0x00F340C3, 0x80200814, 0xB993B9D2, 0xB995B994,
+    0xA0207FE0, 0x40C3C0F1, 0x269C0000, 0x0FA67840, 0x4300FFEF, 0x7FE0C0D1, 0x78E04060, 0xC1A1C3E2,
+    0x45CBC404, 0x27500000, 0xC4407D60, 0xFFEF0F86, 0x40604300, 0x78E0C7C2, 0x42C3C0F1, 0x27B80000,
+    0x0F727A40, 0x4300FFEF, 0x7FE0C0D1, 0x78E04060, 0x43C3C0F1, 0x4F280000, 0x42C37B40, 0x0D2400F3,
+    0xB9DD8220, 0x7FE0C0D1, 0x78E0A220, 0x0872C2E4, 0x454881EF, 0x88418521, 0x8840A940, 0xA9418521,
+    0x90218541, 0xAA22793D, 0x85618824, 0x008042C3, 0x793D77FC, 0x8824AB23, 0x88058862, 0x004C2144,
+    0xB8046B32, 0x01032144, 0x204485C1, 0x23050C01, 0x78250300, 0x8240AE04, 0x2A418501, 0xA8250401,
+    0x02012A41, 0xA8268501, 0xA8478501, 0x1D00730C, 0xC6C41201, 0x0CDEC2E4, 0x4548802F, 0x85014608,
+    0xA8208E29, 0x85018E28, 0x8521A821, 0x781D9605, 0x9606A902, 0x781D8521, 0x886F0D06, 0x8521A903,
+    0x9606A904, 0x20449625, 0x69120042, 0x20448521, 0x78450100, 0x8E12A905, 0xA9068521, 0x40C38561,
+    0x78080080, 0x11C11D00, 0x8B458800, 0x79456833, 0xAB25730C, 0x78E0C6C4, 0x0FD2C2E2, 0x4508838F,
+    0x000040C3, 0x78408DB8, 0x00F340C3, 0x80200B74, 0x04012184, 0x0411090F, 0x08BA8001, 0x780F836F,
+    0xC6C2AD08, 0x43C3C2E2, 0x8EB80000, 0x45087B60, 0x00F344CB, 0x84600B50, 0x10022578, 0x2304BA18,
+    0xF8FF0F81, 0x7945FFFF, 0xC6C2A420, 0x45CBC2E4, 0x014400F4, 0x000040C3, 0x78609FEC, 0x850085C0,
+    0x781178C2, 0x00A070D3, 0x0D0C0001, 0xC6C4FFC6, 0x41C3C2E2, 0xA9680000, 0x082B7940, 0x45080131,
+    0x820F0AEE, 0x0111081F, 0x00F442C3, 0x82200144, 0x008040C3, 0x18007800, 0xA0210041, 0x0180216C,
+    0x40A1A200, 0x78E0C6C2, 0x41C3C2E2, 0xAAD40000, 0x082B7940, 0x45080171, 0x820F0AB6, 0x0111081F,
+    0x00F442C3, 0x82200144, 0x008040C3, 0x18007800, 0xA0210041, 0x0180216C, 0x40A1A200, 0x78E0C6C2,
+    0x40C3C0F1, 0xB15C0000, 0x42C37840, 0x78000080, 0xE9098220, 0x1A008221, 0x1E000001, 0x00F47040,
+    0xC0D10144, 0x78E07EE0, 0x40C3C0F1, 0xB2B00000, 0x42C37840, 0x78000080, 0xE9098220, 0x1A008221,
+    0x1E000001, 0x00F47040, 0xC0D10144, 0x78E07EE0, 0x41C3C2E2, 0xB3DC0000, 0x0A367940, 0x0827820F,
+    0x16000151, 0x00F37000, 0x45CB0D3C, 0x77FC0080, 0x0B0AB854, 0xA500802F, 0x85008030, 0xB94C790C,
+    0xC6C2A520, 0x008041C3, 0x40C37800, 0x00003930, 0x00011900, 0xA1017FE0, 0x1CFCC2E6, 0xC1A3B6C8,
+    0x085B4528, 0x716F01B4, 0x8D838D05, 0x8D648DC0, 0x8D428D21, 0x008F206D, 0xC041B8C0, 0x12002C40,
+    0x40C17B05, 0x0DBEC742, 0x1C0082AF, 0x26053081, 0xF415903E, 0x42C38D05, 0x083000F3, 0x78128220,
+    0xB9B9B818, 0x800212FC, 0x0F802004, 0x00000200, 0x0B826038, 0x4100862F, 0x4063726F, 0x1404C0A3,
+    0xC6C6341B, 0x0A76C2E6, 0x1048800F, 0x08A30080, 0x244A0071, 0x41C37200, 0x6FAA00B1, 0x00F342C3,
+    0x40C30C18, 0x6FAA004E, 0x00501A04, 0x59C343C3, 0x1A04AE57, 0x22500010, 0x1A040281, 0x820000D0,
+    0xFF7D44CB, 0x43C3D5F7, 0x7F5DFF7D, 0x0F802004, 0xFFFC07FF, 0x0F802005, 0x0001F800, 0xA180A200,
+    0x8102A161, 0x9F4643C3, 0x206C0012, 0xB8850180, 0xA261A102, 0x800012F0, 0x43C370AD, 0x18B00010,
+    0x0180206C, 0x2045BD93, 0x23400300, 0x41A1020C, 0x10CF2D41, 0x80001AF0, 0x02C020A8, 0x14C01401,
+    0x04CE1301, 0xBE087825, 0x78C561F9, 0xC6C6A206, 0x40C3C0F1, 0x1AC00001, 0x0F4E7840, 0xC0D1FFCF,
+    0x78E07EE0, 0xC1A5C3E6, 0xC00A4608, 0x4328C40C, 0xC50BC10E, 0xC040C70D, 0x9FC3248C, 0x20CA4081,
+    0xE68B0321, 0xC541C144, 0x100124CA, 0x000145CB, 0x40C11E7C, 0xC7434161, 0xC4427D60, 0xE68A4508,
+    0xFFEF0F06, 0x106125CA, 0xC7C640A1, 0x41C3C0F1, 0x60C90080, 0x1E008900, 0x00807002, 0x11FF0584,
+    0x40C38081, 0x78080080, 0x0B76A020, 0x730C84EF, 0x884F0C0A, 0x7EE0C0D1, 0x02494E49, 0x001018C0,
+    0xFFFFF8D0, 0x00800968, 0xFFFFF970, 0x008077F8, 0x00000014, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0xF7E41C09, 0x1F20201F, 0xE10F0FE1, 0xF9FFFFF9,
+};
+
+void Lr20xxDriverBase::EnablePram(void)
+{
+    WriteCommand(LR20XX_CMD_ENABLE_PRAM, 0x00);
+}
+
+void Lr20xxDriverBase::LoadPram(void)
+{
+    for (uint16_t addr = 0; addr < LR20XX_PRAM_LR2021_LEN; addr += LR20XX_PRAM_CHUNK_SIZE) {
+        uint16_t chunk_len = LR20XX_PRAM_LR2021_LEN - addr;
+        if (chunk_len > LR20XX_PRAM_CHUNK_SIZE) chunk_len = LR20XX_PRAM_CHUNK_SIZE;
+
+        WriteRegMem32(LR20XX_PRAM_ADDR + addr * 4, (uint32_t*)pram_lr2021 + addr, chunk_len);
+    }
+}
+
+// only valid if LoadPram() and EnablePram() executed
+bool Lr20xxDriverBase::CheckPram(void)
+{
+uint32_t data;
+
+    ReadRegMem32(LR20XX_PRAM_CHECK_ADDR, &data, 1);
+
+    return (data == LR20XX_PRAM_CHECK_VALUE);
+}
+
+// pram_lr2021 starts with 0x600DB002, 0x00031304, which look like the check value and type/version words
+// read back from 0x800FF8/0x800FFC. ?? does the chip republish them there, i.e. is this 0x0313 ??
+// only valid if LoadPram() and EnablePram() executed, otherwise gives random value
+// should be called only after CheckPram() returns valid
+// currently gives 0x0313
+
+// datasheet and Semtech driver provide inconsistent info
+// datasheet:
+//   to read version of PRAM: Read register value at 0x800FFC. The version is then ((returned_value >> 8) & 0xFFFF).
+// driver:
+//   reads register value at 0x800FFC into uint32_t pram_type_version_raw
+//   pram_version->pram_type    = (uint8_t)( pram_type_version_raw >> 16 );
+//   pram_version->pram_version = (uint8_t)( pram_type_version_raw >> 8 );
+
+uint16_t Lr20xxDriverBase::GetPramVersion(void)
+{
+uint32_t data;
+
+    ReadRegMem32(LR20XX_PRAM_VERSION_ADDR, &data, 1);
+
+    return (uint16_t)((data >> 8) & 0xFFFF);
+}
+
+

@@ -118,8 +118,6 @@ class Lr11xxDriverBase
 
     void GetVersion(uint8_t* HwVersion, uint8_t* UseCase, uint8_t* FwMajor, uint8_t* FwMinor);
 
-
-
   private:
     uint8_t _status1; // status is now two bytes
     uint8_t _status2;

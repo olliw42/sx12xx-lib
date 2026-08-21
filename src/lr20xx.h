@@ -66,9 +66,9 @@ public:
     void WriteRadioTxFifo(uint8_t* data, uint8_t len);
     void ReadRadioRxFifo(uint8_t* data, uint8_t len);
 
-    void WriteRegMem32(uint32_t addr, uint32_t* data, uint8_t len); // len is number of uint32_t
     void WriteRegMemMask32(uint32_t addr, uint32_t mask, uint32_t data);
-    void ReadRegMem32(uint32_t addr, uint32_t* data, uint8_t len); // len is number of uint32_t
+    void WriteRegMem32(uint32_t addr, uint32_t* data, uint8_t len); // len is number of uint32_t, must not exceed 32
+    void ReadRegMem32(uint32_t addr, uint32_t* data, uint8_t len); // len is number of uint32_t, must not exceed 32
 
     // System Configuration Commands
 
@@ -175,6 +175,13 @@ public:
 
     void EnableSx127xCompatibility(void);
 
+    // Firmware Patch RAM (PRAM) methods
+
+    void EnablePram(void);
+    void LoadPram(void);
+    bool CheckPram(void);
+    uint16_t GetPramVersion(void);
+
   private:
     uint8_t _status1; // status is two bytes
     uint8_t _status2;
@@ -223,6 +230,7 @@ typedef enum {
     LR20XX_CMD_SET_STANDBY                      = 0x0128,
     LR20XX_CMD_SET_FS                           = 0x0129,
     LR20XX_CMD_ADD_REGISTER_TO_RETENTION_MEM    = 0x012A, // nu
+    LR20XX_CMD_ENABLE_PRAM                      = 0x012D,
     LR20XX_CMD_SET_EOL_CFG                      = 0x0130, // nu
     LR20XX_CMD_CONFIGURE_XOSC                   = 0x0131, // nu
     LR20XX_CMD_SET_TEMP_COMP_CFG                = 0x0132, // nu
@@ -516,7 +524,10 @@ typedef enum {
 typedef enum {
     LR20XX_POWER_LF_m9_DBM                  = -18, // 0.12 mW
     LR20XX_POWER_LF_0_DBM                   = 0,   // 1 mW
+    LR20XX_POWER_LF_3_DBM                   = 6,   // 1.995 mW
+    LR20XX_POWER_LF_6_DBM                   = 12,  // 3.981 mW
     LR20XX_POWER_LF_10_DBM                  = 20, // 10 mW
+    LR20XX_POWER_LF_14_DBM                  = 28, // 25 mW
     LR20XX_POWER_LF_17_DBM                  = 34, // 50 mW
     LR20XX_POWER_LF_20_DBM                  = 40, // 100 mW
     LR20XX_POWER_LF_22_DBM                  = 44, // 158 mW
