@@ -437,6 +437,40 @@ typedef enum {
 } LR11XX_PA_HP_SEL_ENUM;
 
 // cmd 0x0211 void SetTxParams(uint8_t Power, uint8_t RampTime)
+// -17dBm (0xEF) to +14dBm (0x0E) by steps of 1dB if the low power PA is selected
+typedef enum {
+    LR11XX_POWER_LF_LP_m17_DBM            = -17, // table 9-6, page 103
+    LR11XX_POWER_LF_LP_m9_DBM             = -9, // 0.12 mW
+    LR11XX_POWER_LF_LP_0_DBM              = 0, // 1 mW
+    LR11XX_POWER_LF_LP_10_DBM             = 10, // 10 mW
+    LR11XX_POWER_LF_LP_14_DBM             = 14,
+    LR11XX_POWER_LF_LP_MIN                = LR11XX_POWER_LF_LP_m17_DBM,
+    LR11XX_POWER_LF_LP_MAX                = LR11XX_POWER_LF_LP_14_DBM,
+} LR11XX_POWER_LF_LP_ENUM;
+
+// - 9dBm (0xF7) to +22dBm (0x16) by steps of 1dB if the high power PA is selected
+typedef enum {
+    LR11XX_POWER_LF_HP_m9_DBM             = -9, // 0.12 mW  // table 9-6, page 103
+    LR11XX_POWER_LF_HP_0_DBM              = 0, // 1 mW
+    LR11XX_POWER_LF_HP_10_DBM             = 10, // 10 mW
+    LR11XX_POWER_LF_HP_17_DBM             = 17, // 50 mW
+    LR11XX_POWER_LF_HP_20_DBM             = 20, // 100 mW
+    LR11XX_POWER_LF_HP_22_DBM             = 22, // 158 mW
+    LR11XX_POWER_LF_HP_MIN                = LR11XX_POWER_LF_HP_m9_DBM,
+    LR11XX_POWER_LF_HP_MAX                = LR11XX_POWER_LF_HP_22_DBM,
+} LR11XX_POWER_LF_HP_ENUM;
+
+// -18dBm (0xEE) to +13dBm (0x0F) by steps of 1dB if the high frequency PA is selected
+typedef enum {
+    LR11XX_POWER_HF_m18_DBM               = -18, // table 9-6, page 103
+    LR11XX_POWER_HF_m9_DBM                = -9, // 0.12 mW
+    LR11XX_POWER_HF_0_DBM                 = 0, // 1 mW
+    LR11XX_POWER_HF_10_DBM                = 10, // 10 mW
+    LR11XX_POWER_HF_13_DBM                = 13,
+    LR11XX_POWER_HF_MIN                   = LR11XX_POWER_HF_m18_DBM,
+    LR11XX_POWER_HF_MAX                   = LR11XX_POWER_HF_13_DBM,
+} LR11XX_POWER_HF_ENUM;
+
 typedef enum {
     LR11XX_RAMPTIME_16_US                 = 0x00, // table 9-7, page 103
     LR11XX_RAMPTIME_32_US                 = 0x01,
@@ -455,19 +489,6 @@ typedef enum {
     LR11XX_RAMPTIME_272_US                = 0x0E,
     LR11XX_RAMPTIME_304_US                = 0x0F,
 } LR11XX_RAMPTIME_ENUM;
-
-// added for convenience
-// -9 (0xF7) to +22 (0x16) dBm by step of 1 dB if high power PA is selected
-typedef enum {
-    LR11XX_POWER_m9_DBM                   = -9, // 0.12 mW
-    LR11XX_POWER_0_DBM                    = 0, // 1 mW
-    LR11XX_POWER_10_DBM                   = 10, // 10 mW
-    LR11XX_POWER_17_DBM                   = 17, // 50 mW
-    LR11XX_POWER_20_DBM                   = 20, // 100 mW
-    LR11XX_POWER_22_DBM                   = 22, // 158 mW
-    LR11XX_POWER_MIN                      = LR11XX_POWER_m9_DBM,
-    LR11XX_POWER_MAX                      = LR11XX_POWER_22_DBM,
-} LR11XX_POWER_ENUM;
 
 
 //-------------------------------------------------------
