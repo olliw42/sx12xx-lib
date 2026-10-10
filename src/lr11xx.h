@@ -118,6 +118,14 @@ class Lr11xxDriverBase
 
     void GetVersion(uint8_t* HwVersion, uint8_t* UseCase, uint8_t* FwMajor, uint8_t* FwMinor);
 
+    // Firmware update methods, bootloader commands
+
+    void Reboot(uint8_t StayInBootloader);
+    void BlEraseFlash(void);
+    void BlWriteFlashEncrypted(uint32_t Offset, const uint32_t* data, uint8_t len); // len in uint32_t, max 64
+    void BlReboot(uint8_t StayInBootloader);
+    bool UpdateFirmware(const uint32_t* image, uint32_t len); // len in uint32_t
+
   private:
     uint8_t _status1; // status is now two bytes
     uint8_t _status2;
@@ -197,6 +205,12 @@ typedef enum {
     LR11XX_CMD_LR_FHSS_BUILD_FRAME            = 0x022C,
     LR11XX_CMD_LR_FHSS_SET_SYNC_WORD          = 0x022D,
     LR11XX_CMD_GET_LORA_RX_HEADER_INFOS       = 0x0230,
+    LR11XX_CMD_BL_ERASE_FLASH                 = 0x8000, // bootloader commands, only valid in bootloader mode
+    LR11XX_CMD_BL_WRITE_FLASH_ENCRYPTED       = 0x8003,
+    LR11XX_CMD_BL_REBOOT                      = 0x8005,
+    LR11XX_CMD_BL_GET_PIN                     = 0x800B,
+    LR11XX_CMD_BL_READ_CHIP_EUI               = 0x800C,
+    LR11XX_CMD_BL_READ_JOIN_EUI               = 0x800D,
 } LR11XX_CMD_ENUM;
 
 
@@ -236,6 +250,21 @@ typedef enum {
     LR11XX_STATUS_BOOTLOADER_BOOTLOADER       = 0x00, // table 3-3, page 29
     LR11XX_STATUS_BOOTLOADER_FLASH            = 0x01,
 } LR11XX_STATUS_BOOTLOADER_ENUM;
+
+// cmd 0x0118 void Reboot(uint8_t StayInBootloader), cmd 0x8005 void BlReboot(uint8_t StayInBootloader)
+typedef enum {
+    LR11XX_REBOOT_EXIT_BOOTLOADER             = 0x00,
+    LR11XX_REBOOT_STAY_IN_BOOTLOADER          = 0x03,
+} LR11XX_REBOOT_ENUM;
+
+// cmd 0x0101 void GetVersion(), UseCase
+typedef enum {
+    LR11XX_USE_CASE_LR1110                    = 0x01,
+    LR11XX_USE_CASE_LR1120                    = 0x02,
+    LR11XX_USE_CASE_LR1121                    = 0x03,
+    LR11XX_USE_CASE_BOOTLOADER                = 0xDF,
+    LR11XX_USE_CASE_LR1121_DRONE              = 0xF3, // transceiver_drone image
+} LR11XX_USE_CASE_ENUM;
 
 
 //-------------------------------------------------------

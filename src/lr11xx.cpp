@@ -489,3 +489,74 @@ uint8_t version[5];
     *FwMajor = version[3];
     *FwMinor = version[4];
 }
+
+
+// Firmware update methods, bootloader commands
+
+// The firmware is stored in the chip's flash, so update only if GetVersion() reports a different version.
+// WaitOnBusy() must wait out the flash erase (takes seconds) and the reboots (few 100 ms).
+
+// Images are in https://github.com/Lora-net/radio_firmware_images, as lr11xx_firmware_image[] in the .h files.
+// They are encrypted and chip specific, and not included here because of their size (ca 66 kB for LR1121).
+
+#define LR11XX_BL_FLASH_CHUNK_SIZE        64 // maximal number of uint32_t written per BlWriteFlashEncrypted() call
+
+void Lr11xxDriverBase::Reboot(uint8_t StayInBootloader)
+{
+    WriteCommand(LR11XX_CMD_REBOOT, StayInBootloader);
+}
+
+void Lr11xxDriverBase::BlEraseFlash(void)
+{
+    WriteCommand(LR11XX_CMD_BL_ERASE_FLASH);
+}
+
+// Offset is in bytes, data words are sent MSB first
+void Lr11xxDriverBase::BlWriteFlashEncrypted(uint32_t Offset, const uint32_t* data, uint8_t len)
+{
+    WaitOnBusy();
+    SpiSelect();
+    SpiTransfer((uint8_t)((LR11XX_CMD_BL_WRITE_FLASH_ENCRYPTED & 0xFF00) >> 8), &_status1);
+    SpiTransfer((uint8_t)(LR11XX_CMD_BL_WRITE_FLASH_ENCRYPTED & 0x00FF), &_status2);
+    SpiWrite((uint8_t)(Offset >> 24));
+    SpiWrite((uint8_t)(Offset >> 16));
+    SpiWrite((uint8_t)(Offset >> 8));
+    SpiWrite((uint8_t)(Offset));
+    for (uint8_t i = 0; i < len; i++) {
+        SpiWrite((uint8_t)(data[i] >> 24));
+        SpiWrite((uint8_t)(data[i] >> 16));
+        SpiWrite((uint8_t)(data[i] >> 8));
+        SpiWrite((uint8_t)(data[i]));
+    }
+    SpiDeselect();
+}
+
+void Lr11xxDriverBase::BlReboot(uint8_t StayInBootloader)
+{
+    WriteCommand(LR11XX_CMD_BL_REBOOT, StayInBootloader);
+}
+
+// returns false if the bootloader could not be entered or left, the caller should then check GetVersion()
+bool Lr11xxDriverBase::UpdateFirmware(const uint32_t* image, uint32_t len)
+{
+uint8_t HwVersion, UseCase, FwMajor, FwMinor;
+
+    Reboot(LR11XX_REBOOT_STAY_IN_BOOTLOADER);
+
+    GetVersion(&HwVersion, &UseCase, &FwMajor, &FwMinor);
+    if (UseCase != LR11XX_USE_CASE_BOOTLOADER) return false;
+
+    BlEraseFlash();
+
+    for (uint32_t pos = 0; pos < len; pos += LR11XX_BL_FLASH_CHUNK_SIZE) {
+        uint32_t chunk_len = len - pos;
+        if (chunk_len > LR11XX_BL_FLASH_CHUNK_SIZE) chunk_len = LR11XX_BL_FLASH_CHUNK_SIZE;
+
+        BlWriteFlashEncrypted(pos * 4, image + pos, chunk_len);
+    }
+
+    BlReboot(LR11XX_REBOOT_EXIT_BOOTLOADER);
+
+    GetVersion(&HwVersion, &UseCase, &FwMajor, &FwMinor);
+    return (UseCase != LR11XX_USE_CASE_BOOTLOADER);
+}
