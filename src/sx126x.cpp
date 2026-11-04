@@ -578,6 +578,21 @@ void Sx126xDriverBase::CalibrateImage_mhz(uint16_t Freq1_mhz, uint16_t Freq2_mhz
 
 // GFSK methods
 
+// thanks to https://github.com/Lora-net/sx126x_driver
+// PLL steps = freq_hz * 2^25 / XTAL, in fixed point with 2^14 scaling, rounded
+#define SX126X_PLL_STEP_SHIFT_AMOUNT      14
+#define SX126X_PLL_STEP_SCALED            (SX126X_FREQ_XTAL_HZ >> (25 - SX126X_PLL_STEP_SHIFT_AMOUNT))
+
+static uint32_t FreqHzToPllStep(uint32_t freq_hz)
+{
+    uint32_t steps_int = freq_hz / SX126X_PLL_STEP_SCALED;
+    uint32_t steps_frac = freq_hz - (steps_int * SX126X_PLL_STEP_SCALED);
+
+    return (steps_int << SX126X_PLL_STEP_SHIFT_AMOUNT) +
+           (((steps_frac << SX126X_PLL_STEP_SHIFT_AMOUNT) + (SX126X_PLL_STEP_SCALED >> 1)) / SX126X_PLL_STEP_SCALED);
+}
+
+
 void Sx126xDriverBase::SetModulationParamsGFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t Bandwidth, uint32_t Fdev_hz)
 {
 uint8_t buf[8];
@@ -591,8 +606,7 @@ uint8_t buf[8];
     buf[3] = PulseShape;
     buf[4] = Bandwidth;
 
-    double freqStep = (double)SX126X_FREQ_XTAL_HZ / (double)(1 << 25);
-    uint32_t Fdev = (uint32_t)((double)Fdev_hz / freqStep);
+    uint32_t Fdev = FreqHzToPllStep(Fdev_hz);
 
     buf[5] = (uint8_t)((Fdev >> 16) & 0xFF);
     buf[6] = (uint8_t)((Fdev >> 8) & 0xFF);
