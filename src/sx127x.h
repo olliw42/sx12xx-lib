@@ -109,6 +109,22 @@ class Sx127xDriverBase
     void AfcSetRfFrequency(uint32_t RfFrequency);
     void AfcDo(void);
 
+    // FSK methods
+    // registers 0x0D - 0x3F have different meaning in FSK and LoRa mode, so don't mix
+
+    void SetModulationParamsFSK(uint32_t br_bps, uint8_t PulseShape, uint8_t RxBw, uint32_t Fdev_hz);
+    void SetAfcParamsFSK(uint8_t AfcBw);
+    void SetPacketParamsFSK(uint16_t PreambleLength, uint8_t PreambleDetectorLength, uint8_t SyncWordLength, uint8_t PacketType, uint8_t PayloadLength, uint8_t Crc, uint8_t Whitening);
+    void SetSyncWordFSK(uint16_t SyncWord);
+    void SetRxConfigFSK(uint8_t RxConfig, uint8_t RssiSmoothing);
+    void SetFifoThresholdFSK(uint8_t FifoThreshold);
+    void SetDioMappingFSK(uint8_t Dio0Mask, uint8_t Dio1Mask);
+    uint8_t GetIrqStatusFSK(void); // returns RegIrqFlags2
+    void ClearFifoFSK(void);
+    void WriteFifoFSK(uint8_t* data, uint8_t len);
+    void ReadFifoFSK(uint8_t* data, uint8_t len);
+    void GetRssiFSK(int16_t* Rssi);
+
   private:
     int32_t _rf_freq_reg_correction;
     uint32_t _rf_freq_reg; // 0 indicates not initialized
@@ -612,6 +628,131 @@ typedef enum {
     SX1276_PLL_BW_225_KHZ             = (2 << 6), // 10 : 225 kHz
     SX1276_PLL_BW_300_KHZ             = (3 << 6), // 11 : 300 kHz
 } SX1276_PLL_BW_ENUM;
+
+
+//-------------------------------------------------------
+// Enum Definitions FSK Page Registers
+//-------------------------------------------------------
+// only the registers and settings needed for FSK packet mode, see DS Table 42 p.93-105
+
+typedef enum {
+    SX1276_FSK_REG_BitrateMsb         = 0x02, // 7-0 BitRate(15:8)
+    SX1276_FSK_REG_BitrateLsb         = 0x03, // 7-0 BitRate(7:0)
+    SX1276_FSK_REG_FdevMsb            = 0x04, // 5-0 Fdev(13:8)
+    SX1276_FSK_REG_FdevLsb            = 0x05, // 7-0 Fdev(7:0)
+    SX1276_FSK_REG_PaRamp             = 0x0A, // 6-5 ModulationShaping, 3-0 PaRamp
+    SX1276_FSK_REG_RxConfig           = 0x0D, // 7 RestartRxOnCollision, 6 RestartRxWithoutPllLock, 5 RestartRxWithPllLock, 4 AfcAutoOn, 3 AgcAutoOn, 2-0 RxTrigger
+    SX1276_FSK_REG_RssiConfig         = 0x0E, // 7-3 RssiOffset, 2-0 RssiSmoothing
+    SX1276_FSK_REG_RssiValue          = 0x11, // 7-0 RssiValue, RSSI = -RssiValue/2 dBm
+    SX1276_FSK_REG_RxBw               = 0x12, // 7 unused, 6-5 reserved, 4-3 RxBwMant, 2-0 RxBwExp
+    SX1276_FSK_REG_AfcBw              = 0x13, // 7-5 reserved, 4-3 RxBwMantAfc, 2-0 RxBwExpAfc
+    SX1276_FSK_REG_AfcFei             = 0x1A, // 4 AgcStart, 1 AfcClear, 0 AfcAutoClearOn
+    SX1276_FSK_REG_PreambleDetect     = 0x1F, // 7 PreambleDetectorOn, 6-5 PreambleDetectorSize, 4-0 PreambleDetectorTol
+    SX1276_FSK_REG_PreambleMsb        = 0x25, // 7-0 PreambleSize(15:8)
+    SX1276_FSK_REG_PreambleLsb        = 0x26, // 7-0 PreambleSize(7:0)
+    SX1276_FSK_REG_SyncConfig         = 0x27, // 7-6 AutoRestartRxMode, 5 PreamblePolarity, 4 SyncOn, 3 reserved, 2-0 SyncSize
+    SX1276_FSK_REG_SyncValue1         = 0x28, // 7-0 SyncValue(63:56), 0x28 - 0x2F
+    SX1276_FSK_REG_PacketConfig1      = 0x30, // 7 PacketFormat, 6-5 DcFree, 4 CrcOn, 3 CrcAutoClearOff, 2-1 AddressFiltering, 0 CrcWhiteningType
+    SX1276_FSK_REG_PacketConfig2      = 0x31, // 6 DataMode, 5 IoHomeOn, 4 IoHomePowerFrame, 3 BeaconOn, 2-0 PayloadLength(10:8)
+    SX1276_FSK_REG_PayloadLength      = 0x32, // 7-0 PayloadLength(7:0)
+    SX1276_FSK_REG_FifoThresh         = 0x35, // 7 TxStartCondition, 5-0 FifoThreshold
+    SX1276_FSK_REG_IrqFlags1          = 0x3E, // 7 ModeReady, 6 RxReady, 5 TxReady, 4 PllLock, 3 Rssi, 2 Timeout, 1 PreambleDetect, 0 SyncAddressMatch
+    SX1276_FSK_REG_IrqFlags2          = 0x3F, // 7 FifoFull, 6 FifoEmpty, 5 FifoLevel, 4 FifoOverrun, 3 PacketSent, 2 PayloadReady, 1 CrcOk, 0 LowBat
+    SX1276_FSK_REG_BitRateFrac        = 0x5D, // 3-0 BitRateFrac
+} SX1276_FSK_REG_ENUM;
+
+
+// SX1276_FSK_REG_PaRamp = 0x0A
+// 6-5 ModulationShaping
+typedef enum {
+    SX1276_FSK_PULSESHAPE_OFF         = 0x00,
+    SX1276_FSK_PULSESHAPE_BT_1        = (1 << 5), // Gaussian filter BT = 1.0
+    SX1276_FSK_PULSESHAPE_BT_0p5      = (2 << 5), // Gaussian filter BT = 0.5
+    SX1276_FSK_PULSESHAPE_BT_0p3      = (3 << 5), // Gaussian filter BT = 0.3
+} SX1276_FSK_PULSESHAPE_ENUM;
+
+
+// SX1276_FSK_REG_RxConfig = 0x0D, DS Table 24 p.60
+typedef enum {
+    SX1276_FSK_RX_CONFIG_AFC_AUTO_ON              = (1 << 4),
+    SX1276_FSK_RX_CONFIG_AGC_AUTO_ON              = (1 << 3),
+    SX1276_FSK_RX_CONFIG_TRIGGER_PREAMBLE_DETECT  = 0x06,
+} SX1276_FSK_RX_CONFIG_ENUM;
+
+
+// SX1276_FSK_REG_RssiConfig = 0x0E
+// 2-0 RssiSmoothing, number of samples taken to average the RSSI result
+typedef enum {
+    SX1276_FSK_RSSI_SMOOTHING_2       = 0x00,
+    SX1276_FSK_RSSI_SMOOTHING_8       = 0x02,
+    SX1276_FSK_RSSI_SMOOTHING_32      = 0x04,
+    SX1276_FSK_RSSI_SMOOTHING_128     = 0x06,
+    SX1276_FSK_RSSI_SMOOTHING_256     = 0x07,
+} SX1276_FSK_RSSI_SMOOTHING_ENUM;
+
+
+// SX1276_FSK_REG_RxBw = 0x12, SX1276_FSK_REG_AfcBw = 0x13
+// RxBw = FXOSC / (RxBwMant * 2^(RxBwExp + 2)), RxBwMant = 16, 20, 24, DS Table 40 p.88
+// ATTENTION: these are single side bandwidths, SX126x/LR11xx use double side, BitRate < 2 x RxBw
+typedef enum {
+    SX1276_FSK_BW_62500               = (0 << 3) | 3,
+    SX1276_FSK_BW_83300               = (2 << 3) | 2,
+    SX1276_FSK_BW_100000              = (1 << 3) | 2,
+    SX1276_FSK_BW_125000              = (0 << 3) | 2,
+    SX1276_FSK_BW_166700              = (2 << 3) | 1,
+    SX1276_FSK_BW_200000              = (1 << 3) | 1,
+    SX1276_FSK_BW_250000              = (0 << 3) | 1,
+} SX1276_FSK_BW_ENUM;
+
+
+// SX1276_FSK_REG_PreambleDetect = 0x1F
+// 7 PreambleDetectorOn, 6-5 PreambleDetectorSize, DS Table 20 p.53
+typedef enum {
+    SX1276_FSK_PREAMBLE_DETECTOR_OFF            = 0x00,
+    SX1276_FSK_PREAMBLE_DETECTOR_LENGTH_8BITS   = 0x80 | (0 << 5),
+    SX1276_FSK_PREAMBLE_DETECTOR_LENGTH_16BITS  = 0x80 | (1 << 5),
+    SX1276_FSK_PREAMBLE_DETECTOR_LENGTH_24BITS  = 0x80 | (2 << 5),
+} SX1276_FSK_PREAMBLE_DETECTOR_LENGTH_ENUM;
+
+
+// SX1276_FSK_REG_PacketConfig1 = 0x30
+typedef enum {
+    SX1276_FSK_PKT_FIX_LEN            = 0x00, // 7 PacketFormat
+    SX1276_FSK_PKT_VAR_LEN            = (1 << 7),
+} SX1276_FSK_PKT_ENUM;
+
+typedef enum {
+    SX1276_FSK_WHITENING_OFF          = 0x00, // 6-5 DcFree
+    SX1276_FSK_WHITENING_ENABLE       = (2 << 5), // CCITT only, IBM whitening is broken, errata 3.2
+} SX1276_FSK_WHITENING_ENUM;
+
+typedef enum {
+    SX1276_FSK_CRC_OFF                = 0x00, // 4 CrcOn
+    SX1276_FSK_CRC_ON                 = (1 << 4),
+} SX1276_FSK_CRC_ENUM;
+
+
+// SX1276_FSK_REG_IrqFlags2 = 0x3F
+typedef enum {
+    SX1276_FSK_IRQ2_LOW_BAT           = 0x01,
+    SX1276_FSK_IRQ2_CRC_OK            = 0x02,
+    SX1276_FSK_IRQ2_PAYLOAD_READY     = 0x04,
+    SX1276_FSK_IRQ2_PACKET_SENT       = 0x08,
+    SX1276_FSK_IRQ2_FIFO_OVERRUN      = 0x10, // write 1 to clear, this also clears the FIFO
+    SX1276_FSK_IRQ2_FIFO_LEVEL        = 0x20,
+    SX1276_FSK_IRQ2_FIFO_EMPTY        = 0x40,
+    SX1276_FSK_IRQ2_FIFO_FULL         = 0x80,
+} SX1276_FSK_IRQ2_ENUM;
+
+
+// SX1276_REG_DioMapping1 = 0x40, in FSK packet mode, DS Table 30 p.69
+typedef enum {
+    SX1276_FSK_DIO0_MAPPING_PAYLOAD_READY_PACKET_SENT = 0x00, // Rx: PayloadReady, Tx: PacketSent
+} SX1276_FSK_DIO0_MAPPING_ENUM;
+
+typedef enum {
+    SX1276_FSK_DIO1_MAPPING_FIFO_LEVEL                = 0x00, // high when FIFO has more than FifoThreshold bytes
+} SX1276_FSK_DIO1_MAPPING_ENUM;
 
 
 #endif // SX127X_LIB_H
